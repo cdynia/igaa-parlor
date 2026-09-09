@@ -324,11 +324,6 @@ button{font-family:inherit}
     <div class="hand" id="hand"></div>
     <div class="controls" id="controls"></div>
   </div>
-
-  <div class="log">
-    <h3>Table log</h3>
-    <ul id="logList"></ul>
-  </div>
 </div>
 
 <!-- START -->
@@ -626,7 +621,7 @@ function cardBackHTML(){
 function miniBackStyle(){return "background:linear-gradient(155deg,#1d2c3c,#101a24)";}
 
 function renderAll(){
-  renderOpponents(); renderPiles(); renderHand(); renderBanner(); renderControls(); renderLog();
+  renderOpponents(); renderPiles(); renderHand(); renderBanner(); renderControls();
 }
 function renderOpponents(){
   const el=document.getElementById("opponents"); el.innerHTML="";
