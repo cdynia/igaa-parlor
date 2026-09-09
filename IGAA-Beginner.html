@@ -27,6 +27,8 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%}
+html{-webkit-text-size-adjust:100%}
+body{overflow-x:hidden}
 body{
   margin:0; color:var(--muted-2);
   font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -58,7 +60,7 @@ button{font-family:inherit}
 
 /* ---------- layout ---------- */
 #app{max-width:1180px; margin:0 auto; padding:18px clamp(12px,3vw,28px) 24px; min-height:100vh; display:flex; flex-direction:column; gap:14px}
-.topbar{display:flex; align-items:center; justify-content:space-between; gap:12px}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
 .brandmark{display:flex; align-items:center; gap:12px}
 .brandmark .tabs{display:flex; gap:3px}
 .brandmark .tabs i{width:9px; height:22px; border-radius:2px; display:block}
@@ -260,6 +262,7 @@ button{font-family:inherit}
   .card .clock{--r:30px}
   .card .art span{font-size:.62rem}
 }
+@media (max-width:420px){ :root{--card-w:70px; --card-h:102px} .felt{padding:16px 8px} .card .clock{--r:24px} }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001ms!important; transition-duration:.001ms!important}
 }

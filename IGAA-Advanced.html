@@ -21,6 +21,8 @@
 }
 *{box-sizing:border-box}
 html,body{height:100%}
+html{-webkit-text-size-adjust:100%}
+body{overflow-x:hidden}
 body{margin:0; color:var(--muted-2); font-family:"Archivo",system-ui,"Segoe UI",sans-serif;
   background:radial-gradient(120% 90% at 50% 6%, #223141 0%, var(--table-1) 42%, var(--table-2) 100%);
   min-height:100%; -webkit-font-smoothing:antialiased}
@@ -159,6 +161,8 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 .event .cardline{display:flex; gap:8px; justify-content:center; margin:14px 0; flex-wrap:wrap}
 .event .mini2{width:56px; height:80px}
 .event .mini2 .card{--card-w:56px; --card-h:80px}
+.event .mini2 .card .clock{--r:22px}
+.event .cardline{max-width:100%}
 .event button{margin-top:12px}
 
 .standings{list-style:none; padding:0; margin:14px 0}
@@ -167,6 +171,7 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 .standings li .p{font-family:"Fraunces",serif}
 
 @media (max-width:660px){ :root{--card-w:78px; --card-h:114px} .piles{gap:20px} .opp{min-width:0; flex:1 1 46%} .modes{grid-template-columns:1fr} }
+@media (max-width:420px){ :root{--card-w:66px; --card-h:96px} .piles{gap:14px} .felt{padding:16px 8px} .card[data-cat=time] .clock{--r:24px} }
 @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} }
 </style>
 </head>
@@ -409,48 +414,31 @@ function reshuffleMain(){ if(G.discard.length<=1) return; const top=G.discard.po
 function drawGNBN(){ if(G.gnbnDeck.length===0){ G.gnbnDeck=shuffle(G.gnbnDiscard); G.gnbnDiscard=[]; } return G.gnbnDeck.pop(); }
 
 /* ===================== TURN FLOW ===================== */
+function hasMail(hand){ return hand.some(c=>c.cat==="mail"); }
+function declarable(appt){ return appt && (G.mode!=="deluxe" || matchingApptCards(appt).length>0); }
+
 function startTurn(){
   if(G.winner!==null) return;
+  G.pendingDeclare=null; G.busy=false;
   const p=G.players[G.current];
-  // already holding an appointment from before? (dealt or leftover) allow declare
-  const appt=findAppointment(p.hand);
-  if(hasMail(p.hand)){
-    // must resolve mail first
+  if(hasMail(p.hand)){                                  // MAIL must be played first
     if(p.human){ G.phase="mail"; renderAll(); }
-    else { G.busy=true; setTimeout(()=>resolveMailSequence(p,()=>{ afterAction(p); }), 650); }
+    else { G.busy=true; G.phase="ai"; renderAll(); setTimeout(()=>resolveMail(p,afterMail),700); }
     return;
   }
-  if(appt && (G.mode!=="deluxe" || matchingApptCards(appt).length)){
+  const appt=findAppointment(p.hand);
+  if(declarable(appt)){
     if(p.human){ G.phase="declare-only"; renderAll(); }
-    else { setTimeout(()=>doDeclare(G.current,appt),700); }
+    else { G.phase="ai"; renderAll(); setTimeout(()=>doDeclare(G.current,appt),700); }
     return;
   }
   if(p.human){ G.phase="draw"; renderAll(); }
   else { G.phase="ai"; renderAll(); setTimeout(runAI,700); }
 }
-function hasMail(hand){ return hand.some(c=>c.cat==="mail"); }
-
-function humanDraw(source){
-  if(G.phase!=="draw"||G.busy) return;
-  const p=G.players[0];
-  let card;
-  if(source==="discard"){ card=G.discard.pop(); } else { card=drawMain(); }
-  p.hand.push(card); G.freshId=card.id;
-  logMsg(`<b>You</b> drew from the ${source==="discard"?"discard":"main deck"}.`);
-  if(card.cat==="mail"){ G.busy=true; renderAll(); resolveMailSequence(p,()=>afterAction(p)); return; }
-  G.phase="discard"; renderAll();
-}
-function humanDiscard(id){
-  if(G.phase!=="discard"||G.busy) return;
-  const p=G.players[0]; const i=p.hand.findIndex(c=>c.id===id); if(i<0)return;
-  const [c]=p.hand.splice(i,1); G.discard.push(c); G.freshId=null;
-  logMsg(`<b>You</b> discarded ${describe(c)}.`);
-  endTurn();
-}
-function afterAction(p){
-  // called after mail resolution; may allow declare if ASK completed an appointment
+function afterMail(){
   G.busy=false;
   if(G.winner!==null) return;
+  const p=G.players[G.current];
   if(G.pendingDeclare && G.pendingDeclare.player===G.current){
     const appt=G.pendingDeclare.appt; G.pendingDeclare=null;
     if(p.human){ G.phase="declare-only"; renderAll(); }
@@ -466,59 +454,66 @@ function endTurn(){
   startTurn();
 }
 
-/* ---- MAIL resolution (auto, narrated) ---- */
-function resolveMailSequence(p,done){
-  // resolve every mail currently in hand (chaining), then done()
-  const step=()=>{
-    const mailIdx=p.hand.findIndex(c=>c.cat==="mail");
-    if(mailIdx<0){ done(); return; }
-    // MAIL CALL: remove one mail (out of play), replenish to 5, draw GN/BN, apply
-    p.hand.splice(mailIdx,1);
-    while(p.hand.length<5){ const c=drawMain(); if(!c)break; p.hand.push(c); if(c.id) G.freshId=c.id; }
-    const gn=drawGNBN();
-    logMsg(`<span class="mailtag">MAIL CALL</span> — <b>${p.name}</b> flips Good News / Bad News.`);
-    applyGNBN(p,gn,()=>{ G.gnbnDiscard.push(gn); step(); }); // loop for chained mail
-  };
-  step();
+function humanDraw(source){
+  if(G.phase!=="draw"||G.busy) return;
+  const p=G.players[0];
+  const card = source==="discard" ? G.discard.pop() : drawMain();
+  if(!card) return;
+  p.hand.push(card); G.freshId=card.id;
+  logMsg(`<b>You</b> drew from the ${source==="discard"?"discard":"main deck"}.`);
+  if(card.cat==="mail"){ G.busy=true; G.phase="idle"; renderAll(); resolveMail(p,afterMail); return; }
+  G.phase="discard"; renderAll();
+}
+function humanDiscard(id){
+  if(G.phase!=="discard"||G.busy) return;
+  const p=G.players[0]; const i=p.hand.findIndex(c=>c.id===id); if(i<0)return;
+  const [c]=p.hand.splice(i,1); G.discard.push(c); G.freshId=null;
+  logMsg(`<b>You</b> discarded ${describe(c)}.`);
+  endTurn();
+}
+function playMailHuman(){
+  if(G.phase!=="mail"||G.busy) return;
+  G.busy=true; G.phase="idle"; renderAll(); resolveMail(G.players[0],afterMail);
 }
 
-function applyGNBN(p,gn,cont){
+/* ---- Resolve ONE mail: MAIL CALL, replenish, one Good/Bad News, single overlay.
+       (Any extra mail drawn while replenishing simply waits for the next turn.) ---- */
+function resolveMail(p, done){
+  const mi=p.hand.findIndex(c=>c.cat==="mail");
+  if(mi>=0) p.hand.splice(mi,1);
+  while(p.hand.length<5){ const c=drawMain(); if(!c)break; p.hand.push(c); }
+  const gn=drawGNBN(); G.gnbnDiscard.push(gn);
   const hadAppt=!!findAppointment(p.hand);
   let result;
   if(gn.kind==="lose"){
     const matches=loseMatches(p.hand,gn.target);
     if(matches.length){
-      const lost = p.human ? matches[0] : aiLeastUseful(p.hand,matches);
+      const lost=aiLeastUseful(p.hand,matches);
       p.hand=p.hand.filter(c=>c.id!==lost.id); G.discard.push(lost);
       while(p.hand.length<5){ const c=drawMain(); if(!c)break; p.hand.push(c); }
-      logMsg(`<span class="newstag">Bad News</span> — <b>${p.name}</b> loses ${describe(lost)}.`);
-      result={badge:"bad",title:gn.flavor,line:`Lose ${gn.target.label}.`,detail:`${p.human?"You lose":p.name+" loses"} ${describe(lost)}.`,cards:[lost]};
+      result={badge:"bad",flavor:gn.flavor,line:`Lose ${gn.target.label}.`,detail:`${p.human?"You lose":p.name+" loses"} ${describe(lost)}.`,cards:[lost]};
     } else {
-      logMsg(`<span class="newstag">Good News</span> — <b>${p.name}</b> holds no ${gn.target.label}. Safe.`);
-      result={badge:"good",title:gn.flavor,line:`Lose ${gn.target.label}.`,detail:`${p.human?"You have":p.name+" has"} none — nothing lost.`,cards:[]};
+      result={badge:"good",flavor:gn.flavor,line:`Lose ${gn.target.label}.`,detail:`${p.human?"You hold":p.name+" holds"} none — nothing lost.`,cards:[]};
     }
   } else { // ask
-    const oppIdx=chooseAskTarget(p,gn.target);
-    if(oppIdx<0){
-      logMsg(`<span class="newstag">No luck</span> — nobody has ${gn.target.label} for <b>${p.name}</b>.`);
-      result={badge:"bad",title:gn.flavor,line:`Ask for ${gn.target.label}.`,detail:`No opponent had it.`,cards:[]};
+    const oi=chooseAskTarget(p,gn.target);
+    if(oi<0){
+      result={badge:"bad",flavor:gn.flavor,line:`Ask for ${gn.target.label}.`,detail:`No opponent had it — nothing gained.`,cards:[]};
     } else {
-      const opp=G.players[oppIdx];
-      const oppMatches=askMatches(opp.hand,gn.target);
-      const got = opp.human ? oppMatches[0] : aiLeastUseful(opp.hand,oppMatches); // opponent gives one
+      const opp=G.players[oi];
+      const got=aiLeastUseful(opp.hand, askMatches(opp.hand,gn.target));
       opp.hand=opp.hand.filter(c=>c.id!==got.id); p.hand.push(got);
-      // giver: p gives back a card of choice (least useful that isn't the one just gained / not part of appt)
-      const giveBack = p.human ? aiLeastUseful(p.hand,p.hand.filter(c=>c.id!==got.id)) : aiLeastUseful(p.hand,p.hand.filter(c=>c.id!==got.id));
+      const backPool=p.hand.filter(c=>c.id!==got.id && c.cat!=="mail");
+      const giveBack=aiLeastUseful(p.hand, backPool.length?backPool:p.hand.filter(c=>c.id!==got.id));
       p.hand=p.hand.filter(c=>c.id!==giveBack.id); opp.hand.push(giveBack);
       G.freshId=got.id;
-      logMsg(`<span class="newstag">Good News</span> — <b>${p.name}</b> asks <b>${opp.name}</b> for ${gn.target.label}, gets ${describe(got)} (gives back ${describe(giveBack)}).`);
-      result={badge:"good",title:gn.flavor,line:`Ask ${opp.name} for ${gn.target.label}.`,detail:`${p.human?"You take":p.name+" takes"} ${describe(got)}; gives back ${describe(giveBack)}.`,cards:[got]};
-      // ASK-completed appointment may be declared
+      result={badge:"good",flavor:gn.flavor,line:`Ask ${opp.name} for ${gn.target.label}.`,detail:`${p.human?"You take":p.name+" takes"} ${describe(got)} from ${opp.name}; gives back ${describe(giveBack)}.`,cards:[got]};
       const nowAppt=findAppointment(p.hand);
-      if(!hadAppt && nowAppt && (G.mode!=="deluxe" || matchingApptCards(nowAppt).length)) G.pendingDeclare={player:G.current,appt:nowAppt};
+      if(!hadAppt && declarable(nowAppt)) G.pendingDeclare={player:G.current,appt:nowAppt};
     }
   }
-  showEvent(p,gn,result,cont);
+  renderAll();
+  showEvent(p, result, done);
 }
 function chooseAskTarget(p,t){
   // pick an opponent who has a match; prefer the one with most matches
@@ -553,11 +548,12 @@ function runAI(){
   p.hand.push(card); G.freshId=card.id;
   logMsg(`<b>${p.name}</b> drew from the ${takeDiscard?"discard":"main deck"}.`);
   renderAll();
-  if(card.cat==="mail"){ G.busy=true; setTimeout(()=>resolveMailSequence(p,()=>afterAction(p)),650); return; }
+  if(card.cat==="mail"){ G.busy=true; setTimeout(()=>resolveMail(p,afterMail),650); return; }
   setTimeout(()=>{
     const appt=findAppointment(p.hand);
-    if(appt && (G.mode!=="deluxe" || matchingApptCards(appt).length)){ doDeclare(G.current,appt); return; }
-    const d=aiLeastUseful(p.hand,p.hand);
+    if(declarable(appt)){ doDeclare(G.current,appt); return; }
+    const pool=p.hand.filter(c=>c.cat!=="mail");
+    const d=aiLeastUseful(p.hand, pool.length?pool:p.hand);
     p.hand=p.hand.filter(c=>c.id!==d.id); G.discard.push(d); G.freshId=null;
     logMsg(`<b>${p.name}</b> discarded ${describe(d)}.`);
     renderAll();
@@ -672,8 +668,8 @@ function renderControls(){
   const cur=G.players[G.current];
   if(G.winner!==null||!cur.human||G.busy) return;
   if(G.phase==="mail"){
-    const b=document.createElement("button"); b.className="btn"; b.textContent="Play MAIL card";
-    b.onclick=()=>{ G.busy=true; G.phase="idle"; renderAll(); resolveMailSequence(cur,()=>afterAction(cur)); };
+    const b=document.createElement("button"); b.className="btn"; b.textContent="Open your mail";
+    b.onclick=playMailHuman;
     el.appendChild(b); return;
   }
   const appt=findAppointment(cur.hand);
@@ -699,24 +695,25 @@ function renderLog(){ document.getElementById("logList").innerHTML=G.log.slice(0
 function logMsg(m){ G.log.unshift(m); if(G.log.length>80)G.log.pop(); const ul=document.getElementById("logList"); if(ul)renderLog(); }
 
 /* ---- event overlay ---- */
-function showEvent(p,gn,result,cont){
+function showEvent(p, result, done){
   const box=document.getElementById("eventBox");
   const isYou=p.human;
   const cardsHTML = result.cards.length ? `<div class="cardline">${result.cards.map(c=>`<div class="mini2">${cardFaceHTML(c)}</div>`).join("")}</div>` : "";
-  const badgeLabel = result.badge==="bad"?"Bad News":result.badge==="good"?"Good News":"News";
+  const badgeLabel = result.badge==="bad"?"Bad News":"Good News";
   box.innerHTML=`
     <div class="badge2 mail">✉ Mail Call</div>
     <div class="badge2 ${result.badge}">${badgeLabel}</div>
     <div class="who2">${isYou?"You":p.name}</div>
-    <h3>${result.title}</h3>
+    <h3>${result.flavor}</h3>
     <p>${result.line}</p>
     ${cardsHTML}
     <p style="color:var(--brass-hi)">${result.detail}</p>
     <button class="btn" id="btnEventCont">Continue</button>`;
   document.getElementById("eventOverlay").hidden=false;
-  const finish=()=>{ document.getElementById("eventOverlay").hidden=true; renderAll(); cont(); };
+  let called=false;
+  const finish=()=>{ if(called)return; called=true; document.getElementById("eventOverlay").hidden=true; renderAll(); done(); };
   document.getElementById("btnEventCont").onclick=finish;
-  if(!isYou) setTimeout(()=>{ if(!document.getElementById("eventOverlay").hidden) finish(); }, 1700); // auto-advance AI events
+  if(!isYou) setTimeout(finish, 1700); // auto-advance AI events
 }
 
 /* ---- win overlays ---- */
