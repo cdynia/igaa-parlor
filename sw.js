@@ -1,5 +1,5 @@
-/* IGAA Parlor service worker — offline app shell */
-const CACHE = "igaa-parlor-v1";
+/* IGAA Parlor service worker — offline app shell, but fresh-first for pages */
+const CACHE = "igaa-parlor-v2";
 const ASSETS = [
   "./",
   "index.html",
@@ -20,11 +20,17 @@ self.addEventListener("install", (e) => {
 
 self.addEventListener("activate", (e) => {
   e.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
-    ).then(() => self.clients.claim())
+    caches.keys()
+      .then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
+      .then(() => self.clients.claim())
   );
 });
+
+function putCache(req, res) {
+  const copy = res.clone();
+  caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
+  return res;
+}
 
 self.addEventListener("fetch", (e) => {
   const req = e.request;
@@ -32,29 +38,27 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(req.url);
   const sameOrigin = url.origin === self.location.origin;
 
-  // Same-origin: cache-first, fall back to network, then to cached index for navigations.
-  if (sameOrigin) {
+  // Page loads (navigations) and HTML docs: network-FIRST so updates show immediately,
+  // fall back to cache (then index.html) when offline.
+  const isDoc =
+    req.mode === "navigate" ||
+    (sameOrigin && (url.pathname.endsWith("/") || url.pathname.endsWith(".html")));
+  if (isDoc) {
     e.respondWith(
-      caches.match(req).then((hit) =>
-        hit ||
-        fetch(req).then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
-          return res;
-        }).catch(() =>
-          req.mode === "navigate" ? caches.match("index.html") : undefined
+      fetch(req)
+        .then((res) => putCache(req, res))
+        .catch(() =>
+          caches.match(req).then((hit) => hit || caches.match("index.html"))
         )
-      )
     );
     return;
   }
 
-  // Cross-origin (e.g. Google Fonts): network-first, cache opportunistically, fall back to cache.
+  // Everything else (icons, manifest, fonts): stale-while-revalidate.
   e.respondWith(
-    fetch(req).then((res) => {
-      const copy = res.clone();
-      caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
-      return res;
-    }).catch(() => caches.match(req))
+    caches.match(req).then((hit) => {
+      const net = fetch(req).then((res) => putCache(req, res)).catch(() => hit);
+      return hit || net;
+    })
   );
 });
