@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Times Up Jr</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101a24'/%3E%3Ccircle cx='32' cy='30' r='16' fill='none' stroke='%23e4c883' stroke-width='3'/%3E%3Cline x1='32' y1='30' x2='32' y2='18' stroke='%23e4c883' stroke-width='3'/%3E%3Cline x1='32' y1='30' x2='42' y2='30' stroke='%23e2701c' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --table-1:#16222e; --table-2:#0c141c;
+  --brass:#b98a3c; --brass-hi:#e4c883; --brass-deep:#8a6526;
+  --line:rgba(240,235,220,.10); --line-2:rgba(240,235,220,.16);
+  --muted:#9aa6b2; --muted-2:#c7d0d9; --paper:#f4efe3;
+  --blue:#3d78bf; --yellow:#e6b23a; --green:#45a06a; --orange:#cf7620;
+  --ink-blue:#2f6fc0; --ink-gold:#cf9a05; --ink-green:#2f9e4f; --ink-orange:#e2701c;
+  --noon:#c9432b;
+  --shadow:0 14px 30px -12px rgba(0,0,0,.6);
+  --card-w:120px; --card-h:168px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0; color:var(--muted-2); font-family:"Archivo",system-ui,"Segoe UI",sans-serif;
+  background:radial-gradient(120% 90% at 50% 6%, #223141 0%, var(--table-1) 42%, var(--table-2) 100%);
+  min-height:100%; -webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); font-weight:600}
+.btn{border:1px solid var(--brass-deep); cursor:pointer; color:#211a0c; text-decoration:none; display:inline-block;
+  background:linear-gradient(180deg,var(--brass-hi),var(--brass));
+  padding:.7em 1.3em; border-radius:9px; font-weight:600; font-size:.95rem; letter-spacing:.2px;
+  box-shadow:0 2px 0 var(--brass-deep),0 8px 18px -8px rgba(0,0,0,.7); transition:transform .08s, filter .15s}
+.btn:hover{filter:brightness(1.06)} .btn:active{transform:translateY(2px); box-shadow:0 0 0 var(--brass-deep)}
+.btn.ghost{background:transparent; color:var(--muted-2); border-color:var(--line-2); box-shadow:none; font-weight:500}
+.btn.ghost:hover{border-color:var(--brass); color:var(--brass-hi)}
+.btn:focus-visible{outline:3px solid var(--brass-hi); outline-offset:2px}
+.btn:disabled{opacity:.4; cursor:not-allowed; filter:none; transform:none}
+
+#app{max-width:1080px; margin:0 auto; padding:18px clamp(12px,3vw,28px) 26px; min-height:100vh; display:flex; flex-direction:column; gap:16px}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.brand{display:flex; align-items:center; gap:12px}
+.brand .glyph{width:40px; height:40px; border-radius:9px; background:linear-gradient(155deg,#1d2c3c,#101a24); border:1px solid var(--line-2); position:relative; flex:0 0 auto}
+.brand .glyph::before{content:""; position:absolute; inset:9px; border-radius:50%; border:2px solid var(--brass-hi)}
+.brand .glyph::after{content:""; position:absolute; left:50%; top:50%; width:2px; height:8px; background:var(--brass-hi); transform:translate(-50%,-100%)}
+.brand h1{font-size:1.15rem; line-height:1}
+.brand .sub{font-size:.72rem; color:var(--muted); letter-spacing:.14em; margin-top:3px}
+.tools{display:flex; gap:8px}
+
+.scorebar{display:flex; gap:10px; flex-wrap:wrap; justify-content:center}
+.pscore{display:flex; flex-direction:column; gap:2px; padding:8px 14px; border:1px solid var(--line); border-radius:12px; min-width:120px;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)); transition:border-color .2s, box-shadow .2s, transform .2s}
+.pscore.active{border-color:var(--brass); box-shadow:0 0 0 1px var(--brass); transform:translateY(-2px)}
+.pscore .nm{color:var(--paper); font-weight:600; font-size:.9rem; display:flex; align-items:center; gap:6px}
+.pscore .pts{font-family:"Fraunces",serif; color:var(--brass-hi); font-size:1.3rem; line-height:1}
+.pscore .rnds{font-size:.68rem; color:var(--muted)}
+.pscore .bd{width:10px; height:10px; border-radius:3px}
+
+.felt{position:relative; flex:1 1 auto; display:flex; flex-direction:column; align-items:center; gap:16px; padding:22px 14px; border-radius:20px;
+  background:radial-gradient(140% 120% at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,0) 55%), linear-gradient(180deg,#1c3b34,#122a26);
+  border:1px solid rgba(255,255,255,.06); box-shadow:inset 0 2px 30px rgba(0,0,0,.45), var(--shadow)}
+.banner{text-align:center; z-index:1}
+.banner .phase{font-family:"Fraunces",serif; font-size:clamp(1.1rem,2.6vw,1.5rem); color:var(--paper)}
+.banner .hint{font-size:.85rem; color:#bfe0cf; margin-top:4px; min-height:1.1em}
+.turnmeta{display:flex; gap:16px; justify-content:center; font-size:.82rem; color:#a7c6b7; margin-top:6px; flex-wrap:wrap}
+.turnmeta b{color:var(--brass-hi)}
+
+.playarea{display:flex; gap:26px; align-items:flex-start; justify-content:center; z-index:1}
+.grid{display:grid; grid-template-columns:repeat(4, var(--card-w)); grid-auto-rows:var(--card-h); gap:14px}
+.cell{perspective:800px}
+.cell.swept{animation:sweepOff .52s cubic-bezier(.45,.05,.35,1) forwards; pointer-events:none; z-index:5}
+@keyframes sweepOff{
+  30%{transform:translateY(-10px) scale(1.04)}
+  100%{transform:translate(340px,60px) rotate(11deg) scale(.34); opacity:0}
+}
+.cell.gone .flip{visibility:hidden}
+.cell.gone{background:rgba(255,255,255,.03); border:1px dashed rgba(255,255,255,.10); border-radius:12px}
+
+/* collected matches — one exact pile, stacked to the right */
+.matchstack{--pw:60px; --ph:84px; display:flex; flex-direction:column; align-items:center; gap:10px; min-width:96px; padding-top:2px}
+.matchstack .mstitle{font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:#a7c6b7; text-align:center}
+.pile{position:relative; width:var(--pw); height:var(--ph)}
+.pcard{position:absolute; width:var(--pw); height:var(--ph); border-radius:8px; background:#fff; border:1px solid #d8d0bd;
+  box-shadow:0 3px 7px -4px rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center;
+  font-family:"Fraunces",serif; font-weight:700; font-size:.72rem; color:var(--cc);
+  /* stacked exactly, with a hairline offset so the pile reads as thick */
+  left:calc(var(--i) * 0.6px); top:calc(var(--i) * -1.1px);}
+.pcard::before{content:""; position:absolute; left:0; top:0; bottom:0; width:5px; border-radius:8px 0 0 8px; background:var(--cc); opacity:.9}
+.pcard[data-color=blue]{--cc:var(--ink-blue)} .pcard[data-color=yellow]{--cc:var(--ink-gold)}
+.pcard[data-color=green]{--cc:var(--ink-green)} .pcard[data-color=orange]{--cc:var(--ink-orange)}
+.pcard.new{animation:dropOn .42s cubic-bezier(.2,1.05,.35,1) both}
+@keyframes dropOn{from{transform:translate(60px,-46px) scale(.72) rotate(7deg); opacity:0} to{transform:none; opacity:1}}
+.pile .badge{position:absolute; right:-8px; bottom:-8px; z-index:99; min-width:22px; height:22px; padding:0 5px; border-radius:11px;
+  background:linear-gradient(180deg,var(--brass-hi),var(--brass)); color:#211a0c; font-family:"Archivo",sans-serif; font-weight:700; font-size:.72rem;
+  display:flex; align-items:center; justify-content:center; box-shadow:0 3px 8px -3px rgba(0,0,0,.6)}
+.pilepips{display:flex; gap:5px; justify-content:center}
+.pilepips i{width:10px; height:10px; border-radius:3px; display:block; opacity:.9}
+.flip{position:relative; width:100%; height:100%; transition:transform .45s cubic-bezier(.3,.7,.3,1); transform-style:preserve-3d; cursor:pointer; border-radius:12px}
+.flip.done{transform:rotateY(180deg)}
+.flip:focus-visible{outline:3px solid var(--brass-hi); outline-offset:3px}
+.face{position:absolute; inset:0; backface-visibility:hidden; border-radius:12px}
+.face.back{background:linear-gradient(155deg,#1d2c3c,#101a24); border:1px solid rgba(255,255,255,.12); box-shadow:var(--shadow);
+  display:flex; align-items:center; justify-content:center}
+.face.back::before{content:""; position:absolute; inset:8px; border:1px solid rgba(228,200,131,.35); border-radius:9px}
+.face.back .bt{display:flex; gap:3px}
+.face.back .bt i{width:8px; height:20px; border-radius:2px; display:block}
+.face.front{transform:rotateY(180deg)}
+.flip:not(.playable){cursor:default}
+.flip.playable .face.back:hover{outline:2px solid var(--brass-hi); outline-offset:-2px}
+
+/* card front — white stock, season-colored ink, playing-card mirror layout */
+.card{width:100%; height:100%; border-radius:12px; background:#fff; border:1px solid #e2ddce; box-shadow:var(--shadow);
+  display:grid; grid-template-rows:auto 1fr auto; overflow:hidden; padding:8px 7px; color:#2b2a26}
+.card .end{font-family:"Archivo",sans-serif; font-weight:700; font-size:.72rem; letter-spacing:.02em; text-align:center; line-height:1; white-space:nowrap; color:var(--cc)}
+.card .end.flip2{transform:rotate(180deg)}
+.card .mid{position:relative; display:flex; align-items:center; justify-content:center; min-height:0; overflow:hidden}
+.card .vword{font-family:"Fraunces",serif; font-weight:600; writing-mode:vertical-rl; text-orientation:upright; font-size:.8rem; color:var(--cc); z-index:2; line-height:.86}
+.card .art{position:absolute; inset:0; display:flex; flex-wrap:wrap; align-content:center; justify-content:center; gap:1px 4px; padding:3px; z-index:1; pointer-events:none}
+.card .art span{font-size:.95rem; line-height:1}
+.card .clock{--r:44px; width:calc(var(--r)*2); height:calc(var(--r)*2); border-radius:50%; border:2.5px solid var(--cc); position:relative; z-index:2}
+.card .clock .hand{position:absolute; left:50%; top:50%; transform-origin:bottom center; background:var(--cc); border-radius:2px}
+.card .clock .hand.hr{width:3px; height:calc(var(--r)*0.5); transform:translate(-50%,-100%) rotate(var(--hrot))}
+.card .clock .hand.mn{width:2.5px; height:calc(var(--r)*0.72); transform:translate(-50%,-100%) rotate(0deg)}
+.card .clock .pin{position:absolute; left:50%; top:50%; width:6px; height:6px; border-radius:50%; background:var(--cc); transform:translate(-50%,-50%)}
+.card[data-color=blue]{--cc:var(--ink-blue)} .card[data-color=yellow]{--cc:var(--ink-gold)}
+.card[data-color=green]{--cc:var(--ink-green)} .card[data-color=orange]{--cc:var(--ink-orange)}
+.card[data-color=noon]{--cc:var(--noon); background:#fff7ef; border-color:#eccdb8}
+.card.setdone{box-shadow:0 0 0 3px var(--ink-green), var(--shadow)}
+.card.noonhit{box-shadow:0 0 0 3px var(--noon), var(--shadow)}
+
+/* legend of season progress */
+.seasons{display:flex; gap:10px; flex-wrap:wrap; justify-content:center; z-index:1}
+.seasons .s{display:flex; align-items:center; gap:7px; padding:6px 11px; border-radius:10px; border:1px solid var(--line); font-size:.8rem; background:rgba(0,0,0,.18)}
+.seasons .s .dot{width:11px; height:11px; border-radius:3px}
+.seasons .s .cnt{font-variant-numeric:tabular-nums; color:var(--muted-2)}
+.seasons .s.complete{border-color:var(--brass); color:var(--brass-hi)}
+.seasons .s.dead{opacity:.45; text-decoration:line-through}
+
+.controls{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; align-items:center; min-height:44px}
+
+.log{width:100%; max-width:560px; margin:0 auto; background:rgba(0,0,0,.22); border:1px solid var(--line); border-radius:12px; padding:10px 14px; font-size:.8rem}
+.log h3{font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--brass-hi); margin-bottom:6px; font-family:"Archivo",sans-serif; font-weight:700}
+.log ul{list-style:none; margin:0; padding:0; max-height:88px; overflow:auto}
+.log li{padding:2px 0; border-bottom:1px solid rgba(255,255,255,.05)}
+.log li b{color:var(--paper)}
+
+.overlay{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:20px;
+  background:radial-gradient(120% 120% at 50% 0%, rgba(20,30,40,.78), rgba(6,10,14,.94)); backdrop-filter:blur(3px)}
+.overlay[hidden]{display:none}
+.book{width:min(560px,100%); max-height:88vh; overflow:auto; background:linear-gradient(180deg,#1b2836,#111a24);
+  border:1px solid rgba(228,200,131,.25); border-radius:18px; padding:28px; box-shadow:0 40px 90px -30px rgba(0,0,0,.85)}
+.book .eyebrow{color:var(--brass-hi); font-size:.78rem; letter-spacing:.22em; text-transform:uppercase; margin-bottom:8px}
+.book h2{font-size:clamp(1.7rem,5vw,2.3rem); line-height:1.03; color:var(--paper)}
+.book p.lede{color:var(--muted-2); line-height:1.55; margin:14px 0 20px; max-width:48ch}
+.book h3{color:var(--brass-hi); font-family:"Archivo",sans-serif; font-weight:700; font-size:.78rem; letter-spacing:.1em; text-transform:uppercase; margin:16px 0 6px}
+.book p,.book li{color:var(--muted-2); line-height:1.6; font-size:.92rem}
+.book ul{padding-left:18px; margin:6px 0}
+.field{margin:0 0 18px}
+.field .flabel{font-size:.82rem; color:var(--muted); margin-bottom:8px}
+.chips{display:flex; gap:8px; flex-wrap:wrap}
+.chip{border:1px solid var(--line-2); background:transparent; color:var(--muted-2); min-width:44px; height:44px; padding:0 12px; border-radius:10px; cursor:pointer; font-size:.95rem; font-weight:600; transition:all .12s}
+.chip:hover{border-color:var(--brass)} .chip.sel{background:linear-gradient(180deg,var(--brass-hi),var(--brass)); color:#211a0c; border-color:var(--brass-deep)}
+.chip:focus-visible{outline:3px solid var(--brass-hi); outline-offset:2px}
+.toggle{display:flex; align-items:center; gap:10px; font-size:.9rem; color:var(--muted-2); cursor:pointer}
+.toggle input{width:18px; height:18px; accent-color:var(--brass)}
+.row{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+.book .note{font-size:.78rem; color:var(--muted); margin-top:14px; line-height:1.5}
+.standings{list-style:none; padding:0; margin:14px 0}
+.standings li{display:flex; justify-content:space-between; padding:10px 12px; border-bottom:1px solid var(--line); color:var(--muted-2)}
+.standings li.win{color:var(--brass-hi); font-weight:600}
+.standings li .p{font-family:"Fraunces",serif}
+.bmwrap{display:flex; flex-direction:column; gap:8px; margin-top:8px}
+.bmrow{display:flex; align-items:center; gap:8px; font-size:.85rem}
+.bmrow .who{min-width:78px; color:var(--paper)}
+.bmrow select{flex:1; background:#0f1720; color:var(--muted-2); border:1px solid var(--line-2); border-radius:8px; padding:7px}
+
+@media (max-width:720px){ :root{--card-w:76px; --card-h:108px} .grid{gap:9px} .card .clock{--r:26px} .card .end{font-size:.54rem} .card .art span{font-size:.66rem} }
+@media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} .flip{transition:none} }
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="glyph"></div>
+      <div><h1>Times Up Jr</h1><div class="sub">Beat the Noon card</div></div>
+    </div>
+    <div class="tools">
+      <a class="btn ghost" href="index.html">← Parlor</a>
+      <button class="btn ghost" id="btnHelp">How to play</button>
+      <button class="btn ghost" id="btnNew">New game</button>
+    </div>
+  </div>
+
+  <div class="scorebar" id="scorebar"></div>
+
+  <div class="felt">
+    <div class="banner">
+      <div class="phase" id="phaseText">—</div>
+      <div class="hint" id="hintText"></div>
+      <div class="turnmeta" id="turnMeta"></div>
+    </div>
+    <div class="playarea">
+      <div class="grid" id="grid"></div>
+      <div class="matchstack" id="matchstack"></div>
+    </div>
+    <div class="seasons" id="seasons"></div>
+    <div class="controls" id="controls"></div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div class="overlay" id="setupOverlay">
+  <div class="book">
+    <div class="eyebrow">A push-your-luck game · 2–8 players</div>
+    <h2>Times Up Jr</h2>
+    <p class="lede">Flip the months one at a time and complete a season's three months to score — but the hidden Noon card is somewhere in the grid. Reveal it first for 5, leave it for last for 4, or get caught in between.</p>
+    <div class="field">
+      <div class="flabel">Players</div>
+      <div class="chips" id="playerChips"></div>
+    </div>
+    <div class="field">
+      <div class="flabel">Rounds</div>
+      <div class="chips" id="roundChips"></div>
+    </div>
+    <div class="field">
+      <label class="toggle"><input type="checkbox" id="bonusToggle"> Bonus Game — your first season set matching your birth-month season scores double</label>
+      <div class="bmwrap" id="bmWrap" hidden></div>
+    </div>
+    <div class="row">
+      <button class="btn" id="btnStart">Start playing</button>
+      <button class="btn ghost" id="btnHelp2">How to play</button>
+    </div>
+    <p class="note">Setup mirrors the box: twelve month cards with one secretly swapped for Noon, laid in a 3×4 grid. That means one season is always missing a month — it can never be completed.</p>
+  </div>
+</div>
+
+<!-- HELP -->
+<div class="overlay" id="helpOverlay" hidden>
+  <div class="book">
+    <div class="eyebrow">How to play</div>
+    <h2>Race the Noon card</h2>
+    <h3>Your turn</h3>
+    <ul>
+      <li>Flip face-down cards one at a time by clicking them.</li>
+      <li>Reveal all <b>three months of a season</b> to score that set (1 point).</li>
+      <li><b>Noon on your very first flip:</b> 5 points, turn ends.</li>
+      <li><b>Noon after some flips:</b> turn ends — you keep the sets you already scored.</li>
+      <li><b>Flip all eleven months and leave Noon for last:</b> 4 points on top of your sets.</li>
+    </ul>
+    <h3>The catch</h3>
+    <p>One month was swapped out for Noon, so one season only has two of its months on the table — that season can never be completed. Push your luck, or play it safe.</p>
+    <h3>Winning</h3>
+    <p>Play the chosen number of rounds. Add every round's points; the highest total wins.</p>
+    <div class="row" style="margin-top:16px"><button class="btn" id="btnCloseHelp">Got it</button></div>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div class="overlay" id="finalOverlay" hidden>
+  <div class="book">
+    <div class="eyebrow">Final score</div>
+    <h2 id="finalTitle">Time's up!</h2>
+    <ul class="standings" id="standings"></ul>
+    <div class="row"><button class="btn" id="btnAgain">Play again</button></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+const SEASONS=[
+  {color:"blue",   name:"Winter", art:"❄",  months:["December","January","February"]},
+  {color:"yellow", name:"Spring", art:"🌼", months:["March","April","May"]},
+  {color:"green",  name:"Summer", art:"☀",  months:["June","July","August"]},
+  {color:"orange", name:"Fall",   art:"🍁", months:["September","October","November"]},
+];
+const MONTHS=[]; // {name, mAbbr, season, color, art}
+for(const s of SEASONS) for(const m of s.months) MONTHS.push({name:m, mAbbr:m.slice(0,3).toUpperCase(), season:s.name, color:s.color, art:s.art});
+const NAMES=["You","Robin","Sam","Alex","Jordan","Casey","Riley","Morgan"];
+const NOON={noon:true, color:"noon", value:"12:00 NOON"};
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function seasonOf(name){ return SEASONS.find(s=>s.name===name); }
+function monthsOfSeason(name){ return seasonOf(name).months; }
+
+let G=null;
+
+function newGame(numPlayers, rounds, bonus, birth){
+  const players=[];
+  for(let i=0;i<numPlayers;i++) players.push({name:NAMES[i]||("Player "+(i+1)), total:0, rounds:[], birth: bonus? birth[i] : null});
+  G={players, rounds, bonus, round:1, current:0, board:null, winner:null, log:[]};
+  logMsg(`New game — ${numPlayers} player${numPlayers>1?"s":""}, ${rounds} round${rounds>1?"s":""}${bonus?", Bonus Game on":""}.`);
+  startTurn();
+}
+
+function buildBoard(){
+  const pool=MONTHS.slice();
+  const removed=pool.splice(Math.floor(Math.random()*pool.length),1)[0]; // one month swapped out
+  const cards=shuffle(pool.concat([NOON])); // 11 months + Noon
+  return {cards:cards.map(c=>({card:c, revealed:false})), removedSeason:removed.season};
+}
+
+function startTurn(){
+  const b=buildBoard();
+  G.board=b.cards; G.deadSeason=b.removedSeason;
+  G.flips=0; G.turnScore=0; G.firstSet=null;
+  G.completed=new Set(); G.revealedSeasonCount={Winter:0,Spring:0,Summer:0,Fall:0};
+  G.turnOver=false; G.matches=[]; G.sweeping=false; G.landedCount=0;
+  render();
+}
+
+function flip(i){
+  if(G.turnOver || G.sweeping) return;
+  const slot=G.board[i];
+  if(slot.revealed) return;
+  slot.revealed=true; G.flips++;
+  const p=G.players[G.current];
+  if(slot.card.noon){
+    slot.noonhit=true;
+    if(G.flips===1){ G.turnScore+=5; logMsg(`<b>${p.name}</b> flipped Noon first — 5 points!`); endTurn("Noon right away — 5 points!"); }
+    else if(G.flips===12){ G.turnScore+=4; logMsg(`<b>${p.name}</b> left Noon for last — 4 bonus points!`); endTurn("Noon last — 4 bonus points!"); }
+    else { logMsg(`<b>${p.name}</b> hit Noon. Time's up!`); endTurn("Time's up! Turn over."); }
+    render(); return;
+  }
+  // month
+  const sName=slot.card.season;
+  G.revealedSeasonCount[sName]++;
+  if(G.revealedSeasonCount[sName]===3 && !G.completed.has(sName)){
+    G.completed.add(sName);
+    let pts=1, dbl=false;
+    if(G.bonus && G.firstSet===null && p.birth===sName){ pts=2; dbl=true; }
+    if(G.firstSet===null) G.firstSet=sName;
+    G.turnScore+=pts;
+    logMsg(`<b>${p.name}</b> completed ${sName}${dbl?" (birthday double!)":""} — ${pts} point${pts>1?"s":""}.`);
+    sweepSet(sName, pts, dbl);
+    return;
+  }
+  render();
+}
+
+// swipe the three matching cards off the table and stack them to the right
+function sweepSet(sName, pts, dbl){
+  const idxs=[];
+  G.board.forEach((s,i)=>{ if(!s.card.noon && s.card.season===sName && s.revealed && !s.collected) idxs.push(i); });
+  idxs.forEach(i=>{ G.board[i].sweeping=true; });
+  G.sweeping=true;
+  render(); // cards begin the swipe-off animation
+  setTimeout(()=>{
+    const set={season:sName, color:seasonOf(sName).color, months:idxs.map(i=>G.board[i].card.mAbbr), pts, dbl};
+    idxs.forEach(i=>{ G.board[i].sweeping=false; G.board[i].collected=true; });
+    G.matches.push(set);
+    G.sweeping=false;
+    render(); // cards gone from grid, set landed on the right stack
+  }, 540);
+}
+
+function endTurn(msg){
+  G.turnOver=true; G.turnMsg=msg;
+  const p=G.players[G.current];
+  p.rounds[G.round-1]=G.turnScore; p.total+=G.turnScore;
+}
+
+function nextTurn(){
+  // advance player / round
+  if(G.current < G.players.length-1){ G.current++; startTurn(); return; }
+  // round done
+  if(G.round < G.rounds){ G.round++; G.current=0; startTurn(); return; }
+  finish();
+}
+
+function finish(){
+  G.winner=true;
+  const ranked=G.players.map((p,i)=>({p,i})).sort((a,b)=>b.p.total-a.p.total);
+  const top=ranked[0].p.total;
+  const winners=ranked.filter(r=>r.p.total===top).map(r=>r.p.name);
+  document.getElementById("finalTitle").textContent = winners.length>1 ? `Tie: ${winners.join(" & ")}` : `${winners[0]} wins!`;
+  document.getElementById("standings").innerHTML = ranked.map(r=>
+    `<li class="${r.p.total===top?"win":""}"><span>${r.p.name}</span><span class="p">${r.p.total} pts</span></li>`).join("");
+  document.getElementById("finalOverlay").hidden=false;
+}
+
+/* ---------- render ---------- */
+function clockHTML(){ return `<div class="clock" style="--hrot:0deg"><div class="hand mn"></div><div class="hand hr"></div><div class="pin"></div></div>`; }
+function frontHTML(c, extra){
+  if(c.noon){
+    return `<div class="card ${extra}" data-color="noon"><div class="end">12:00 NOON</div><div class="mid">${clockHTML()}</div><div class="end flip2">12:00 NOON</div></div>`;
+  }
+  const label=c.name.toUpperCase();
+  const art=Array.from({length:9}).map(()=>`<span>${c.art}</span>`).join("");
+  return `<div class="card ${extra}" data-color="${c.color}"><div class="end">${label}</div>
+    <div class="mid"><div class="art">${art}</div><div class="vword">${c.season.toUpperCase()}</div></div>
+    <div class="end flip2">${label}</div></div>`;
+}
+function render(){
+  renderScorebar(); renderGrid(); renderMatchStack(); renderSeasons(); renderBanner(); renderControls();
+}
+function renderScorebar(){
+  document.getElementById("scorebar").innerHTML=G.players.map((p,i)=>`
+    <div class="pscore ${i===G.current&&!G.winner?"active":""}">
+      <div class="nm">${p.birth?`<span class="bd" style="background:var(--${seasonOf(p.birth).color})"></span>`:""}${p.name}</div>
+      <div class="pts">${p.total}</div>
+      <div class="rnds">round ${p.rounds[G.round-1]!=null?"done":"…"}</div>
+    </div>`).join("");
+}
+function renderGrid(){
+  const g=document.getElementById("grid"); const canPlay=!G.turnOver && !G.winner && !G.sweeping;
+  g.innerHTML=G.board.map((slot,i)=>{
+    const cellCls=(slot.sweeping?"swept ":"")+(slot.collected?"gone":"");
+    const extra=slot.noonhit?"noonhit":"";
+    const clickable=canPlay && !slot.revealed;
+    return `<div class="cell ${cellCls}"><div class="flip ${slot.revealed?"done":""} ${clickable?"playable":""}" data-i="${i}" ${clickable?'tabindex="0" role="button" aria-label="Flip a card"':""}>
+      <div class="face back"><div class="bt"><i style="background:var(--blue)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i></div></div>
+      <div class="face front">${slot.revealed?frontHTML(slot.card,extra):""}</div>
+    </div></div>`;
+  }).join("");
+  if(canPlay){
+    g.querySelectorAll(".flip.playable").forEach(el=>{
+      const i=+el.dataset.i;
+      el.onclick=()=>flip(i);
+      el.onkeydown=(e)=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); flip(i);} };
+    });
+  }
+}
+function renderMatchStack(){
+  const el=document.getElementById("matchstack"); if(!el) return;
+  // flatten every collected card into one exact pile, in the order they were won
+  const cards=[]; G.matches.forEach(m=>m.months.forEach(mm=>cards.push({mm, color:m.color})));
+  if(!cards.length){ el.innerHTML=""; G.landedCount=0; return; }
+  const landed=G.landedCount||0;
+  const pile=cards.map((c,i)=>{
+    const isNew=i>=landed;
+    const delay=isNew?(i-landed)*80:0;
+    return `<div class="pcard ${isNew?"new":""}" data-color="${c.color}" style="--i:${i}; z-index:${i}; animation-delay:${delay}ms">${c.mm}</div>`;
+  }).join("");
+  G.landedCount=cards.length;
+  const pips=SEASONS.filter(s=>G.completed.has(s.name)).map(s=>`<i style="background:var(--${s.color})"></i>`).join("");
+  el.innerHTML=`<div class="mstitle">Matches</div>
+    <div class="pile">${pile}<div class="badge">${cards.length}</div></div>
+    <div class="pilepips">${pips}</div>`;
+}
+function renderSeasons(){
+  document.getElementById("seasons").innerHTML=SEASONS.map(s=>{
+    const dead = s.name===G.deadSeason;
+    const cnt = G.revealedSeasonCount[s.name];
+    const done = G.completed.has(s.name);
+    return `<div class="s ${done?"complete":""} ${dead?"dead":""}" title="${dead?"Missing a month — can't be completed":""}">
+      <span class="dot" style="background:var(--${s.color})"></span>${s.name}
+      <span class="cnt">${done?"✓ set":dead?`${cnt}/2`:`${cnt}/3`}</span></div>`;
+  }).join("");
+}
+function renderBanner(){
+  const p=G.players[G.current];
+  const phase=document.getElementById("phaseText"), hint=document.getElementById("hintText"), meta=document.getElementById("turnMeta");
+  if(G.turnOver){
+    phase.textContent=G.turnMsg;
+    hint.textContent=`${p.name} scored ${G.turnScore} point${G.turnScore!==1?"s":""} this turn.`;
+  } else {
+    phase.textContent=`${p.name} — flip a card`;
+    hint.textContent="Complete a season's three months, and don't wake the Noon card.";
+  }
+  meta.innerHTML=`<span>Round <b>${G.round}/${G.rounds}</b></span><span>Flipped <b>${G.flips}/12</b></span><span>This turn <b>${G.turnScore}</b></span>`;
+}
+function renderControls(){
+  const el=document.getElementById("controls"); el.innerHTML="";
+  if(G.winner) return;
+  if(G.turnOver){
+    const b=document.createElement("button"); b.className="btn";
+    const last = G.current===G.players.length-1 && G.round===G.rounds;
+    b.textContent = last ? "See final scores" : (G.current===G.players.length-1 ? `Start round ${G.round+1}` : `Next: ${G.players[G.current+1].name}`);
+    b.onclick=nextTurn; el.appendChild(b);
+  }
+}
+function renderLog(){ document.getElementById("logList").innerHTML=G.log.slice(0,14).map(m=>`<li>${m}</li>`).join(""); }
+function logMsg(m){ G.log.unshift(m); if(G.log.length>60)G.log.pop(); const ul=document.getElementById("logList"); if(ul)renderLog(); }
+
+/* ---------- setup UI ---------- */
+let cfg={players:2, rounds:3, bonus:false};
+function buildChips(id, min, max, key){
+  const wrap=document.getElementById(id); wrap.innerHTML="";
+  for(let n=min;n<=max;n++){ const b=document.createElement("button"); b.className="chip"+(cfg[key]===n?" sel":""); b.textContent=n;
+    b.onclick=()=>{ cfg[key]=n; buildChips(id,min,max,key); if(key==="players") buildBirth(); }; wrap.appendChild(b); }
+}
+function buildBirth(){
+  const wrap=document.getElementById("bmWrap");
+  if(!cfg.bonus){ wrap.hidden=true; wrap.innerHTML=""; return; }
+  wrap.hidden=false;
+  wrap.innerHTML=Array.from({length:cfg.players}).map((_,i)=>`
+    <div class="bmrow"><span class="who">${NAMES[i]||("Player "+(i+1))}</span>
+    <select data-i="${i}">${SEASONS.map(s=>`<option value="${s.name}">${s.name}</option>`).join("")}</select></div>`).join("");
+}
+document.getElementById("bonusToggle").onchange=(e)=>{ cfg.bonus=e.target.checked; buildBirth(); };
+function openHelp(){document.getElementById("helpOverlay").hidden=false;}
+document.getElementById("btnHelp").onclick=openHelp;
+document.getElementById("btnHelp2").onclick=openHelp;
+document.getElementById("btnCloseHelp").onclick=()=>document.getElementById("helpOverlay").hidden=true;
+document.getElementById("btnNew").onclick=()=>document.getElementById("setupOverlay").hidden=false;
+document.getElementById("btnAgain").onclick=()=>{ document.getElementById("finalOverlay").hidden=true; document.getElementById("setupOverlay").hidden=false; };
+document.getElementById("btnStart").onclick=()=>{
+  const birth=[];
+  if(cfg.bonus){ document.querySelectorAll("#bmWrap select").forEach(sel=>birth[+sel.dataset.i]=sel.value); }
+  document.getElementById("setupOverlay").hidden=true;
+  newGame(cfg.players, cfg.rounds, cfg.bonus, birth);
+};
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") document.getElementById("helpOverlay").hidden=true; });
+buildChips("playerChips",2,8,"players");
+buildChips("roundChips",1,6,"rounds");
+</script>
+</body>
+</html>

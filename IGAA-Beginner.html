@@ -1,0 +1,760 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>I've Got an Appointment — Beginner Game</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101a24'/%3E%3Crect x='12' y='14' width='9' height='12' rx='2' fill='%233d78bf'/%3E%3Crect x='22' y='14' width='9' height='12' rx='2' fill='%23e6b23a'/%3E%3Crect x='32' y='14' width='9' height='12' rx='2' fill='%2345a06a'/%3E%3Crect x='42' y='14' width='9' height='12' rx='2' fill='%23cf7620'/%3E%3Ctext x='32' y='46' font-family='Georgia' font-size='20' fill='%23e6d2a0' text-anchor='middle' font-weight='700'%3EIGAA%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --table-1:#16222e; --table-2:#0c141c; --ink:#141922; --ink-soft:#2a323f;
+  --paper:#f4efe3; --paper-2:#ece5d4; --paper-edge:#ded4bd; --paper-ink:#2b2a26;
+  --brass:#b98a3c; --brass-hi:#e4c883; --brass-deep:#8a6526;
+  --line:rgba(240,235,220,.10); --line-2:rgba(240,235,220,.16);
+  --muted:#9aa6b2; --muted-2:#c7d0d9;
+  /* season tabs: bg + text-on-tab + soft tint */
+  --blue:#3d78bf;   --blue-fg:#fff;   --blue-tint:#dbe7f5;
+  --yellow:#e6b23a; --yellow-fg:#4a3708; --yellow-tint:#f6ecca;
+  --green:#45a06a;  --green-fg:#fff;  --green-tint:#d9ecdf;
+  --orange:#cf7620; --orange-fg:#fff; --orange-tint:#f3ddc4;
+  /* season ink colors, readable on white card stock */
+  --ink-blue:#2f6fc0; --ink-gold:#cf9a05; --ink-green:#2f9e4f; --ink-orange:#e2701c;
+  --shadow:0 14px 30px -12px rgba(0,0,0,.6);
+  --card-w:104px; --card-h:150px;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; color:var(--muted-2);
+  font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:
+    radial-gradient(120% 90% at 50% 8%, #223141 0%, var(--table-1) 42%, var(--table-2) 100%);
+  min-height:100%;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); font-weight:600; letter-spacing:.2px}
+button{font-family:inherit}
+
+/* ---------- brass buttons ---------- */
+.btn{
+  border:1px solid var(--brass-deep); cursor:pointer; color:#211a0c; text-decoration:none; display:inline-block;
+  background:linear-gradient(180deg,var(--brass-hi),var(--brass));
+  padding:.7em 1.3em; border-radius:9px; font-weight:600; font-size:.95rem;
+  letter-spacing:.2px; box-shadow:0 2px 0 var(--brass-deep),0 8px 18px -8px rgba(0,0,0,.7);
+  transition:transform .08s ease, filter .15s ease;
+}
+.btn:hover{filter:brightness(1.06)}
+.btn:active{transform:translateY(2px); box-shadow:0 0 0 var(--brass-deep)}
+.btn.ghost{
+  background:transparent; color:var(--muted-2); border-color:var(--line-2);
+  box-shadow:none; font-weight:500;
+}
+.btn.ghost:hover{border-color:var(--brass); color:var(--brass-hi)}
+.btn:focus-visible{outline:3px solid var(--brass-hi); outline-offset:2px}
+.btn:disabled{opacity:.4; cursor:not-allowed; filter:none; transform:none}
+
+/* ---------- layout ---------- */
+#app{max-width:1180px; margin:0 auto; padding:18px clamp(12px,3vw,28px) 24px; min-height:100vh; display:flex; flex-direction:column; gap:14px}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:12px}
+.brandmark{display:flex; align-items:center; gap:12px}
+.brandmark .tabs{display:flex; gap:3px}
+.brandmark .tabs i{width:9px; height:22px; border-radius:2px; display:block}
+.brandmark h1{font-size:1.15rem; line-height:1}
+.brandmark .sub{font-size:.72rem; color:var(--muted); letter-spacing:.14em; text-transform:none; margin-top:3px}
+.topbar .tools{display:flex; gap:8px}
+
+/* opponents */
+.opponents{display:flex; flex-wrap:wrap; gap:10px; justify-content:center}
+.opp{
+  display:flex; align-items:center; gap:10px; padding:8px 12px 8px 8px;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01));
+  border:1px solid var(--line); border-radius:12px; min-width:172px;
+  transition:border-color .2s, box-shadow .2s, transform .2s;
+}
+.opp.active{border-color:var(--brass); box-shadow:0 0 0 1px var(--brass),0 10px 26px -12px rgba(185,138,60,.7); transform:translateY(-2px)}
+.opp .mini{width:34px; height:48px; border-radius:5px; flex:0 0 auto; position:relative}
+.opp .who{display:flex; flex-direction:column; gap:2px; min-width:0}
+.opp .who .name{color:var(--paper); font-weight:600; font-size:.92rem}
+.opp .who .meta{font-size:.74rem; color:var(--muted)}
+.opp .think{font-size:.72rem; color:var(--brass-hi); min-height:1em; font-style:italic}
+
+/* table / felt */
+.felt{
+  position:relative; flex:1 1 auto; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:18px; padding:26px 16px; border-radius:20px;
+  background:
+    radial-gradient(140% 120% at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,0) 55%),
+    linear-gradient(180deg,#1c3b34,#122a26);
+  border:1px solid rgba(255,255,255,.06);
+  box-shadow:inset 0 2px 30px rgba(0,0,0,.45), var(--shadow);
+}
+.felt::after{ /* faint felt texture */
+  content:""; position:absolute; inset:0; border-radius:20px; pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size:6px 6px; opacity:.5; mix-blend-mode:overlay;
+}
+.banner{
+  text-align:center; z-index:1;
+}
+.banner .phase{font-family:"Fraunces",serif; font-size:clamp(1.1rem,2.6vw,1.5rem); color:var(--paper)}
+.banner .hint{font-size:.82rem; color:#bfe0cf; margin-top:3px; min-height:1.1em}
+
+.piles{display:flex; gap:34px; align-items:flex-start; z-index:1}
+.pile{display:flex; flex-direction:column; align-items:center; gap:8px}
+.pile .plabel{font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:#a7c6b7}
+.pile .slot{width:var(--card-w); height:var(--card-h); position:relative}
+.pile .count{font-size:.72rem; color:#8fb0a0}
+.pile.playable .slot{cursor:pointer}
+.pile.playable .card,.pile.playable .cardback,.pile.playable .empty{
+  outline:2px dashed var(--brass-hi); outline-offset:4px; border-radius:12px;
+  animation:pulse 1.6s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{outline-color:rgba(228,200,131,.45)}50%{outline-color:rgba(228,200,131,1)}}
+.empty{
+  width:var(--card-w); height:var(--card-h); border-radius:12px;
+  border:2px dashed rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center;
+  color:#7f9d8e; font-size:.72rem; text-align:center; padding:8px;
+}
+
+/* card faces — white stock, season-colored ink, playing-card mirror layout */
+.card{
+  width:var(--card-w); height:var(--card-h); border-radius:11px; background:#fff;
+  border:1px solid #e2ddce; box-shadow:var(--shadow);
+  display:grid; grid-template-rows:auto 1fr auto; overflow:hidden; position:relative; user-select:none;
+  padding:7px 6px; color:#2b2a26;
+}
+.card .end{
+  font-family:"Archivo",sans-serif; font-weight:700; font-size:.66rem; letter-spacing:.02em;
+  text-align:center; line-height:1; white-space:nowrap; color:var(--cc);
+}
+.card .end.flip{transform:rotate(180deg)}
+.card .mid{
+  position:relative; display:flex; align-items:center; justify-content:center; min-height:0; overflow:hidden;
+}
+/* vertical category word down the center */
+.card .vword{
+  font-family:"Fraunces",serif; font-weight:600; letter-spacing:.02em;
+  writing-mode:vertical-rl; text-orientation:upright; font-size:.72rem; color:var(--cc);
+  z-index:2; line-height:.86;
+}
+.card .vword.small{font-size:.6rem; letter-spacing:0}
+/* seasonal art scattered behind */
+.card .art{position:absolute; inset:0; display:flex; flex-wrap:wrap; align-content:center; justify-content:center;
+  gap:1px 3px; padding:2px 3px; z-index:1; pointer-events:none; opacity:.95}
+.card .art span{font-size:.8rem; line-height:1}
+/* clock for time cards */
+.card .clock{
+  --r:38px; width:calc(var(--r)*2); height:calc(var(--r)*2); border-radius:50%;
+  border:2.5px solid var(--cc); position:relative; z-index:2; box-sizing:border-box;
+}
+.card .clock .hand{position:absolute; left:50%; top:50%; transform-origin:bottom center; background:var(--cc); border-radius:2px}
+.card .clock .hand.hr{width:2.5px; height:calc(var(--r)*0.5); transform:translate(-50%,-100%) rotate(var(--hrot))}
+.card .clock .hand.mn{width:2px;   height:calc(var(--r)*0.72); transform:translate(-50%,-100%) rotate(var(--mrot))}
+.card .clock .pin{position:absolute; left:50%; top:50%; width:5px; height:5px; border-radius:50%; background:var(--cc); transform:translate(-50%,-50%)}
+.card[data-color=blue]   {--cc:var(--ink-blue)}
+.card[data-color=yellow] {--cc:var(--ink-gold)}
+.card[data-color=green]  {--cc:var(--ink-green)}
+.card[data-color=orange] {--cc:var(--ink-orange)}
+
+/* card back */
+.cardback{
+  width:var(--card-w); height:var(--card-h); border-radius:12px; position:relative; overflow:hidden;
+  background:linear-gradient(155deg,#1d2c3c,#101a24); border:1px solid rgba(255,255,255,.12);
+  box-shadow:var(--shadow); display:flex; align-items:center; justify-content:center;
+}
+.cardback::before{
+  content:""; position:absolute; inset:7px; border:1px solid rgba(228,200,131,.35); border-radius:8px;
+}
+.cardback .mono{font-family:"Fraunces",serif; color:var(--brass-hi); font-weight:600; font-size:1.05rem; letter-spacing:.08em}
+.cardback .sidetabs{position:absolute; left:7px; top:14px; display:flex; flex-direction:column; gap:5px}
+.cardback .sidetabs i{width:6px; height:16px; border-radius:2px; display:block}
+
+/* your hand */
+.handzone{display:flex; flex-direction:column; align-items:center; gap:8px}
+.handhead{display:flex; align-items:center; gap:12px; color:var(--muted); font-size:.8rem}
+.handhead .you{color:var(--paper); font-weight:600; font-family:"Fraunces",serif; font-size:1rem}
+.hand{display:flex; justify-content:center; gap:10px; flex-wrap:wrap; padding:6px 0 2px; min-height:calc(var(--card-h) + 12px)}
+.hand .card{transition:transform .16s ease, box-shadow .16s ease}
+.hand.selectable .card{cursor:pointer}
+.hand.selectable .card:hover,.hand.selectable .card:focus-visible{transform:translateY(-12px); box-shadow:0 22px 34px -14px rgba(0,0,0,.7); outline:none}
+.hand.selectable .card:focus-visible{outline:3px solid var(--brass-hi); outline-offset:3px}
+.card.win{transform:translateY(-16px)!important; box-shadow:0 0 0 3px var(--brass-hi),0 26px 40px -14px rgba(0,0,0,.8)}
+.card.fresh{animation:drop .35s cubic-bezier(.2,.8,.25,1)}
+@keyframes drop{from{transform:translateY(-40px) scale(.9); opacity:0}to{transform:none; opacity:1}}
+
+.controls{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; align-items:center; min-height:44px}
+
+/* log */
+.log{
+  width:100%; max-width:560px; margin:0 auto; background:rgba(0,0,0,.22); border:1px solid var(--line);
+  border-radius:12px; padding:10px 14px; font-size:.8rem; color:var(--muted-2);
+}
+.log h3{font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--brass-hi); margin-bottom:6px; font-family:"Archivo",sans-serif; font-weight:700}
+.log ul{list-style:none; margin:0; padding:0; max-height:96px; overflow:auto}
+.log li{padding:2px 0; border-bottom:1px solid rgba(255,255,255,.05)}
+.log li b{color:var(--paper)}
+
+/* overlays */
+.overlay{
+  position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:20px;
+  background:radial-gradient(120% 120% at 50% 0%, rgba(20,30,40,.78), rgba(6,10,14,.94));
+  backdrop-filter:blur(3px);
+}
+.overlay[hidden]{display:none}
+.book{
+  width:min(560px,100%); background:linear-gradient(180deg,#1b2836,#111a24);
+  border:1px solid rgba(228,200,131,.25); border-radius:18px; padding:30px 30px 26px;
+  box-shadow:0 40px 90px -30px rgba(0,0,0,.85), inset 0 1px 0 rgba(255,255,255,.05);
+}
+.book .cover-tabs{display:flex; gap:5px; margin-bottom:16px}
+.book .cover-tabs i{height:34px; flex:1; border-radius:4px}
+.book h2{font-size:clamp(1.8rem,5vw,2.5rem); line-height:1.02; color:var(--paper)}
+.book .eyebrow{color:var(--brass-hi); font-size:.78rem; letter-spacing:.22em; text-transform:uppercase; margin-bottom:8px}
+.book p.lede{color:var(--muted-2); line-height:1.55; margin:14px 0 22px; max-width:46ch}
+.field{margin:0 0 20px}
+.field .flabel{font-size:.82rem; color:var(--muted); margin-bottom:8px}
+.chips{display:flex; gap:8px; flex-wrap:wrap}
+.chip{
+  border:1px solid var(--line-2); background:transparent; color:var(--muted-2);
+  width:44px; height:44px; border-radius:10px; cursor:pointer; font-size:1rem; font-weight:600;
+  transition:all .12s ease;
+}
+.chip:hover{border-color:var(--brass)}
+.chip.sel{background:linear-gradient(180deg,var(--brass-hi),var(--brass)); color:#211a0c; border-color:var(--brass-deep)}
+.chip:focus-visible{outline:3px solid var(--brass-hi); outline-offset:2px}
+.book .row{display:flex; gap:12px; align-items:center; flex-wrap:wrap}
+.book .note{font-size:.78rem; color:var(--muted); margin-top:14px; line-height:1.5}
+
+/* how-to */
+.howto{width:min(600px,100%); max-height:86vh; overflow:auto}
+.howto h3{color:var(--brass-hi); font-family:"Archivo",sans-serif; font-weight:700; font-size:.8rem; letter-spacing:.1em; text-transform:uppercase; margin:18px 0 6px}
+.howto p,.howto li{color:var(--muted-2); line-height:1.6; font-size:.92rem}
+.howto ul{padding-left:18px; margin:6px 0}
+.legend{display:flex; gap:14px; flex-wrap:wrap; margin:10px 0 4px}
+.legend span{display:flex; align-items:center; gap:6px; font-size:.85rem}
+.legend i{width:14px; height:14px; border-radius:3px; display:inblock}
+
+/* win */
+.winwrap{text-align:center; width:min(560px,100%)}
+.stamp-big{
+  display:inline-block; padding:18px 30px; border:4px solid var(--brass); border-radius:12px;
+  color:var(--brass-hi); font-family:"Fraunces",serif; font-weight:700; font-size:clamp(1.4rem,4.5vw,2.2rem);
+  transform:rotate(-4deg); letter-spacing:.02em; margin-bottom:10px;
+  box-shadow:0 0 0 2px rgba(228,200,131,.25); text-shadow:0 2px 12px rgba(0,0,0,.5);
+  animation:slam .5s cubic-bezier(.2,1.2,.3,1);
+}
+@keyframes slam{0%{transform:rotate(-4deg) scale(2.4); opacity:0}60%{opacity:1}100%{transform:rotate(-4deg) scale(1)}}
+.winwrap .who-won{font-family:"Fraunces",serif; color:var(--paper); font-size:1.6rem; margin:8px 0 4px}
+.winwrap .combo{display:flex; gap:10px; justify-content:center; margin:20px 0}
+.winwrap .sub{color:var(--muted); margin-bottom:22px}
+
+@media (max-width:640px){
+  :root{--card-w:82px; --card-h:120px}
+  .piles{gap:22px}
+  .opp{min-width:0; flex:1 1 46%}
+  .card{padding:5px 4px}
+  .card .end{font-size:.56rem}
+  .card .clock{--r:30px}
+  .card .art span{font-size:.62rem}
+}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important; transition-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brandmark">
+      <div class="tabs"><i style="background:var(--blue)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i></div>
+      <div>
+        <h1>I've Got an Appointment</h1>
+        <div class="sub">Beginner Game</div>
+      </div>
+    </div>
+    <div class="tools">
+      <a class="btn ghost" href="index.html">← Parlor</a>
+      <button class="btn ghost" id="btnHelp">How to play</button>
+      <button class="btn ghost" id="btnNew">New game</button>
+    </div>
+  </div>
+
+  <div class="opponents" id="opponents"></div>
+
+  <div class="felt">
+    <div class="banner">
+      <div class="phase" id="phaseText">—</div>
+      <div class="hint" id="hintText"></div>
+    </div>
+    <div class="piles">
+      <div class="pile" id="drawPile">
+        <div class="plabel">Draw pile</div>
+        <div class="slot" id="drawSlot"></div>
+        <div class="count" id="drawCount"></div>
+      </div>
+      <div class="pile" id="discardPile">
+        <div class="plabel">Discard pile</div>
+        <div class="slot" id="discardSlot"></div>
+        <div class="count" id="discardCount"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="handzone">
+    <div class="handhead">
+      <span class="you" id="youName">You</span>
+      <span id="handStatus">your appointment slips</span>
+    </div>
+    <div class="hand" id="hand"></div>
+    <div class="controls" id="controls"></div>
+  </div>
+
+  <div class="log">
+    <h3>Table log</h3>
+    <ul id="logList"></ul>
+  </div>
+</div>
+
+<!-- START -->
+<div class="overlay" id="startOverlay">
+  <div class="book">
+    <div class="cover-tabs"><i style="background:var(--blue)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i></div>
+    <div class="eyebrow">Beginner Game · 2–8 players</div>
+    <h2>I've Got an Appointment</h2>
+    <p class="lede">Collect a season, a day, and a time — all the same color — to book your appointment first. Draw a card, discard a card, and race the table.</p>
+    <div class="field">
+      <div class="flabel">How many opponents?</div>
+      <div class="chips" id="oppChips"></div>
+    </div>
+    <div class="row">
+      <button class="btn" id="btnStart">Deal the cards</button>
+      <button class="btn ghost" id="btnHelp2">How to play</button>
+    </div>
+    <p class="note">A full deck is 68 color-coded cards: four seasons (Winter blue · Spring gold · Summer green · Fall pumpkin), each with 3 months, 7 days, and 7 times.</p>
+  </div>
+</div>
+
+<!-- HOW TO PLAY -->
+<div class="overlay" id="helpOverlay" hidden>
+  <div class="book howto">
+    <div class="eyebrow">How to play</div>
+    <h2>Book the appointment first</h2>
+    <div class="legend">
+      <span><i style="background:var(--blue)"></i>Winter</span>
+      <span><i style="background:var(--yellow)"></i>Spring</span>
+      <span><i style="background:var(--green)"></i>Summer</span>
+      <span><i style="background:var(--orange)"></i>Fall</span>
+    </div>
+    <h3>The goal</h3>
+    <p>Be the first to hold a 3-card appointment: one <b>season/month</b> card, one <b>day-of-week</b> card, and one <b>time</b> card — all of the <b>same color</b>. Then declare it.</p>
+    <h3>Your turn</h3>
+    <ul>
+      <li><b>Draw</b> one card — either the top of the draw pile (face down) or the top of the discard pile (face up).</li>
+      <li><b>Discard</b> one card from your hand, so you're back to five.</li>
+      <li>If your five cards ever contain a matching-color season + day + time, the <b>Declare appointment</b> button lights up. Click it to win.</li>
+    </ul>
+    <h3>Strategy</h3>
+    <p>Season/month cards are the scarcest — only three per color. When you land one, build the rest of your appointment around its color and hold onto it.</p>
+    <div class="row" style="margin-top:18px"><button class="btn" id="btnCloseHelp">Got it</button></div>
+  </div>
+</div>
+
+<!-- WIN -->
+<div class="overlay" id="winOverlay" hidden>
+  <div class="winwrap">
+    <div class="stamp-big">I've Got an Appointment!</div>
+    <div class="who-won" id="winWho"></div>
+    <div class="sub" id="winSub"></div>
+    <div class="combo" id="winCombo"></div>
+    <button class="btn" id="btnPlayAgain">Play again</button>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============================ DATA ============================ */
+const SEASONS = [
+  {color:"blue",   name:"Winter", art:"❄", months:["December","January","February"]},
+  {color:"yellow", name:"Spring", art:"🌼", months:["March","April","May"]},
+  {color:"green",  name:"Summer", art:"☀", months:["June","July","August"]},
+  {color:"orange", name:"Fall",   art:"🍁", months:["September","October","November"]},
+];
+const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const WEEKEND = new Set(["Saturday","Sunday"]);
+const TIMES = [
+  {label:"9:00 AM", ap:"AM", hr:9}, {label:"10:00 AM", ap:"AM", hr:10}, {label:"11:00 AM", ap:"AM", hr:11},
+  {label:"12:00 NOON", ap:"NOON", hr:12}, {label:"1:00 PM", ap:"PM", hr:1}, {label:"2:00 PM", ap:"PM", hr:2}, {label:"3:00 PM", ap:"PM", hr:3},
+];
+const AI_NAMES = ["Robin","Sam","Alex","Jordan","Casey","Riley","Morgan"];
+const DAY_ABBR = {Sunday:"SUN",Monday:"MON",Tuesday:"TUE",Wednesday:"WED",Thursday:"THU",Friday:"FRI",Saturday:"SAT"};
+
+let CARD_ID = 0;
+function buildDeck(){
+  const deck = [];
+  for(const s of SEASONS){
+    for(const m of s.months) deck.push({id:++CARD_ID, cat:"season", color:s.color, season:s.name, art:s.art, value:m, valAbbr:m.slice(0,3).toUpperCase()});
+    for(const d of DAYS)     deck.push({id:++CARD_ID, cat:"day",    color:s.color, season:s.name, value:d, valAbbr:DAY_ABBR[d], kind:WEEKEND.has(d)?"WEEKEND":"WEEKDAY"});
+    for(const t of TIMES)    deck.push({id:++CARD_ID, cat:"time",   color:s.color, season:s.name, value:t.label, ap:t.ap, hr:t.hr});
+  }
+  return deck; // 68 cards
+}
+function shuffle(a){
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+/* ============================ STATE ============================ */
+let G = null;
+function newGame(numOpponents){
+  const players = [{name:"You", human:true, hand:[]}];
+  const names = shuffle(AI_NAMES.slice());
+  for(let i=0;i<numOpponents;i++) players.push({name:names[i], human:false, hand:[]});
+  const deck = shuffle(buildDeck());
+  // deal 5 each, one at a time
+  for(let r=0;r<5;r++) for(const p of players) p.hand.push(deck.pop());
+  const discard = [deck.pop()];
+  const dealer = Math.floor(Math.random()*players.length);
+  G = {
+    players, draw:deck, discard,
+    current:(dealer+1)%players.length,
+    dealer, phase:"idle", winner:null, log:[], freshCardId:null,
+  };
+  logMsg(`<b>${players[dealer].name}</b> deals. <b>${players[G.current].name}</b> start${players[G.current].human?"":"s"}.`);
+  renderAll();
+  startTurn();
+}
+
+/* ============================ RULES ============================ */
+// Does a hand contain a same-color season+day+time? Return {color, cards:[..3]} or null.
+function findAppointment(hand){
+  for(const s of SEASONS){
+    const se = hand.find(c=>c.color===s.color && c.cat==="season");
+    const da = hand.find(c=>c.color===s.color && c.cat==="day");
+    const ti = hand.find(c=>c.color===s.color && c.cat==="time");
+    if(se&&da&&ti) return {color:s.color, cards:[se,da,ti]};
+  }
+  return null;
+}
+
+/* ============================ AI ============================ */
+const CATS = ["season","day","time"];
+function coverageFor(hand,color){
+  const cats = new Set(hand.filter(c=>c.color===color).map(c=>c.cat));
+  return {covered:cats.size, count:hand.filter(c=>c.color===color).length, cats};
+}
+function bestColor(hand){
+  let best=null;
+  for(const s of SEASONS){
+    const cov=coverageFor(hand,s.color);
+    const score=cov.covered*100+cov.count;
+    if(!best||score>best.score) best={color:s.color, score, ...cov};
+  }
+  return best;
+}
+function handScore(hand){ // higher = closer to an appointment
+  let m=0;
+  for(const s of SEASONS){const c=coverageFor(hand,s.color); m=Math.max(m,c.covered*100+c.count);}
+  return m;
+}
+function aiChooseDraw(hand){
+  const top=G.discard[G.discard.length-1];
+  if(!top) return "deck";
+  return handScore(hand.concat([top])) > handScore(hand) ? "discard" : "deck";
+}
+function aiChooseDiscard(hand){
+  const bc=bestColor(hand).color;
+  // usefulness: prefer to KEEP high value; discard lowest
+  const seenCat={}; // to keep only one per needed category in best color
+  let worst=null;
+  for(const card of hand){
+    const without=hand.filter(c=>c.id!==card.id);
+    const s=handScore(without); // removing least-useful keeps score highest
+    // keep-priority: bestColor cards precious; season precious (scarce)
+    let keep=(card.color===bc?100:0) + (card.cat==="season"?4:card.cat==="day"?2:2);
+    // penalize duplicates within best color (a 2nd season of best color is less critical to keep)
+    const dupe=hand.filter(c=>c.color===card.color&&c.cat===card.cat).length>1;
+    if(dupe) keep-=3;
+    if(!worst || s>worst.s || (s===worst.s && keep<worst.keep)) worst={card, s, keep};
+  }
+  return worst.card;
+}
+
+/* ============================ TURN FLOW ============================ */
+function startTurn(){
+  if(G.winner!==null) return;
+  const p=G.players[G.current];
+  // already holding an appointment at the start of your turn? declare.
+  const appt=findAppointment(p.hand);
+  if(appt){
+    if(p.human){ G.phase="declare-only"; renderAll(); }
+    else { setTimeout(()=>declareWin(G.current, appt), 700); }
+    return;
+  }
+  if(p.human){ G.phase="draw"; renderAll(); }
+  else { G.phase="ai"; renderAll(); setTimeout(runAI, 750); }
+}
+
+function drawFrom(source){ // returns card
+  let card;
+  if(source==="discard"){ card=G.discard.pop(); }
+  else {
+    if(G.draw.length===0) reshuffleDraw();
+    card=G.draw.pop();
+  }
+  return card;
+}
+function reshuffleDraw(){
+  if(G.discard.length<=1) return;
+  const top=G.discard.pop();
+  G.draw=shuffle(G.discard);
+  G.discard=[top];
+  logMsg(`Draw pile ran out — the discards are reshuffled.`);
+}
+
+function humanDraw(source){
+  if(G.phase!=="draw") return;
+  const card=drawFrom(source);
+  if(!card) return;
+  const p=G.players[G.current];
+  p.hand.push(card);
+  G.freshCardId=card.id;
+  logMsg(`<b>You</b> drew from the ${source==="discard"?"discard pile":"draw pile"}.`);
+  G.phase="discard";
+  renderAll();
+}
+function humanDiscard(cardId){
+  if(G.phase!=="discard") return;
+  const p=G.players[G.current];
+  const idx=p.hand.findIndex(c=>c.id===cardId);
+  if(idx<0) return;
+  const [card]=p.hand.splice(idx,1);
+  G.discard.push(card);
+  G.freshCardId=null;
+  logMsg(`<b>You</b> discarded ${describe(card)}.`);
+  endTurn();
+}
+function declareWin(playerIndex, appt){
+  G.winner=playerIndex;
+  G.phase="over";
+  G.winCombo=appt;
+  const p=G.players[playerIndex];
+  logMsg(`<b>${p.name}</b> declared “I've Got an Appointment!” 🎉`);
+  renderAll();
+  showWin(playerIndex, appt);
+}
+function endTurn(){
+  if(G.winner!==null) return;
+  G.current=(G.current+1)%G.players.length;
+  startTurn();
+}
+
+function runAI(){
+  const p=G.players[G.current];
+  // draw
+  const src=aiChooseDraw(p.hand);
+  const card=drawFrom(src);
+  p.hand.push(card);
+  G.freshCardId=card.id;
+  logMsg(`<b>${p.name}</b> drew from the ${src==="discard"?"discard pile":"draw pile"}.`);
+  renderAll();
+  setTimeout(()=>{
+    const appt=findAppointment(p.hand);
+    if(appt){ declareWin(G.current, appt); return; }
+    const d=aiChooseDiscard(p.hand);
+    p.hand=p.hand.filter(c=>c.id!==d.id);
+    G.discard.push(d);
+    G.freshCardId=null;
+    logMsg(`<b>${p.name}</b> discarded ${describe(d)}.`);
+    renderAll();
+    setTimeout(endTurn, 550);
+  }, 750);
+}
+
+/* ============================ RENDER ============================ */
+function seasonName(color){return SEASONS.find(s=>s.color===color).name;}
+function describe(c){
+  if(c.cat==="season") return `a ${seasonName(c.color)} ${c.value} card`;
+  if(c.cat==="day")    return `a ${seasonName(c.color)} ${c.value} card`;
+  return `a ${seasonName(c.color)} ${c.value} card`;
+}
+function clockHTML(hr){
+  const hrDeg = (hr%12)*30;      // minute hand always at 12 (on the hour)
+  return `<div class="clock" style="--hrot:${hrDeg}deg; --mrot:0deg">
+    <div class="hand mn"></div><div class="hand hr"></div><div class="pin"></div>
+  </div>`;
+}
+function cardFaceHTML(c, extraClass=""){
+  let label, mid;
+  if(c.cat==="season"){
+    label = c.value.toUpperCase();                 // e.g. DECEMBER
+    const art = Array.from({length:9}).map(()=>`<span>${c.art}</span>`).join("");
+    mid = `<div class="art">${art}</div><div class="vword">${c.season.toUpperCase()}</div>`;
+  } else if(c.cat==="day"){
+    label = c.value.toUpperCase();                 // e.g. FRIDAY
+    mid = `<div class="vword ${c.kind==='WEEKEND'?'':'small'}">${c.kind}</div>`;
+  } else {
+    label = c.value.toUpperCase();                 // e.g. 1:00 PM
+    mid = clockHTML(c.hr);
+  }
+  return `<div class="card ${extraClass}" data-color="${c.color}" data-cat="${c.cat}" data-id="${c.id}">
+    <div class="end">${label}</div>
+    <div class="mid">${mid}</div>
+    <div class="end flip">${label}</div>
+  </div>`;
+}
+function cardBackHTML(){
+  return `<div class="cardback">
+    <div class="sidetabs"><i style="background:var(--blue)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i></div>
+    <div class="mono">IGAA</div>
+  </div>`;
+}
+function miniBackStyle(){return "background:linear-gradient(155deg,#1d2c3c,#101a24)";}
+
+function renderAll(){
+  renderOpponents(); renderPiles(); renderHand(); renderBanner(); renderControls(); renderLog();
+}
+function renderOpponents(){
+  const el=document.getElementById("opponents"); el.innerHTML="";
+  G.players.forEach((p,i)=>{
+    if(p.human) return;
+    const active = i===G.current && G.winner===null;
+    const div=document.createElement("div");
+    div.className="opp"+(active?" active":"");
+    div.innerHTML=`
+      <div class="mini" style="${miniBackStyle()};border:1px solid rgba(255,255,255,.14);border-radius:5px"></div>
+      <div class="who">
+        <span class="name">${p.name}</span>
+        <span class="meta">${p.hand.length} cards${i===G.dealer?" · dealer":""}</span>
+        <span class="think">${active?"Taking their turn…":""}</span>
+      </div>`;
+    el.appendChild(div);
+  });
+  if(!el.children.length){ el.innerHTML=`<div class="opp"><div class="who"><span class="meta">Solo table</span></div></div>`; }
+}
+function renderPiles(){
+  const humansTurn = G.players[G.current].human && G.winner===null;
+  // draw
+  const drawSlot=document.getElementById("drawSlot");
+  drawSlot.innerHTML = G.draw.length? cardBackHTML() : `<div class="empty">Empty — reshuffles from discards</div>`;
+  document.getElementById("drawCount").textContent=`${G.draw.length} left`;
+  const drawPile=document.getElementById("drawPile");
+  drawPile.classList.toggle("playable", humansTurn && G.phase==="draw");
+  // discard
+  const top=G.discard[G.discard.length-1];
+  const discardSlot=document.getElementById("discardSlot");
+  discardSlot.innerHTML = top? cardFaceHTML(top) : `<div class="empty">No discards yet</div>`;
+  document.getElementById("discardCount").textContent=`${G.discard.length} card${G.discard.length!==1?"s":""}`;
+  const discardPile=document.getElementById("discardPile");
+  discardPile.classList.toggle("playable", humansTurn && G.phase==="draw" && !!top);
+
+  drawPile.onclick = (humansTurn && G.phase==="draw") ? ()=>humanDraw("deck") : null;
+  discardPile.onclick = (humansTurn && G.phase==="draw" && top) ? ()=>humanDraw("discard") : null;
+}
+function renderHand(){
+  const you=G.players[0];
+  const hand=document.getElementById("hand");
+  const canDiscard = you===G.players[G.current] && G.phase==="discard";
+  hand.classList.toggle("selectable", canDiscard);
+  const appt=(you===G.players[G.current] && (G.phase==="declare-only"||G.phase==="discard"||G.phase==="draw"))?findAppointment(you.hand):null;
+  const winIds = (G.phase==="over"&&G.winner===0&&G.winCombo)?G.winCombo.cards.map(c=>c.id):(appt?appt.cards.map(c=>c.id):[]);
+  hand.innerHTML = you.hand.map(c=>{
+    let cls="";
+    if(c.id===G.freshCardId) cls+=" fresh";
+    if(winIds.includes(c.id) && (G.phase==="over"||G.phase==="declare-only")) cls+=" win";
+    return cardFaceHTML(c, cls.trim());
+  }).join("");
+  if(canDiscard){
+    hand.querySelectorAll(".card").forEach(el=>{
+      const id=+el.dataset.id;
+      el.tabIndex=0;
+      el.onclick=()=>humanDiscard(id);
+      el.onkeydown=(e)=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();humanDiscard(id);}};
+    });
+  }
+  document.getElementById("handStatus").textContent =
+    canDiscard ? "tap a card to discard it" :
+    (G.phase==="draw"?"waiting for you to draw":"your appointment slips");
+}
+function renderBanner(){
+  const phaseEl=document.getElementById("phaseText");
+  const hintEl=document.getElementById("hintText");
+  const cur=G.players[G.current];
+  if(G.winner!==null){ phaseEl.textContent="Appointment booked."; hintEl.textContent=""; return; }
+  if(!cur.human){ phaseEl.textContent=`${cur.name}'s turn`; hintEl.textContent="Watching the table…"; return; }
+  if(G.phase==="draw"){ phaseEl.textContent="Your turn — draw a card"; hintEl.textContent="Take the top of the draw pile or the discard pile."; }
+  else if(G.phase==="discard"){
+    const appt=findAppointment(cur.hand);
+    phaseEl.textContent = appt? "You can book it!" : "Now discard a card";
+    hintEl.textContent = appt? "You've got a matching season, day, and time — declare below, or discard to keep playing." : "Tap a card to drop it back to five.";
+  } else if(G.phase==="declare-only"){
+    phaseEl.textContent="You've got an appointment!"; hintEl.textContent="Declare it to win the game.";
+  }
+}
+function renderControls(){
+  const el=document.getElementById("controls"); el.innerHTML="";
+  const cur=G.players[G.current];
+  if(G.winner!==null || !cur.human) return;
+  const appt=findAppointment(cur.hand);
+  if((G.phase==="discard"||G.phase==="declare-only") && appt){
+    const b=document.createElement("button");
+    b.className="btn"; b.textContent="Declare appointment!";
+    b.onclick=()=>declareWin(0, appt);
+    el.appendChild(b);
+  }
+}
+function renderLog(){
+  const ul=document.getElementById("logList");
+  ul.innerHTML=G.log.slice(0,14).map(m=>`<li>${m}</li>`).join("");
+}
+function logMsg(m){ G.log.unshift(m); if(G.log.length>60)G.log.pop(); const ul=document.getElementById("logList"); if(ul) renderLog(); }
+
+/* ============================ WIN SCREEN ============================ */
+function showWin(idx, appt){
+  const p=G.players[idx];
+  document.getElementById("winWho").textContent = p.human? "You booked it first." : `${p.name} booked it first.`;
+  document.getElementById("winSub").textContent = `A ${seasonName(appt.color)} appointment — same color across the board.`;
+  document.getElementById("winCombo").innerHTML = appt.cards
+    .slice().sort((a,b)=>CATS.indexOf(a.cat)-CATS.indexOf(b.cat))
+    .map(c=>cardFaceHTML(c)).join("");
+  const ov=document.getElementById("winOverlay"); ov.hidden=false;
+}
+
+/* ============================ UI WIRING ============================ */
+let chosenOpponents=2;
+function buildOppChips(){
+  const wrap=document.getElementById("oppChips"); wrap.innerHTML="";
+  for(let n=1;n<=7;n++){
+    const b=document.createElement("button");
+    b.className="chip"+(n===chosenOpponents?" sel":"");
+    b.textContent=n; b.setAttribute("aria-label",`${n} opponent${n>1?"s":""}`);
+    b.onclick=()=>{chosenOpponents=n; buildOppChips();};
+    wrap.appendChild(b);
+  }
+}
+function openHelp(){document.getElementById("helpOverlay").hidden=false;}
+function closeHelp(){document.getElementById("helpOverlay").hidden=true;}
+
+document.getElementById("btnStart").onclick=()=>{
+  document.getElementById("startOverlay").hidden=true;
+  newGame(chosenOpponents);
+};
+document.getElementById("btnHelp").onclick=openHelp;
+document.getElementById("btnHelp2").onclick=openHelp;
+document.getElementById("btnCloseHelp").onclick=closeHelp;
+document.getElementById("btnNew").onclick=()=>{
+  document.getElementById("winOverlay").hidden=true;
+  document.getElementById("startOverlay").hidden=false;
+};
+document.getElementById("btnPlayAgain").onclick=()=>{
+  document.getElementById("winOverlay").hidden=true;
+  document.getElementById("startOverlay").hidden=false;
+};
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeHelp(); });
+
+buildOppChips();
+</script>
+</body>
+</html>
