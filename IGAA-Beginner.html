@@ -67,7 +67,7 @@ button{font-family:inherit}
 .btn:disabled{opacity:.4; cursor:not-allowed; filter:none; transform:none}
 
 /* ---------- layout ---------- */
-#app{max-width:1180px; margin:0 auto; padding:18px clamp(12px,3vw,28px) 24px; min-height:100vh; display:flex; flex-direction:column; gap:14px}
+#app{max-width:1180px; margin:0 auto; padding:14px clamp(12px,3vw,28px) 16px; height:100dvh; overflow:hidden; display:flex; flex-direction:column; gap:10px}
 .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
 .brandmark{display:flex; align-items:center; gap:12px}
 .brandmark .tabs{display:flex; gap:3px}
@@ -93,8 +93,8 @@ button{font-family:inherit}
 
 /* table / felt */
 .felt{
-  position:relative; flex:1 1 auto; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:18px; padding:26px 16px; border-radius:20px;
+  position:relative; flex:1 1 auto; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:12px; padding:16px; border-radius:20px;
   background:
     radial-gradient(140% 120% at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,0) 55%),
     linear-gradient(180deg,#1c3b34,#122a26);

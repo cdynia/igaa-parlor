@@ -7,7 +7,8 @@
 /* One fluid card size for ALL games (overrides each game's own breakpoints),
    so cards scale identically on every screen. ~1.42 aspect, 4 fit across a phone. */
 :root{
-  --card-w:clamp(58px, 18.5vw, 104px);
+  /* size by width AND height so 3-row boards fit a screen without scrolling */
+  --card-w:clamp(42px, min(16.5vw, 10.6vh), 100px);
   --card-h:calc(var(--card-w) * 1.42);
 }
 .card{
@@ -33,6 +34,8 @@
   color:var(--cc); text-align:center; white-space:nowrap;
 }
 .card .idx.b{transform:rotate(180deg)}
+/* color / type label sits at the bottom, upright and readable (accessibility) */
+.card .idx.bottom{font-size:calc(var(--card-h,144px)*0.072); letter-spacing:.09em; opacity:.96}
 
 .card .mid{position:relative; display:flex; align-items:center; justify-content:center; min-height:0; overflow:hidden}
 
@@ -75,29 +78,35 @@
 /* mail card glyph */
 .card .mailglyph{font-size:calc(var(--card-h,144px)*0.3); color:var(--cc); z-index:2; line-height:1}
 
-/* ---- card BACK: "I'VE GOT AN APPOINTMENT" running the long way, framed
-        like a real playing-card back on ivory stock ---- */
+/* ---- card BACK: premium navy stock, brass double frame, four-season
+        medallion with an IGAA monogram ---- */
 .cardback, .face.back{
-  background:#f1ead9 !important; overflow:hidden; position:relative;
+  background:linear-gradient(150deg,#22303f,#0f1822) !important; overflow:hidden; position:relative;
   display:flex; align-items:center; justify-content:center;
 }
 .cardback{
-  width:var(--card-w,100px); height:var(--card-h,144px); border-radius:12px; border:1px solid #cfc4aa;
-  box-shadow:0 10px 22px -12px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.45);
+  width:var(--card-w,100px); height:var(--card-h,144px); border-radius:12px; border:1px solid #0b131c;
+  box-shadow:0 10px 22px -12px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.04);
 }
-/* inset frame line — the classic bordered card back */
+/* brass double frame */
 .cardback::before, .face.back::before{
-  content:""; position:absolute; inset:calc(var(--card-w,100px)*0.06);
-  border:1.5px solid rgba(46,34,16,.34); border-radius:7px; z-index:3; pointer-events:none;
+  content:""; position:absolute; inset:calc(var(--card-w,100px)*0.055);
+  border:1px solid rgba(200,163,98,.6); border-radius:8px; z-index:2; pointer-events:none;
+  box-shadow:inset 0 0 0 2.5px rgba(200,163,98,.14);
 }
-/* the repeated phrase, rotated to run along the card's long axis */
-.rows{
-  display:flex; flex-direction:column; align-items:center; gap:calc(var(--card-h,144px)*0.012);
-  transform:rotate(-90deg); z-index:1;
+/* season-ring medallion */
+.bk-medallion{
+  width:calc(var(--card-w,100px)*0.52); height:calc(var(--card-w,100px)*0.52); border-radius:50%; z-index:1;
+  background:conic-gradient(#3d78bf 0 25%, #e6b23a 0 50%, #45a06a 0 75%, #cf7620 0 100%);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 3px 10px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.25);
 }
-.rows span{
-  display:block; font-family:"Fraunces","Georgia",serif; font-weight:700; color:#221f18;
-  font-size:calc(var(--card-h,144px)*0.076); line-height:1.04; letter-spacing:-0.02em; white-space:nowrap;
+.bk-core{
+  width:64%; height:64%; border-radius:50%; background:linear-gradient(150deg,#22303f,#0f1822);
+  display:flex; align-items:center; justify-content:center;
+  font-family:"Fraunces","Georgia",serif; font-weight:700; color:#e4c883; letter-spacing:.02em;
+  font-size:calc(var(--card-w,100px)*0.125); border:1px solid rgba(200,163,98,.45);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.4);
 }
 .face.back{border:none}
-.face.back .bt{display:none !important}
+.face.back .bt, .rows{display:none !important}

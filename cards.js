@@ -52,12 +52,12 @@
     var id = c && c.id != null ? c.id : "";
     if (c && (c.cat === "mail" || c.mail)) {
       return '<div class="card ' + extra + '" data-color="mail" data-cat="mail" data-id="' + id + '">' +
-        '<div class="idx">MAIL</div><div class="mid"><div class="mailglyph">✉</div></div><div class="idx b">MAIL</div></div>';
+        '<div class="idx">MAIL</div><div class="mid"><div class="mailglyph">✉</div></div><div class="idx bottom">PURPLE</div></div>';
     }
     if (c && (c.cat === "noon" || c.noon)) {
       var nl = esc(c.value || "12:00 NOON").toUpperCase();
       return '<div class="card ' + extra + '" data-color="noon" data-cat="noon" data-id="' + id + '">' +
-        '<div class="idx">' + nl + '</div><div class="mid">' + clockHTML(12) + '</div><div class="idx b">' + nl + '</div></div>';
+        '<div class="idx">' + nl + '</div><div class="mid">' + clockHTML(12) + '</div><div class="idx bottom">RED</div></div>';
     }
     var cat = (c && c.cat) || "season";
     var label, mid;
@@ -75,17 +75,15 @@
       var art = new Array(9).join(",").split(",").map(function () { return icon; }).join("");
       mid = '<div class="art">' + art + '</div><div class="vword">' + season.toUpperCase() + '</div>';
     }
-    var colorLabel = COLORNAME[c.color] || label; // bottom = the color name (accessibility)
+    var colorLabel = COLORNAME[c.color] || label; // bottom = the color name (accessibility, upright)
     return '<div class="card ' + extra + '" data-color="' + esc(c.color) + '" data-cat="' + cat + '" data-id="' + id + '">' +
-      '<div class="idx">' + label + '</div><div class="mid">' + mid + '</div><div class="idx b">' + colorLabel + '</div></div>';
+      '<div class="idx">' + label + '</div><div class="mid">' + mid + '</div><div class="idx bottom">' + colorLabel + '</div></div>';
   }
 
   // card back: "I'VE GOT AN APPOINTMENT" repeated
-  var BACK_TEXT = "I'VE GOT AN APPOINTMENT";
   function cardBackRows() {
-    var s = "";
-    for (var i = 0; i < 11; i++) s += "<span>" + BACK_TEXT + "</span>";
-    return '<div class="rows">' + s + "</div>";
+    // four-season medallion with an IGAA monogram (styled in cards.css)
+    return '<div class="bk-medallion"><div class="bk-core">IGAA</div></div>';
   }
   function cardBackHTML() {
     return '<div class="cardback">' + cardBackRows() + "</div>";
