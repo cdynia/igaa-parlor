@@ -28,9 +28,9 @@
   --card-w:100px; --card-h:144px;
 }
 *{box-sizing:border-box}
-html,body{height:100%}
+html,body{height:100%; margin:0}
 html{-webkit-text-size-adjust:100%}
-body{overflow-x:hidden}
+body{overflow:hidden; overscroll-behavior:none}
 body{margin:0; color:var(--muted-2); font-family:"Archivo",system-ui,"Segoe UI",sans-serif;
   background:radial-gradient(120% 90% at 50% 6%, #223141 0%, var(--table-1) 42%, var(--table-2) 100%);
   min-height:100%; -webkit-font-smoothing:antialiased}
@@ -45,7 +45,7 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 .btn.ghost{background:transparent; color:var(--muted-2); border-color:var(--line-2); box-shadow:none; font-weight:500}
 .btn.ghost:hover{border-color:var(--brass); color:var(--brass-hi)}
 
-#app{max-width:1180px; margin:0 auto; padding:12px clamp(12px,3vw,26px) 14px; height:100dvh; overflow:hidden; display:flex; flex-direction:column; gap:9px}
+#app{width:100%; margin:0; padding:8px clamp(8px,2vw,18px) 10px; height:100dvh; overflow:hidden; display:flex; flex-direction:column; gap:8px}
 .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
 .brand{display:flex; align-items:center; gap:12px}
 .brand .tabs{display:flex; gap:3px}
@@ -630,7 +630,17 @@ function cardFaceHTML(c,extra=""){
 }
 function cardBackHTML(){ return `<div class="cardback"><div class="mono">IGAA</div></div>`; }
 
-function renderAll(){ renderOpponents(); renderPiles(); renderHand(); renderBanner(); renderControls(); renderClaims(); }
+function renderAll(){ renderOpponents(); renderPiles(); renderHand(); renderBanner(); renderControls(); renderClaims(); requestAnimationFrame(fitBoard); }
+function fitBoard(){
+  const H=s=>{const e=document.querySelector(s);return e?e.offsetHeight:0;};
+  const vh=document.documentElement.clientHeight, vw=document.documentElement.clientWidth;
+  const reserve=H('.topbar')+H('.opponents')+H('.claims')+H('.handhead')+H('#controls')+64;
+  const byH=(vh-reserve-20)/(2*1.42);
+  const byW=(vw-56)/6.2;
+  const size=Math.max(50,Math.min(byH,byW,140));
+  document.documentElement.style.setProperty('--card-w', size+'px');
+}
+window.addEventListener('resize', ()=>requestAnimationFrame(fitBoard));
 function renderOpponents(){
   const el=document.getElementById("opponents"); el.innerHTML="";
   G.players.forEach((p,i)=>{ if(p.human) return;

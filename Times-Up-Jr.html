@@ -28,9 +28,9 @@
   --card-w:120px; --card-h:168px;
 }
 *{box-sizing:border-box}
-html,body{height:100%}
+html,body{height:100%; margin:0}
 html{-webkit-text-size-adjust:100%}
-body{overflow-x:hidden}
+body{overflow:hidden; overscroll-behavior:none}
 body{margin:0; color:var(--muted-2); font-family:"Archivo",system-ui,"Segoe UI",sans-serif;
   background:radial-gradient(120% 90% at 50% 6%, #223141 0%, var(--table-1) 42%, var(--table-2) 100%);
   min-height:100%; -webkit-font-smoothing:antialiased}
@@ -45,7 +45,7 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 .btn:focus-visible{outline:3px solid var(--brass-hi); outline-offset:2px}
 .btn:disabled{opacity:.4; cursor:not-allowed; filter:none; transform:none}
 
-#app{max-width:1080px; margin:0 auto; padding:12px clamp(12px,3vw,28px) 14px; height:100dvh; overflow:hidden; display:flex; flex-direction:column; gap:10px}
+#app{width:100%; margin:0; padding:8px clamp(8px,2vw,18px) 10px; height:100dvh; overflow:hidden; display:flex; flex-direction:column; gap:8px}
 .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
 .brand{display:flex; align-items:center; gap:12px}
 .brand .glyph{width:40px; height:40px; border-radius:9px; background:linear-gradient(155deg,#1d2c3c,#101a24); border:1px solid var(--line-2); position:relative; flex:0 0 auto}
@@ -402,7 +402,22 @@ function clockHTML(){ return `<div class="clock" style="--hrot:0deg">${clockNumb
 function frontHTML(c, extra){ return cardFaceHTML(c, extra || ""); }
 function render(){
   renderScorebar(); renderGrid(); renderMatchStack(); renderSeasons(); renderBanner(); renderControls();
+  requestAnimationFrame(fitBoard);
 }
+/* size the 3-row grid so the whole board fits the screen — no scrolling */
+function fitBoard(){
+  const H=s=>{const e=document.querySelector(s);return e?e.offsetHeight:0;};
+  const vh=document.documentElement.clientHeight, vw=document.documentElement.clientWidth;
+  const wide=vw>780;
+  const reserve=H('.topbar')+H('.scorebar')+H('.banner')+H('.seasons')+H('.controls')+(wide?0:H('.matchstack'))+86;
+  const gap=vw<620?8:14;
+  const byH=(vh-reserve-4*gap)/3/1.42;               // three card rows
+  const sideReserve=wide?150:0;                       // matchstack column on desktop
+  const byW=(vw-sideReserve-5*gap-24)/4;              // four columns
+  const size=Math.max(40,Math.min(byH,byW,110));
+  document.documentElement.style.setProperty('--card-w', size+'px');
+}
+window.addEventListener('resize', ()=>requestAnimationFrame(fitBoard));
 function renderScorebar(){
   document.getElementById("scorebar").innerHTML=G.players.map((p,i)=>`
     <div class="pscore ${i===G.current&&!G.winner?"active":""}">
