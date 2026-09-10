@@ -408,16 +408,23 @@ function render(){
 }
 /* size the 3-row grid so the whole board fits the screen — no scrolling */
 function fitBoard(){
+  const de=document.documentElement;
+  const vh=de.clientHeight, vw=de.clientWidth;
   const H=s=>{const e=document.querySelector(s);return e?e.offsetHeight:0;};
-  const vh=document.documentElement.clientHeight, vw=document.documentElement.clientWidth;
+  const px=(el,p)=>el?parseFloat(getComputedStyle(el)[p])||0:0;
   const wide=vw>780;
-  const reserve=H('.topbar')+H('.scorebar')+H('.banner')+H('.seasons')+H('.controls')+(wide?0:H('.matchstack'))+72;
-  const gap=vw<620?8:14;
-  const byH=(vh-reserve-4*gap)/3/1.42;               // three card rows
+  const felt=document.querySelector('.felt');
+  const grid=document.getElementById('grid');
+  // measure the ACTUAL grid gap + felt inner width so 4 columns never overflow
+  const cgap=grid?(px(grid,'columnGap')||px(grid,'gap')||10):10;
+  const rgap=grid?(px(grid,'rowGap')||px(grid,'gap')||10):10;
   const sideReserve=wide?170:0;                       // matchstack column on desktop
-  const byW=(vw-sideReserve-5*gap-24)/4;              // four columns
+  const feltInnerW=(felt?felt.clientWidth:vw)-px(felt,'paddingLeft')-px(felt,'paddingRight')-sideReserve;
+  const byW=(feltInnerW-3*cgap-4)/4;                  // four columns, 3 gaps (-4 safety)
+  const reserve=H('.topbar')+H('.scorebar')+H('.banner')+H('.seasons')+H('.controls')+(wide?0:H('.matchstack'))+56;
+  const byH=(vh-reserve-2*rgap)/3/1.42;               // three card rows, 2 gaps
   const size=Math.max(40,Math.min(byH,byW,160));
-  document.documentElement.style.setProperty('--card-w', size+'px');
+  de.style.setProperty('--card-w', size+'px');
 }
 function renderScorebar(){
   document.getElementById("scorebar").innerHTML=G.players.map((p,i)=>`

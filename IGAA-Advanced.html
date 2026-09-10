@@ -636,17 +636,27 @@ function renderAll(){ renderOpponents(); renderPiles(); renderHand(); renderBann
 /* Read every card-independent chrome height FIRST, then write the CSS vars
    once, so a single fit never forces a mid-function reflow. */
 function fitBoard(){
+  const de=document.documentElement;
+  const vh=de.clientHeight, vw=de.clientWidth;
   const H=s=>{const e=document.querySelector(s);return e?e.offsetHeight:0;};
-  const vh=document.documentElement.clientHeight, vw=document.documentElement.clientWidth;
+  const px=(el,p)=>el?parseFloat(getComputedStyle(el)[p])||0:0;
+  // measure the ACTUAL felt inner width so piles can never overflow off-screen
+  const felt=document.querySelector('.felt');
+  const feltInnerW=(felt?felt.clientWidth:vw)-px(felt,'paddingLeft')-px(felt,'paddingRight');
+  const pilesEl=document.querySelector('.piles');
+  const pgap=pilesEl?(px(pilesEl,'columnGap')||px(pilesEl,'gap')||24):24;
+  const nP=Math.max(2,pilesEl?pilesEl.querySelectorAll('.pile').length:2);
   const chrome=H('.topbar')+H('.opponents')+H('.claims')+H('.handhead')+H('#controls');
-  const availH=vh-chrome-44;                       // felt (piles) + hand share this
-  // hand: fit ~7 across the width, and never taller than ~1/3 of the felt column
-  let hand=Math.min((vw-44)/7,(availH*0.34)/1.42,150);
-  hand=Math.max(46,hand);
-  // piles: prominent draw/discard cards that fill the remaining felt height
-  let pile=Math.min((availH-hand*1.42)/1.42,(vw-72)/2,260);
-  pile=Math.max(hand,pile);
-  const r=document.documentElement.style;
+  const availH=vh-chrome-40;                        // felt (piles) + hand share this
+  // hand: fit ~6.5 cards across the width, never taller than ~1/3 of the column
+  let hand=Math.min((vw-24)/6.5,(availH*0.34)/1.42,150);
+  hand=Math.max(44,hand);
+  // piles: two prominent cards that fit the felt width AND fill remaining height
+  let pileByW=(feltInnerW-(nP-1)*pgap-4)/nP;         // -4 safety vs sub-pixel rounding
+  let pileByH=(availH-hand*1.42-56)/1.42;           // 56 = labels + banner + counts
+  let pile=Math.min(pileByW,pileByH,260);
+  pile=Math.max(hand*0.9,pile);
+  const r=de.style;
   r.setProperty('--card-w', hand+'px');
   r.setProperty('--pile-w', pile+'px');
 }
