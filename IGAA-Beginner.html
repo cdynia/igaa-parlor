@@ -34,9 +34,9 @@
   --card-w:104px; --card-h:150px;
 }
 *{box-sizing:border-box}
-html,body{height:100%}
+html,body{height:100%; margin:0}
 html{-webkit-text-size-adjust:100%}
-body{overflow-x:hidden}
+body{overflow:hidden; overscroll-behavior:none}
 body{
   margin:0; color:var(--muted-2);
   font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
@@ -67,7 +67,7 @@ button{font-family:inherit}
 .btn:disabled{opacity:.4; cursor:not-allowed; filter:none; transform:none}
 
 /* ---------- layout ---------- */
-#app{max-width:1180px; margin:0 auto; padding:14px clamp(12px,3vw,28px) 16px; height:100dvh; overflow:hidden; display:flex; flex-direction:column; gap:10px}
+#app{width:100%; margin:0; padding:8px clamp(8px,2vw,18px) 10px; height:100dvh; overflow:hidden; display:flex; flex-direction:column; gap:8px}
 .topbar{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
 .brandmark{display:flex; align-items:center; gap:12px}
 .brandmark .tabs{display:flex; gap:3px}
@@ -624,7 +624,19 @@ function miniBackStyle(){return "background:linear-gradient(155deg,#1d2c3c,#101a
 
 function renderAll(){
   renderOpponents(); renderPiles(); renderHand(); renderBanner(); renderControls();
+  requestAnimationFrame(fitBoard);
 }
+/* size cards so the whole board fits the screen — no scrolling, game-style */
+function fitBoard(){
+  const H=s=>{const e=document.querySelector(s);return e?e.offsetHeight:0;};
+  const vh=document.documentElement.clientHeight, vw=document.documentElement.clientWidth;
+  const reserve=H('.topbar')+H('.opponents')+H('.handhead')+H('#controls')+64; // labels/gaps/padding
+  const byH=(vh-reserve-20)/(2*1.42);   // two card rows: piles + hand
+  const byW=(vw-56)/6.2;                // up to ~6 across
+  const size=Math.max(52,Math.min(byH,byW,140));
+  document.documentElement.style.setProperty('--card-w', size+'px');
+}
+window.addEventListener('resize', ()=>requestAnimationFrame(fitBoard));
 function renderOpponents(){
   const el=document.getElementById("opponents"); el.innerHTML="";
   G.players.forEach((p,i)=>{
