@@ -1,5 +1,5 @@
 /* IGAA Parlor service worker — offline app shell, but fresh-first for pages */
-const CACHE = "igaa-parlor-v2";
+const CACHE = "igaa-parlor-v3";
 const ASSETS = [
   "./",
   "index.html",
@@ -38,23 +38,20 @@ self.addEventListener("fetch", (e) => {
   const url = new URL(req.url);
   const sameOrigin = url.origin === self.location.origin;
 
-  // Page loads (navigations) and HTML docs: network-FIRST so updates show immediately,
-  // fall back to cache (then index.html) when offline.
-  const isDoc =
-    req.mode === "navigate" ||
-    (sameOrigin && (url.pathname.endsWith("/") || url.pathname.endsWith(".html")));
-  if (isDoc) {
+  // Same-origin (pages, CSS, JS, icons): network-FIRST so every deploy shows
+  // immediately; fall back to cache (then index.html for navigations) offline.
+  if (sameOrigin) {
     e.respondWith(
       fetch(req)
         .then((res) => putCache(req, res))
         .catch(() =>
-          caches.match(req).then((hit) => hit || caches.match("index.html"))
+          caches.match(req).then((hit) => hit || (req.mode === "navigate" ? caches.match("index.html") : undefined))
         )
     );
     return;
   }
 
-  // Everything else (icons, manifest, fonts): stale-while-revalidate.
+  // Cross-origin (Google Fonts): stale-while-revalidate.
   e.respondWith(
     caches.match(req).then((hit) => {
       const net = fetch(req).then((res) => putCache(req, res)).catch(() => hit);
