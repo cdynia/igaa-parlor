@@ -43,6 +43,8 @@
   }
 
   var WEEKEND = { Saturday: 1, Sunday: 1 };
+  // spell out the card's color on the bottom label — colorblind-friendly
+  var COLORNAME = { blue: "BLUE", yellow: "YELLOW", green: "GREEN", orange: "ORANGE" };
   function esc(s) { return String(s == null ? "" : s); }
 
   function cardFaceHTML(c, extra) {
@@ -73,8 +75,9 @@
       var art = new Array(9).join(",").split(",").map(function () { return icon; }).join("");
       mid = '<div class="art">' + art + '</div><div class="vword">' + season.toUpperCase() + '</div>';
     }
+    var colorLabel = COLORNAME[c.color] || label; // bottom = the color name (accessibility)
     return '<div class="card ' + extra + '" data-color="' + esc(c.color) + '" data-cat="' + cat + '" data-id="' + id + '">' +
-      '<div class="idx">' + label + '</div><div class="mid">' + mid + '</div><div class="idx b">' + label + '</div></div>';
+      '<div class="idx">' + label + '</div><div class="mid">' + mid + '</div><div class="idx b">' + colorLabel + '</div></div>';
   }
 
   // card back: "I'VE GOT AN APPOINTMENT" repeated
