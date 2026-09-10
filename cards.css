@@ -81,13 +81,14 @@
 /* ---- card BACK: premium navy stock, brass double frame, four-season
         medallion with an IGAA monogram ---- */
 .cardback, .face.back{
-  background:linear-gradient(150deg,#22303f,#0f1822) !important; overflow:hidden; position:relative;
+  background:linear-gradient(150deg,#22303f,#0f1822) !important; overflow:hidden;
   display:flex; align-items:center; justify-content:center;
 }
 .cardback{
-  width:var(--card-w,100px); height:var(--card-h,144px); border-radius:12px; border:1px solid #0b131c;
+  position:relative; width:var(--card-w,100px); height:var(--card-h,144px); border-radius:12px; border:1px solid #0b131c;
   box-shadow:0 10px 22px -12px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.04);
 }
+.face.back{position:absolute; inset:0; border:none}
 /* brass double frame */
 .cardback::before, .face.back::before{
   content:""; position:absolute; inset:calc(var(--card-w,100px)*0.055);
