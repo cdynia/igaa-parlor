@@ -75,19 +75,29 @@
 /* mail card glyph */
 .card .mailglyph{font-size:calc(var(--card-h,144px)*0.3); color:var(--cc); z-index:2; line-height:1}
 
-/* ---- card BACK: "I'VE GOT AN APPOINTMENT" repeated on cream stock ---- */
-.cardback{
-  width:var(--card-w,100px); height:var(--card-h,144px); border-radius:12px; overflow:hidden;
-  background:#efe8d6; border:1px solid #d7cdb6;
-  box-shadow:0 10px 22px -12px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.4);
+/* ---- card BACK: "I'VE GOT AN APPOINTMENT" running the long way, framed
+        like a real playing-card back on ivory stock ---- */
+.cardback, .face.back{
+  background:#f1ead9 !important; overflow:hidden; position:relative;
   display:flex; align-items:center; justify-content:center;
 }
-.rows{display:flex; flex-direction:column; align-items:flex-start; gap:calc(var(--card-h,144px)*0.008); padding:0 6%}
-.rows span{
-  display:block; font-family:"Fraunces","Georgia",serif; font-weight:700; color:#1a1a1a;
-  font-size:calc(var(--card-w,100px)*0.076); line-height:1.06; letter-spacing:-0.03em; white-space:nowrap;
+.cardback{
+  width:var(--card-w,100px); height:var(--card-h,144px); border-radius:12px; border:1px solid #cfc4aa;
+  box-shadow:0 10px 22px -12px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.45);
 }
-/* Times Up Jr's 3D flip back reuses the same cream repeated-text look */
-.face.back{background:#efe8d6 !important; border:1px solid #d7cdb6; display:flex; align-items:center; justify-content:center; overflow:hidden}
-.face.back::before{display:none !important}
+/* inset frame line — the classic bordered card back */
+.cardback::before, .face.back::before{
+  content:""; position:absolute; inset:calc(var(--card-w,100px)*0.06);
+  border:1.5px solid rgba(46,34,16,.34); border-radius:7px; z-index:3; pointer-events:none;
+}
+/* the repeated phrase, rotated to run along the card's long axis */
+.rows{
+  display:flex; flex-direction:column; align-items:center; gap:calc(var(--card-h,144px)*0.012);
+  transform:rotate(-90deg); z-index:1;
+}
+.rows span{
+  display:block; font-family:"Fraunces","Georgia",serif; font-weight:700; color:#221f18;
+  font-size:calc(var(--card-h,144px)*0.076); line-height:1.04; letter-spacing:-0.02em; white-space:nowrap;
+}
+.face.back{border:none}
 .face.back .bt{display:none !important}

@@ -84,7 +84,7 @@
   var BACK_TEXT = "I'VE GOT AN APPOINTMENT";
   function cardBackRows() {
     var s = "";
-    for (var i = 0; i < 15; i++) s += "<span>" + BACK_TEXT + "</span>";
+    for (var i = 0; i < 11; i++) s += "<span>" + BACK_TEXT + "</span>";
     return '<div class="rows">' + s + "</div>";
   }
   function cardBackHTML() {
