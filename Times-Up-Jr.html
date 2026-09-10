@@ -190,7 +190,7 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 @media (max-width:420px){ :root{--card-w:64px; --card-h:92px} .grid{gap:6px} .felt{padding:16px 8px} .card .clock{--r:22px} .card .end{font-size:.5rem} .card .art span{font-size:.56rem} }
 @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} .flip{transition:none} }
 </style>
-<link rel="stylesheet" href="cards.css">
+<link rel="stylesheet" href="cards.css?v=2">
 </head>
 <body>
 <div id="app">
@@ -529,6 +529,6 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape") document.getElemen
 buildChips("playerChips",2,8,"players");
 buildChips("roundChips",1,6,"rounds");
 </script>
-<script src="cards.js"></script>
+<script src="cards.js?v=2"></script>
 </body>
 </html>

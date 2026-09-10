@@ -185,7 +185,7 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 @media (max-width:420px){ :root{--card-w:66px; --card-h:96px} .piles{gap:14px} .felt{padding:16px 8px} .card[data-cat=time] .clock{--r:24px} }
 @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} }
 </style>
-<link rel="stylesheet" href="cards.css">
+<link rel="stylesheet" href="cards.css?v=2">
 </head>
 <body>
 <div id="app">
@@ -776,6 +776,6 @@ document.getElementById("btnStart").onclick=()=>{ document.getElementById("setup
 document.addEventListener("keydown",e=>{ if(e.key==="Escape") document.getElementById("helpOverlay").hidden=true; });
 buildModes(); buildOpps();
 </script>
-<script src="cards.js"></script>
+<script src="cards.js?v=2"></script>
 </body>
 </html>
