@@ -418,7 +418,7 @@ function renderGrid(){
     const extra=slot.noonhit?"noonhit":"";
     const clickable=canPlay && !slot.revealed;
     return `<div class="cell ${cellCls}"><div class="flip ${slot.revealed?"done":""} ${clickable?"playable":""}" data-i="${i}" ${clickable?'tabindex="0" role="button" aria-label="Flip a card"':""}>
-      <div class="face back"><div class="bt"><i style="background:var(--blue)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i></div></div>
+      <div class="face back">${cardBackRows()}</div>
       <div class="face front">${slot.revealed?frontHTML(slot.card,extra):""}</div>
     </div></div>`;
   }).join("");

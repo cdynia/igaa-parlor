@@ -77,7 +77,20 @@
       '<div class="idx">' + label + '</div><div class="mid">' + mid + '</div><div class="idx b">' + label + '</div></div>';
   }
 
+  // card back: "I'VE GOT AN APPOINTMENT" repeated
+  var BACK_TEXT = "I'VE GOT AN APPOINTMENT";
+  function cardBackRows() {
+    var s = "";
+    for (var i = 0; i < 15; i++) s += "<span>" + BACK_TEXT + "</span>";
+    return '<div class="rows">' + s + "</div>";
+  }
+  function cardBackHTML() {
+    return '<div class="cardback">' + cardBackRows() + "</div>";
+  }
+
   // expose as globals, overriding each game's inline versions
   window.cardFaceHTML = cardFaceHTML;
   window.clockHTML = clockHTML;
+  window.cardBackHTML = cardBackHTML;
+  window.cardBackRows = cardBackRows;
 })();
