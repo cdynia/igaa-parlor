@@ -70,8 +70,8 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 .banner{text-align:center; z-index:1}
 .banner .phase{font-family:"Fraunces",serif; font-size:clamp(1.05rem,2.5vw,1.45rem); color:var(--paper)}
 .banner .hint{font-size:.82rem; color:#bfe0cf; margin-top:3px; min-height:1.1em}
-.piles{display:flex; gap:30px; align-items:flex-start; z-index:1}
-.pile{display:flex; flex-direction:column; align-items:center; gap:7px}
+.piles{display:flex; gap:clamp(18px,5vw,40px); align-items:flex-start; z-index:1}
+.pile{display:flex; flex-direction:column; align-items:center; gap:7px; --card-w:var(--pile-w,100px); --card-h:calc(var(--pile-w,100px)*1.42)}
 .pile .plabel{font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:#a7c6b7}
 .pile .slot{width:var(--card-w); height:var(--card-h)}
 .pile .count{font-size:.7rem; color:#8fb0a0}
@@ -634,11 +634,14 @@ function renderAll(){ renderOpponents(); renderPiles(); renderHand(); renderBann
 function fitBoard(){
   const H=s=>{const e=document.querySelector(s);return e?e.offsetHeight:0;};
   const vh=document.documentElement.clientHeight, vw=document.documentElement.clientWidth;
-  const reserve=H('.topbar')+H('.opponents')+H('.claims')+H('.handhead')+H('#controls')+64;
-  const byH=(vh-reserve-20)/(2*1.42);
-  const byW=(vw-56)/6.2;
-  const size=Math.max(50,Math.min(byH,byW,140));
-  document.documentElement.style.setProperty('--card-w', size+'px');
+  const hand=Math.max(46,Math.min((vw-52)/6.0,128));
+  document.documentElement.style.setProperty('--card-w', hand+'px');
+  const top=H('.topbar')+H('.opponents')+H('.claims');
+  const handBlock=hand*1.42+H('.handhead')+H('#controls')+46;
+  const feltAvail=vh-top-handBlock-40;
+  let pile=Math.min(feltAvail/1.55,(vw-46)/2.5,156);
+  pile=Math.max(hand*1.05,pile);
+  document.documentElement.style.setProperty('--pile-w', pile+'px');
 }
 window.addEventListener('resize', ()=>requestAnimationFrame(fitBoard));
 function renderOpponents(){
