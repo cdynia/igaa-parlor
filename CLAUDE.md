@@ -20,7 +20,7 @@ Built from a season deck: **Winter=blue, Spring=yellow(gold ink), Summer=green, 
 `git add -A && git commit && git push` → GitHub Pages auto-builds (~1 min). Repo: cdynia/igaa-parlor. Live: https://cdynia.github.io/igaa-parlor/ . Confirm: `gh api repos/cdynia/igaa-parlor/pages/builds/latest -q '.status'`. End commit messages with the Co-Authored-By + Claude-Session trailers.
 
 ## Gotchas (respect these — they cost real time)
-1. **Changing `cards.css`/`cards.js`? Bump the `?v=N` query on their links in EVERY game HTML** — browsers/SW cache them and silently ship stale styling (once squished all card backs). Currently `?v=2`.
+1. **Changing `cards.css`/`cards.js`? Bump the `?v=N` query on their links in EVERY game HTML** — browsers/SW cache them and silently ship stale styling (once squished all card backs). Currently `?v=3`.
 2. `sw.js` is network-first; bump `CACHE = igaa-parlor-vN` on SW changes; users may need one hard refresh.
 3. Test on the **live Pages URL** (append a throwaway `?v=NN` to dodge cache) — local file/localhost testing isn't reliable here.
 

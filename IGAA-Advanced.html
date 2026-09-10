@@ -181,11 +181,13 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 .standings li.win{color:var(--brass-hi); font-weight:600}
 .standings li .p{font-family:"Fraunces",serif}
 
-@media (max-width:660px){ :root{--card-w:78px; --card-h:114px} .piles{gap:20px} .opp{min-width:0; flex:1 1 46%} .modes{grid-template-columns:1fr} }
-@media (max-width:420px){ :root{--card-w:66px; --card-h:96px} .piles{gap:14px} .felt{padding:16px 8px} .card[data-cat=time] .clock{--r:24px} }
+/* Card sizing is owned by fitBoard() (JS) + cards.css; keep only the layout
+   tweaks here — no --card-w/--card-h/--r overrides that would fight the JS. */
+@media (max-width:660px){ .piles{gap:20px} .opp{min-width:0; flex:1 1 46%} .modes{grid-template-columns:1fr} }
+@media (max-width:420px){ .piles{gap:14px} .felt{padding:16px 8px} }
 @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} }
 </style>
-<link rel="stylesheet" href="cards.css?v=2">
+<link rel="stylesheet" href="cards.css?v=3">
 </head>
 <body>
 <div id="app">
@@ -630,20 +632,24 @@ function cardFaceHTML(c,extra=""){
 }
 function cardBackHTML(){ return `<div class="cardback"><div class="mono">IGAA</div></div>`; }
 
-function renderAll(){ renderOpponents(); renderPiles(); renderHand(); renderBanner(); renderControls(); renderClaims(); requestAnimationFrame(fitBoard); }
+function renderAll(){ renderOpponents(); renderPiles(); renderHand(); renderBanner(); renderControls(); renderClaims(); (window.__igaaFit || fitBoard)(); }
+/* Read every card-independent chrome height FIRST, then write the CSS vars
+   once, so a single fit never forces a mid-function reflow. */
 function fitBoard(){
   const H=s=>{const e=document.querySelector(s);return e?e.offsetHeight:0;};
   const vh=document.documentElement.clientHeight, vw=document.documentElement.clientWidth;
-  const hand=Math.max(46,Math.min((vw-52)/6.0,128));
-  document.documentElement.style.setProperty('--card-w', hand+'px');
-  const top=H('.topbar')+H('.opponents')+H('.claims');
-  const handBlock=hand*1.42+H('.handhead')+H('#controls')+46;
-  const feltAvail=vh-top-handBlock-40;
-  let pile=Math.min(feltAvail/1.55,(vw-46)/2.5,156);
-  pile=Math.max(hand*1.05,pile);
-  document.documentElement.style.setProperty('--pile-w', pile+'px');
+  const chrome=H('.topbar')+H('.opponents')+H('.claims')+H('.handhead')+H('#controls');
+  const availH=vh-chrome-44;                       // felt (piles) + hand share this
+  // hand: fit ~7 across the width, and never taller than ~1/3 of the felt column
+  let hand=Math.min((vw-44)/7,(availH*0.34)/1.42,150);
+  hand=Math.max(46,hand);
+  // piles: prominent draw/discard cards that fill the remaining felt height
+  let pile=Math.min((availH-hand*1.42)/1.42,(vw-72)/2,260);
+  pile=Math.max(hand,pile);
+  const r=document.documentElement.style;
+  r.setProperty('--card-w', hand+'px');
+  r.setProperty('--pile-w', pile+'px');
 }
-window.addEventListener('resize', ()=>requestAnimationFrame(fitBoard));
 function renderOpponents(){
   const el=document.getElementById("opponents"); el.innerHTML="";
   G.players.forEach((p,i)=>{ if(p.human) return;
@@ -779,6 +785,7 @@ document.getElementById("btnStart").onclick=()=>{ document.getElementById("setup
 document.addEventListener("keydown",e=>{ if(e.key==="Escape") document.getElementById("helpOverlay").hidden=true; });
 buildModes(); buildOpps();
 </script>
-<script src="cards.js?v=2"></script>
+<script src="cards.js?v=3"></script>
+<script>window.__igaaFit = fitBind(fitBoard);</script>
 </body>
 </html>

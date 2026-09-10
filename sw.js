@@ -1,5 +1,5 @@
 /* IGAA Parlor service worker — offline app shell, but fresh-first for pages */
-const CACHE = "igaa-parlor-v3";
+const CACHE = "igaa-parlor-v4";
 const ASSETS = [
   "./",
   "index.html",

@@ -89,9 +89,44 @@
     return '<div class="cardback">' + cardBackRows() + "</div>";
   }
 
+  /* Shared viewport-fit scheduler. Each game passes its fitBoard(); every
+     game then sizes cards through ONE code path that:
+       - coalesces resize / rotate / visualViewport events into a single
+         requestAnimationFrame pass (no more un-debounced reflow storms),
+       - re-runs after an orientation change settles (dvh / clientHeight lag
+         a few frames on rotate, which otherwise lands on a wrong size),
+       - guards against reentrancy so a fit that nudges layout can't loop.
+     Returns a schedule() the game calls after each render to re-fit. */
+  function fitBind(fn) {
+    var pending = false, running = false;
+    function run() {
+      pending = false;
+      if (running) return;
+      running = true;
+      try { fn(); } finally { running = false; }
+    }
+    function schedule() {
+      if (pending) return;
+      pending = true;
+      requestAnimationFrame(run);
+    }
+    window.addEventListener("resize", schedule, { passive: true });
+    window.addEventListener("orientationchange", function () {
+      schedule();
+      setTimeout(schedule, 120);   // catch the settled viewport after rotate
+      setTimeout(schedule, 320);
+    });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", schedule, { passive: true });
+    }
+    run();          // initial fit, synchronous — no first-paint size flash
+    return schedule;
+  }
+
   // expose as globals, overriding each game's inline versions
   window.cardFaceHTML = cardFaceHTML;
   window.clockHTML = clockHTML;
   window.cardBackHTML = cardBackHTML;
   window.cardBackRows = cardBackRows;
+  window.fitBind = fitBind;
 })();
