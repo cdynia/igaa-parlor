@@ -49,31 +49,34 @@
 .card .vword.sm{font-size:calc(var(--card-h,144px)*0.076); letter-spacing:.02em}
 
 /* seasonal motif: a tidy, uniform grid of vector icons behind the word */
+/* two columns of motifs flanking the centered season word (printed-card look) */
 .card .art{
-  position:absolute; inset:8% 10%; display:grid; grid-template-columns:repeat(3,1fr);
-  align-content:center; justify-items:center; gap:calc(var(--card-h,144px)*0.03) calc(var(--card-w,100px)*0.04);
+  position:absolute; inset:6% 8%; display:grid; grid-template-columns:1fr 1fr;
+  align-content:space-between; justify-items:center; column-gap:38%;
+  row-gap:calc(var(--card-h,144px)*0.02);
   z-index:1; pointer-events:none;
 }
-.card .art .sic{width:calc(var(--card-w,100px)*0.2); height:auto; color:var(--cc); opacity:.26}
+.card .art .sic{width:calc(var(--card-w,100px)*0.24); height:auto; color:var(--cc); opacity:.92}
 
 /* clock (numbered dial + arrow hands) — radius scales from card width */
 .card .clock{
   --r:calc(var(--card-w,100px)*0.37); width:calc(var(--r)*2); height:calc(var(--r)*2);
-  border-radius:50%; border:calc(var(--r)*0.07) solid var(--cc); position:relative; box-sizing:border-box;
+  border-radius:50%; border:calc(var(--r)*0.06) solid var(--cc); position:relative; box-sizing:border-box;
 }
 .card .clock .num{
-  position:absolute; transform:translate(-50%,-50%); font-size:calc(var(--r)*0.26); font-weight:700;
+  position:absolute; transform:translate(-50%,-50%); font-size:calc(var(--r)*0.24); font-weight:400;
   color:#3a3a3a; font-family:"Archivo",sans-serif; line-height:1; z-index:1;
 }
+/* thin season-colored hands with slim arrowheads (match printed cards) */
 .card .clock .hand{position:absolute; left:50%; top:50%; transform-origin:bottom center; background:var(--cc); border-radius:2px; z-index:2}
-.card .clock .hand.hr{width:calc(var(--r)*0.075); height:calc(var(--r)*0.5); transform:translate(-50%,-100%) rotate(var(--hrot))}
-.card .clock .hand.mn{width:calc(var(--r)*0.06); height:calc(var(--r)*0.74); transform:translate(-50%,-100%)}
+.card .clock .hand.hr{width:calc(var(--r)*0.05); height:calc(var(--r)*0.5); transform:translate(-50%,-100%) rotate(var(--hrot))}
+.card .clock .hand.mn{width:calc(var(--r)*0.042); height:calc(var(--r)*0.74); transform:translate(-50%,-100%)}
 .card .clock .hand::after{
   content:""; position:absolute; top:0; left:50%; transform:translate(-50%,-100%); width:0; height:0;
-  border-left:calc(var(--r)*0.13) solid transparent; border-right:calc(var(--r)*0.13) solid transparent;
-  border-bottom:calc(var(--r)*0.2) solid var(--cc);
+  border-left:calc(var(--r)*0.07) solid transparent; border-right:calc(var(--r)*0.07) solid transparent;
+  border-bottom:calc(var(--r)*0.16) solid var(--cc);
 }
-.card .clock .pin{position:absolute; left:50%; top:50%; width:calc(var(--r)*0.13); height:calc(var(--r)*0.13); border-radius:50%; background:var(--cc); transform:translate(-50%,-50%); z-index:3}
+.card .clock .pin{position:absolute; left:50%; top:50%; width:calc(var(--r)*0.09); height:calc(var(--r)*0.09); border-radius:50%; background:var(--cc); transform:translate(-50%,-50%); z-index:3}
 
 /* mail card glyph */
 .card .mailglyph{font-size:calc(var(--card-h,144px)*0.3); color:var(--cc); z-index:2; line-height:1}

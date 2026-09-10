@@ -17,19 +17,29 @@
       '<svg viewBox="0 0 24 24" class="sic" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">' +
       '<path d="M12 2v20M3.3 7l17.4 10M20.7 7L3.3 17"/>' +
       '<path d="M12 5.4l-2.1-1.2M12 5.4l2.1-1.2M12 18.6l-2.1 1.2M12 18.6l2.1 1.2M4.9 8.7l.1 2.4M4.9 8.7l-2.1.4M19.1 15.3l-.1-2.4M19.1 15.3l2.1-.4M4.9 15.3l-2.1-.4M4.9 15.3l.1-2.4M19.1 8.7l2.1.4M19.1 8.7l-.1 2.4"/></svg>',
+    // Spring = potted daffodil: gold bloom (currentColor) over green leaves
     Spring:
       '<svg viewBox="0 0 24 24" class="sic">' +
-      '<g fill="currentColor"><circle cx="12" cy="5.5" r="3.1"/><circle cx="12" cy="18.5" r="3.1"/><circle cx="5.5" cy="12" r="3.1"/><circle cx="18.5" cy="12" r="3.1"/></g>' +
-      '<circle cx="12" cy="12" r="2.6" fill="#fff"/><circle cx="12" cy="12" r="1.7" fill="currentColor"/></svg>',
+      '<g fill="none" stroke="#4a9d4a" stroke-width="1.6" stroke-linecap="round">' +
+      '<path d="M12 22C9 18.5 8 14 11 10"/><path d="M12 22C15 18.5 16 14 13 10"/></g>' +
+      '<g fill="currentColor">' +
+      '<ellipse cx="12" cy="4" rx="1.7" ry="2.9"/>' +
+      '<ellipse cx="12" cy="4" rx="1.7" ry="2.9" transform="rotate(72 12 8)"/>' +
+      '<ellipse cx="12" cy="4" rx="1.7" ry="2.9" transform="rotate(144 12 8)"/>' +
+      '<ellipse cx="12" cy="4" rx="1.7" ry="2.9" transform="rotate(216 12 8)"/>' +
+      '<ellipse cx="12" cy="4" rx="1.7" ry="2.9" transform="rotate(288 12 8)"/></g>' +
+      '<circle cx="12" cy="8" r="2.1" fill="#e0a400"/><circle cx="12" cy="8" r="1" fill="#fff"/></svg>',
+    // Summer = full bushy green tree (currentColor canopy) on a short brown trunk
     Summer:
       '<svg viewBox="0 0 24 24" class="sic">' +
-      '<circle cx="12" cy="12" r="4.4" fill="currentColor"/>' +
-      '<g stroke="currentColor" stroke-width="1.7" stroke-linecap="round">' +
-      '<path d="M12 1.6v2.6M12 19.8v2.6M1.6 12h2.6M19.8 12h2.6M4.4 4.4l1.9 1.9M17.7 17.7l1.9 1.9M19.6 4.4l-1.9 1.9M6.3 17.7l-1.9 1.9"/></g></svg>',
+      '<rect x="11" y="15" width="2" height="6.5" rx="0.9" fill="#8a5a2b"/>' +
+      '<g fill="currentColor">' +
+      '<circle cx="8" cy="10.5" r="3.7"/><circle cx="16" cy="10.5" r="3.7"/>' +
+      '<circle cx="12" cy="7.5" r="4.6"/><circle cx="12" cy="12" r="4.3"/></g></svg>',
+    // Fall = orange maple leaf (currentColor)
     Fall:
       '<svg viewBox="0 0 24 24" class="sic">' +
-      '<path d="M12 2.5C8.2 6.5 8.2 15 12 21.5C15.8 15 15.8 6.5 12 2.5Z" fill="currentColor"/>' +
-      '<path d="M12 5v15" stroke="#fff" stroke-width="1" stroke-linecap="round"/></svg>'
+      '<path d="M12 21.5v-3.1l3 .7-1-2.5 3.3.4-1.9-2.2 3.1-.9-2.6-1.6 2.3-1.9-3 .2 1-3-2.5 1.8L12 2.6l-1.5 3.5-2.5-1.8 1 3-3-.2 2.3 1.9-2.6 1.6 3.1.9-1.9 2.2 3.3-.4-1 2.5 3-.7v3.1z" fill="currentColor"/></svg>'
   };
 
   var CLOCK_NUMS = [[50,9,12],[71,14,1],[86,29,2],[91,50,3],[86,71,4],[71,86,5],[50,91,6],[29,86,7],[14,71,8],[9,50,9],[14,29,10],[29,14,11]];
@@ -72,7 +82,7 @@
       label = esc(c.value || c.name).toUpperCase();
       var season = c.season || "Winter";
       var icon = ICON[season] || "";
-      var art = new Array(9).join(",").split(",").map(function () { return icon; }).join("");
+      var art = new Array(7).join(",").split(",").map(function () { return icon; }).join("");
       mid = '<div class="art">' + art + '</div><div class="vword">' + season.toUpperCase() + '</div>';
     }
     var colorLabel = COLORNAME[c.color] || label; // bottom = the color name (accessibility, upright)
