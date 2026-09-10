@@ -1,0 +1,76 @@
+/* =====================================================================
+   IGAA Parlor — shared card face component (loaded after each game's
+   inline <style> so it governs all card visuals in every game).
+   Card size comes from the game's --card-w / --card-h; everything else
+   scales from those, so cards stay crisp at any breakpoint.
+   ===================================================================== */
+/* One fluid card size for ALL games (overrides each game's own breakpoints),
+   so cards scale identically on every screen. ~1.42 aspect, 4 fit across a phone. */
+:root{
+  --card-w:clamp(58px, 18.5vw, 104px);
+  --card-h:calc(var(--card-w) * 1.42);
+}
+.card{
+  width:var(--card-w,100px); height:var(--card-h,144px);
+  background:#fdfdfb; border:1px solid #e4dfce; border-radius:12px;
+  box-shadow:0 10px 22px -12px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.6);
+  display:grid; grid-template-rows:auto 1fr auto; gap:2px;
+  padding:calc(var(--card-h,144px)*0.055) calc(var(--card-w,100px)*0.07);
+  position:relative; overflow:hidden; color:#24272e; user-select:none;
+  --cc:#2f6fc0;
+}
+.card[data-color=blue]{--cc:#2f6fc0}
+.card[data-color=yellow]{--cc:#c99105}
+.card[data-color=green]{--cc:#2f9e4f}
+.card[data-color=orange]{--cc:#e2701c}
+.card[data-color=noon]{--cc:#c9432b; background:#fff8f4; border-color:#eccdbf}
+.card[data-color=mail]{--cc:#7a5cc0; background:#f8f5fd; border-color:#ddd3ef}
+
+/* mirrored value labels (top upright, bottom rotated — like a real card) */
+.card .idx{
+  font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif; font-weight:800;
+  font-size:calc(var(--card-h,144px)*0.082); letter-spacing:.015em; line-height:1;
+  color:var(--cc); text-align:center; white-space:nowrap;
+}
+.card .idx.b{transform:rotate(180deg)}
+
+.card .mid{position:relative; display:flex; align-items:center; justify-content:center; min-height:0; overflow:hidden}
+
+/* vertical word (season name, or WEEKDAY / WEEKEND) */
+.card .vword{
+  font-family:"Fraunces","Georgia",serif; font-weight:600;
+  writing-mode:vertical-rl; text-orientation:upright; letter-spacing:.04em;
+  font-size:calc(var(--card-h,144px)*0.092); color:var(--cc); line-height:1; z-index:2;
+  text-shadow:0 0 6px #fff, 0 0 6px #fff;
+}
+.card .vword.sm{font-size:calc(var(--card-h,144px)*0.076); letter-spacing:.02em}
+
+/* seasonal motif: a tidy, uniform grid of vector icons behind the word */
+.card .art{
+  position:absolute; inset:8% 10%; display:grid; grid-template-columns:repeat(3,1fr);
+  align-content:center; justify-items:center; gap:calc(var(--card-h,144px)*0.03) calc(var(--card-w,100px)*0.04);
+  z-index:1; pointer-events:none;
+}
+.card .art .sic{width:calc(var(--card-w,100px)*0.2); height:auto; color:var(--cc); opacity:.26}
+
+/* clock (numbered dial + arrow hands) — radius scales from card width */
+.card .clock{
+  --r:calc(var(--card-w,100px)*0.37); width:calc(var(--r)*2); height:calc(var(--r)*2);
+  border-radius:50%; border:calc(var(--r)*0.07) solid var(--cc); position:relative; box-sizing:border-box;
+}
+.card .clock .num{
+  position:absolute; transform:translate(-50%,-50%); font-size:calc(var(--r)*0.26); font-weight:700;
+  color:#3a3a3a; font-family:"Archivo",sans-serif; line-height:1; z-index:1;
+}
+.card .clock .hand{position:absolute; left:50%; top:50%; transform-origin:bottom center; background:var(--cc); border-radius:2px; z-index:2}
+.card .clock .hand.hr{width:calc(var(--r)*0.075); height:calc(var(--r)*0.5); transform:translate(-50%,-100%) rotate(var(--hrot))}
+.card .clock .hand.mn{width:calc(var(--r)*0.06); height:calc(var(--r)*0.74); transform:translate(-50%,-100%)}
+.card .clock .hand::after{
+  content:""; position:absolute; top:0; left:50%; transform:translate(-50%,-100%); width:0; height:0;
+  border-left:calc(var(--r)*0.13) solid transparent; border-right:calc(var(--r)*0.13) solid transparent;
+  border-bottom:calc(var(--r)*0.2) solid var(--cc);
+}
+.card .clock .pin{position:absolute; left:50%; top:50%; width:calc(var(--r)*0.13); height:calc(var(--r)*0.13); border-radius:50%; background:var(--cc); transform:translate(-50%,-50%); z-index:3}
+
+/* mail card glyph */
+.card .mailglyph{font-size:calc(var(--card-h,144px)*0.3); color:var(--cc); z-index:2; line-height:1}

@@ -190,6 +190,7 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 @media (max-width:420px){ :root{--card-w:64px; --card-h:92px} .grid{gap:6px} .felt{padding:16px 8px} .card .clock{--r:22px} .card .end{font-size:.5rem} .card .art span{font-size:.56rem} }
 @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} .flip{transition:none} }
 </style>
+<link rel="stylesheet" href="cards.css">
 </head>
 <body>
 <div id="app">
@@ -396,16 +397,9 @@ function finish(){
 const CLOCK_NUMS=[[50,9,12],[71,14,1],[86,29,2],[91,50,3],[86,71,4],[71,86,5],[50,91,6],[29,86,7],[14,71,8],[9,50,9],[14,29,10],[29,14,11]];
 function clockNumbers(){ return CLOCK_NUMS.map(([x,y,n])=>`<span class="num" style="left:${x}%;top:${y}%">${n}</span>`).join(""); }
 function clockHTML(){ return `<div class="clock" style="--hrot:0deg">${clockNumbers()}<div class="hand mn"></div><div class="hand hr"></div><div class="pin"></div></div>`; }
-function frontHTML(c, extra){
-  if(c.noon){
-    return `<div class="card ${extra}" data-color="noon"><div class="end">12:00 NOON</div><div class="mid">${clockHTML()}</div><div class="end flip2">12:00 NOON</div></div>`;
-  }
-  const label=c.name.toUpperCase();
-  const art=Array.from({length:9}).map(()=>`<span>${c.art}</span>`).join("");
-  return `<div class="card ${extra}" data-color="${c.color}"><div class="end">${label}</div>
-    <div class="mid"><div class="art">${art}</div><div class="vword">${c.season.toUpperCase()}</div></div>
-    <div class="end flip2">${label}</div></div>`;
-}
+// Delegates to the shared card component (cards.js). Month cards carry
+// {name, season, color}; the Noon card carries {noon:true}.
+function frontHTML(c, extra){ return cardFaceHTML(c, extra || ""); }
 function render(){
   renderScorebar(); renderGrid(); renderMatchStack(); renderSeasons(); renderBanner(); renderControls();
 }
@@ -520,5 +514,6 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape") document.getElemen
 buildChips("playerChips",2,8,"players");
 buildChips("roundChips",1,6,"rounds");
 </script>
+<script src="cards.js"></script>
 </body>
 </html>
