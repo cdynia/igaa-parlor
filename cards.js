@@ -77,7 +77,9 @@
     } else if (cat === "day") {
       label = esc(c.value).toUpperCase();
       var kind = c.kind || (WEEKEND[c.value] ? "WEEKEND" : "WEEKDAY");
-      mid = '<div class="vword ' + (kind === "WEEKEND" ? "" : "sm") + '">' + kind + '</div>';
+      // both WEEKEND and WEEKDAY are 7 letters — always use the small size so
+      // the vertical word never clips the card top/bottom
+      mid = '<div class="vword day">' + kind + '</div>';
     } else { // season / month
       label = esc(c.value || c.name).toUpperCase();
       var season = c.season || "Winter";

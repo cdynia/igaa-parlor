@@ -93,8 +93,8 @@ button{font-family:inherit}
 
 /* table / felt */
 .felt{
-  position:relative; flex:1 1 auto; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
-  gap:12px; padding:16px; border-radius:20px;
+  position:relative; flex:0 1 auto; margin-top:auto; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:10px; padding:18px 16px; border-radius:20px;
   background:
     radial-gradient(140% 120% at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,0) 55%),
     linear-gradient(180deg,#1c3b34,#122a26);
@@ -176,10 +176,10 @@ button{font-family:inherit}
 .cardback .sidetabs i{width:6px; height:16px; border-radius:2px; display:block}
 
 /* your hand */
-.handzone{display:flex; flex-direction:column; align-items:center; gap:8px}
+.handzone{display:flex; flex-direction:column; align-items:center; gap:8px; margin-bottom:auto}
 .handhead{display:flex; align-items:center; gap:12px; color:var(--muted); font-size:.8rem}
 .handhead .you{color:var(--paper); font-weight:600; font-family:"Fraunces",serif; font-size:1rem}
-.hand{display:flex; justify-content:center; gap:10px; flex-wrap:wrap; padding:6px 0 2px; min-height:calc(var(--card-h) + 12px)}
+.hand{display:flex; justify-content:center; gap:10px; flex-wrap:nowrap; max-width:100%; padding:6px 0 2px; min-height:calc(var(--card-h) + 12px)}
 .hand .card{transition:transform .16s ease, box-shadow .16s ease}
 .hand.selectable .card{cursor:pointer}
 .hand.selectable .card:hover,.hand.selectable .card:focus-visible{transform:translateY(-12px); box-shadow:0 22px 34px -14px rgba(0,0,0,.7); outline:none}
@@ -265,7 +265,7 @@ button{font-family:inherit}
   *{animation-duration:.001ms!important; transition-duration:.001ms!important}
 }
 </style>
-<link rel="stylesheet" href="cards.css?v=6">
+<link rel="stylesheet" href="cards.css?v=7">
 </head>
 <body>
 <div id="app">
@@ -628,15 +628,21 @@ function fitBoard(){
   const pgap=pilesEl?(px(pilesEl,'columnGap')||px(pilesEl,'gap')||24):24;
   const nP=Math.max(2,pilesEl?pilesEl.querySelectorAll('.pile').length:2);
   const chrome=H('.topbar')+H('.opponents')+H('.handhead')+H('#controls');
-  const availH=vh-chrome-40;                        // felt (piles) + hand share this
-  // hand: fit ~6.5 cards across the width, never taller than ~1/3 of the column
-  let hand=Math.min((vw-24)/6.5,(availH*0.34)/1.42,150);
+  const availH=vh-chrome-36;                        // felt (piles) + hand share this
+  // hand cards — the base size. Fit up to 6 across in ONE row (you hold 5 but
+  // briefly draw to 6 before discarding), using the real handzone width so the
+  // row never wraps. Bounded by height.
+  const hz=document.querySelector('.handzone');
+  const hzW=(hz?hz.clientWidth:vw)-2;
+  const HGAP=10, MAXN=6;
+  let hand=Math.min((hzW-(MAXN-1)*HGAP-4)/MAXN,(availH*0.32)/1.42,140);
   hand=Math.max(44,hand);
-  // piles: two prominent cards that fit the felt width AND fill remaining height
+  // piles: only MODESTLY larger than the hand so the table stays balanced &
+  // tidy (not a giant discard card); still fit felt width + remaining height
   let pileByW=(feltInnerW-(nP-1)*pgap-4)/nP;         // -4 safety vs sub-pixel rounding
-  let pileByH=(availH-hand*1.42-56)/1.42;           // 56 = labels + banner + counts
-  let pile=Math.min(pileByW,pileByH,260);
-  pile=Math.max(hand*0.9,pile);
+  let pileByH=(availH-hand*1.42-64)/1.42;           // banner + labels + counts reserve
+  let pile=Math.min(hand*1.6,pileByW,pileByH,190);
+  pile=Math.max(hand,pile);
   const r=de.style;
   r.setProperty('--card-w', hand+'px');
   r.setProperty('--pile-w', pile+'px');
@@ -781,7 +787,7 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeHelp(); });
 
 buildOppChips();
 </script>
-<script src="cards.js?v=6"></script>
+<script src="cards.js?v=7"></script>
 <script>window.__igaaFit = fitBind(fitBoard);</script>
 </body>
 </html>
