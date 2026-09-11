@@ -64,25 +64,25 @@
 /* clock (numbered dial + arrow hands) — radius scales from card width */
 .card .clock{
   --r:calc(var(--card-w,100px)*0.37); width:calc(var(--r)*2); height:calc(var(--r)*2);
-  border-radius:50%; border:calc(var(--r)*0.10) solid var(--cc); position:relative; box-sizing:border-box;
+  border-radius:50%; border:calc(var(--r)*0.075) solid var(--cc); position:relative; box-sizing:border-box;
 }
 .card .clock .num{
-  position:absolute; transform:translate(-50%,-50%); font-size:calc(var(--r)*0.28); font-weight:800;
-  color:#1e1e1e; font-family:"Archivo",sans-serif; line-height:1; z-index:1;
+  position:absolute; transform:translate(-50%,-50%); font-size:calc(var(--r)*0.26); font-weight:600;
+  color:#333; font-family:"Archivo",sans-serif; line-height:1; z-index:1;
 }
 /* thin season-colored hands with slim arrowheads (match printed cards).
    min-height/padding/margin are pinned to 0 and display:block so a game's own
    hand-ZONE selector (.hand{min-height:…}) can't bleed into the clock hands
    (both share the class "hand") and stretch them past the dial. */
 .card .clock .hand{position:absolute; left:50%; top:50%; transform-origin:bottom center; background:var(--cc); border-radius:2px; z-index:2; display:block; min-height:0; min-width:0; max-height:none; padding:0; margin:0; box-sizing:border-box}
-.card .clock .hand.hr{width:calc(var(--r)*0.09); height:calc(var(--r)*0.48); transform:translate(-50%,-100%) rotate(var(--hrot))}
-.card .clock .hand.mn{width:calc(var(--r)*0.072); height:calc(var(--r)*0.72); transform:translate(-50%,-100%)}
+.card .clock .hand.hr{width:calc(var(--r)*0.068); height:calc(var(--r)*0.48); transform:translate(-50%,-100%) rotate(var(--hrot))}
+.card .clock .hand.mn{width:calc(var(--r)*0.055); height:calc(var(--r)*0.72); transform:translate(-50%,-100%)}
 .card .clock .hand::after{
   content:""; position:absolute; top:0; left:50%; transform:translate(-50%,-100%); width:0; height:0;
-  border-left:calc(var(--r)*0.11) solid transparent; border-right:calc(var(--r)*0.11) solid transparent;
-  border-bottom:calc(var(--r)*0.20) solid var(--cc);
+  border-left:calc(var(--r)*0.088) solid transparent; border-right:calc(var(--r)*0.088) solid transparent;
+  border-bottom:calc(var(--r)*0.18) solid var(--cc);
 }
-.card .clock .pin{position:absolute; left:50%; top:50%; width:calc(var(--r)*0.14); height:calc(var(--r)*0.14); border-radius:50%; background:var(--cc); transform:translate(-50%,-50%); z-index:3}
+.card .clock .pin{position:absolute; left:50%; top:50%; width:calc(var(--r)*0.11); height:calc(var(--r)*0.11); border-radius:50%; background:var(--cc); transform:translate(-50%,-50%); z-index:3}
 
 /* mail card glyph */
 .card .mailglyph{font-size:calc(var(--card-h,144px)*0.3); color:var(--cc); z-index:2; line-height:1}
