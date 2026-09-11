@@ -67,8 +67,11 @@
   position:absolute; transform:translate(-50%,-50%); font-size:calc(var(--r)*0.24); font-weight:400;
   color:#3a3a3a; font-family:"Archivo",sans-serif; line-height:1; z-index:1;
 }
-/* thin season-colored hands with slim arrowheads (match printed cards) */
-.card .clock .hand{position:absolute; left:50%; top:50%; transform-origin:bottom center; background:var(--cc); border-radius:2px; z-index:2}
+/* thin season-colored hands with slim arrowheads (match printed cards).
+   min-height/padding/margin are pinned to 0 and display:block so a game's own
+   hand-ZONE selector (.hand{min-height:…}) can't bleed into the clock hands
+   (both share the class "hand") and stretch them past the dial. */
+.card .clock .hand{position:absolute; left:50%; top:50%; transform-origin:bottom center; background:var(--cc); border-radius:2px; z-index:2; display:block; min-height:0; min-width:0; max-height:none; padding:0; margin:0; box-sizing:border-box}
 .card .clock .hand.hr{width:calc(var(--r)*0.05); height:calc(var(--r)*0.5); transform:translate(-50%,-100%) rotate(var(--hrot))}
 .card .clock .hand.mn{width:calc(var(--r)*0.042); height:calc(var(--r)*0.74); transform:translate(-50%,-100%)}
 .card .clock .hand::after{
