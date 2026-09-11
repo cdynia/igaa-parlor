@@ -156,18 +156,7 @@ button{font-family:inherit}
 .card .art{position:absolute; inset:0; display:flex; flex-wrap:wrap; align-content:center; justify-content:center;
   gap:1px 3px; padding:2px 3px; z-index:1; pointer-events:none; opacity:.95}
 .card .art span{font-size:.8rem; line-height:1}
-/* clock for time cards */
-.card .clock{
-  --r:38px; width:calc(var(--r)*2); height:calc(var(--r)*2); border-radius:50%;
-  border:2.5px solid var(--cc); position:relative; z-index:2; box-sizing:border-box;
-}
-.card .clock .hand{position:absolute; left:50%; top:50%; transform-origin:bottom center; background:var(--cc); border-radius:2px}
-.card .clock .hand.hr{width:2.5px; height:calc(var(--r)*0.5); transform:translate(-50%,-100%) rotate(var(--hrot))}
-.card .clock .hand.mn{width:2px;   height:calc(var(--r)*0.72); transform:translate(-50%,-100%) rotate(var(--mrot))}
-.card .clock .pin{position:absolute; left:50%; top:50%; width:5px; height:5px; border-radius:50%; background:var(--cc); transform:translate(-50%,-50%); z-index:3}
-.card .clock .hand{z-index:2}
-.card .clock .hand::after{content:""; position:absolute; top:0; left:50%; transform:translate(-50%,-100%); width:0; height:0; border-left:calc(var(--r)*0.14) solid transparent; border-right:calc(var(--r)*0.14) solid transparent; border-bottom:calc(var(--r)*0.22) solid var(--cc)}
-.card .clock .num{position:absolute; transform:translate(-50%,-50%); font-size:calc(var(--r)*0.26); font-weight:700; color:#3a3a3a; font-family:"Archivo",sans-serif; line-height:1; z-index:1}
+/* clock for time cards — styled by the shared cards.css (single source of truth) */
 .card[data-color=blue]   {--cc:var(--ink-blue)}
 .card[data-color=yellow] {--cc:var(--ink-gold)}
 .card[data-color=green]  {--cc:var(--ink-green)}
@@ -276,7 +265,7 @@ button{font-family:inherit}
   *{animation-duration:.001ms!important; transition-duration:.001ms!important}
 }
 </style>
-<link rel="stylesheet" href="cards.css?v=4">
+<link rel="stylesheet" href="cards.css?v=5">
 </head>
 <body>
 <div id="app">
@@ -792,7 +781,7 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeHelp(); });
 
 buildOppChips();
 </script>
-<script src="cards.js?v=4"></script>
+<script src="cards.js?v=5"></script>
 <script>window.__igaaFit = fitBind(fitBoard);</script>
 </body>
 </html>

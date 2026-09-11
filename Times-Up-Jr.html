@@ -125,14 +125,7 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 .card .vword{font-family:"Fraunces",serif; font-weight:600; writing-mode:vertical-rl; text-orientation:upright; font-size:.8rem; color:var(--cc); z-index:2; line-height:.86}
 .card .art{position:absolute; inset:0; display:flex; flex-wrap:wrap; align-content:center; justify-content:center; gap:1px 4px; padding:3px; z-index:1; pointer-events:none}
 .card .art span{font-size:.95rem; line-height:1}
-.card .clock{--r:44px; width:calc(var(--r)*2); height:calc(var(--r)*2); border-radius:50%; border:2.5px solid var(--cc); position:relative; z-index:2}
-.card .clock .hand{position:absolute; left:50%; top:50%; transform-origin:bottom center; background:var(--cc); border-radius:2px}
-.card .clock .hand.hr{width:3px; height:calc(var(--r)*0.5); transform:translate(-50%,-100%) rotate(var(--hrot))}
-.card .clock .hand.mn{width:2.5px; height:calc(var(--r)*0.72); transform:translate(-50%,-100%) rotate(0deg)}
-.card .clock .pin{position:absolute; left:50%; top:50%; width:6px; height:6px; border-radius:50%; background:var(--cc); transform:translate(-50%,-50%); z-index:3}
-.card .clock .hand{z-index:2}
-.card .clock .hand::after{content:""; position:absolute; top:0; left:50%; transform:translate(-50%,-100%); width:0; height:0; border-left:calc(var(--r)*0.14) solid transparent; border-right:calc(var(--r)*0.14) solid transparent; border-bottom:calc(var(--r)*0.22) solid var(--cc)}
-.card .clock .num{position:absolute; transform:translate(-50%,-50%); font-size:calc(var(--r)*0.24); font-weight:700; color:#3a3a3a; font-family:"Archivo",sans-serif; line-height:1; z-index:1}
+/* clock for time cards — styled by the shared cards.css (single source of truth) */
 .card[data-color=blue]{--cc:var(--ink-blue)} .card[data-color=yellow]{--cc:var(--ink-gold)}
 .card[data-color=green]{--cc:var(--ink-green)} .card[data-color=orange]{--cc:var(--ink-orange)}
 .card[data-color=noon]{--cc:var(--noon); background:#fff7ef; border-color:#eccdb8}
@@ -192,7 +185,7 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 @media (max-width:420px){ .grid{gap:6px} .felt{padding:16px 8px} }
 @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} .flip{transition:none} }
 </style>
-<link rel="stylesheet" href="cards.css?v=4">
+<link rel="stylesheet" href="cards.css?v=5">
 </head>
 <body>
 <div id="app">
@@ -537,7 +530,7 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape") document.getElemen
 buildChips("playerChips",2,8,"players");
 buildChips("roundChips",1,6,"rounds");
 </script>
-<script src="cards.js?v=4"></script>
+<script src="cards.js?v=5"></script>
 <script>window.__igaaFit = fitBind(fitBoard);</script>
 </body>
 </html>
