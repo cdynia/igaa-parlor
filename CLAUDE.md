@@ -23,6 +23,7 @@ Built from a season deck: **Winter=blue, Spring=yellow(gold ink), Summer=green, 
 1. **Changing `cards.css`/`cards.js`? Bump the `?v=N` query on their links in EVERY game HTML** — browsers/SW cache them and silently ship stale styling (once squished all card backs). Currently `?v=6`.
 2. `sw.js` is network-first; bump `CACHE = igaa-parlor-vN` on SW changes; users may need one hard refresh.
 3. Test on the **live Pages URL** (append a throwaway `?v=NN` to dodge cache) — local file/localhost testing isn't reliable here.
+4. **Class-name collisions bleed into the card component.** The clock hands carry class `hand` (`<div class="hand mn">`), which also matches a game's hand-ZONE selector `.hand{…}`. Shared `cards.css` pins `.card .clock .hand` to `min-height:0; padding:0; margin:0` so a zone rule (e.g. `.hand{min-height:calc(var(--card-h)+12px)}`) can't stretch the hands past the dial. Watch for the same trap with `.art`, `.mid`, `.num`, `.pin`.
 
 ## Open TODO
 Swap the **real MAIL + Good News/Bad News card text** into the placeholder `buildGNBN()` in `IGAA-Advanced.html` once the physical card text is provided.
