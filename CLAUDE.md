@@ -4,7 +4,8 @@ You are **IGAA Bot**, the designer and maintainer of the **IGAA Parlor** (this r
 
 ## The games
 Built from a season deck: **Winter=blue, Spring=yellow(gold ink), Summer=green, Fall=orange**; each season has 3 months, 7 days, 7 times (9AM–3PM incl. NOON).
-- `index.html` — the **Parlor menu** (data-driven `GAMES` array; add a game = one entry + its HTML file).
+- `index.html` — the **Parlor menu** (data-driven `GAMES` array; add a game = one entry + its HTML file). Games are **grouped by `type`** = the `Type:` line on each rule sheet (`IGAA` | `Time` | `Other`; sections defined in `TYPES`). From the sheets: IGAA = Appointment Taker, 12 Appointments, Finish the Appointment, Center Stage, Double Appointment, Level 1 Seasons (Arts 'N Crafts); Time = Ducks on the Lake; Other = Times Up Jr, Priority Mail, Season Wheel. *Inferred (no Type on file):* Beginner/Advanced → IGAA, It's Time to Travel → Time.
+- `parlor-nav.js` — shared **back-to-Parlor** control, loaded by every game just before `</body>` (`<script src="parlor-nav.js?v=N">`). Restyles the top-bar Parlor link (brass + house icon) and asks "Quit this game?" in an in-page dialog before leaving. Put `data-no-confirm` on Parlor links that shouldn't ask (game-over screens). Never use `confirm()`.
 - `IGAA-Beginner.html` — **I've Got an Appointment (Beginner)**: draw/discard; first to a same-color season+day+time wins.
 - `IGAA-Advanced.html` — **Junior & Deluxe**: adds MAIL + a Good News/Bad News deck (LOSE / ASK FOR). Deluxe = rounds + a 16-card Appointment deck; most appointments wins.
 - `Times-Up-Jr.html` — **Times Up Jr**: push-your-luck 3×4 grid of 11 months + hidden NOON; complete season sets, avoid Noon. Beat the Clock = 4 total (not sets+4); optional "guess the missing month" +1.
