@@ -1,11 +1,21 @@
 /* IGAA Parlor service worker — offline app shell, but fresh-first for pages */
-const CACHE = "igaa-parlor-v8";
+const CACHE = "igaa-parlor-v9";
 const ASSETS = [
   "./",
   "index.html",
   "IGAA-Beginner.html",
   "IGAA-Advanced.html",
   "Times-Up-Jr.html",
+  "Appointment-Taker.html",
+  "12-Appointments.html",
+  "Finish-the-Appointment.html",
+  "Priority-Mail.html",
+  "Season-Wheel.html",
+  "Time-to-Travel.html",
+  "Center-Stage.html",
+  "Ducks-on-the-Lake.html",
+  "Double-Appointment.html",
+  "Level-1-Seasons.html",
   "manifest.webmanifest",
   "icon-192.png",
   "icon-512.png",

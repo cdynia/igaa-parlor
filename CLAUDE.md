@@ -7,7 +7,12 @@ Built from a season deck: **Winter=blue, Spring=yellow(gold ink), Summer=green, 
 - `index.html` — the **Parlor menu** (data-driven `GAMES` array; add a game = one entry + its HTML file).
 - `IGAA-Beginner.html` — **I've Got an Appointment (Beginner)**: draw/discard; first to a same-color season+day+time wins.
 - `IGAA-Advanced.html` — **Junior & Deluxe**: adds MAIL + a Good News/Bad News deck (LOSE / ASK FOR). Deluxe = rounds + a 16-card Appointment deck; most appointments wins.
-- `Times-Up-Jr.html` — **Times Up Jr**: push-your-luck 3×4 grid of 11 months + hidden NOON; complete season sets, avoid Noon.
+- `Times-Up-Jr.html` — **Times Up Jr**: push-your-luck 3×4 grid of 11 months + hidden NOON; complete season sets, avoid Noon. Beat the Clock = 4 total (not sets+4); optional "guess the missing month" +1.
+- `Appointment-Taker.html` (#065), `12-Appointments.html` (#114), `Finish-the-Appointment.html` (#261) — mat-based appointment games.
+- `Priority-Mail.html` (#030–034) — Priority Mail I–V in one file (version picker); uses the GNBN card face from cards.js.
+- `Season-Wheel.html`, `Time-to-Travel.html` — spinner games (combo scoring; clock + ETA card + tell-the-time quiz).
+- `Center-Stage.html` (#250), `Ducks-on-the-Lake.html` (#242), `Double-Appointment.html` (#277), `Level-1-Seasons.html` (Level 1 board) — board games.
+- Rule choices where Anne's rules are unclear live in flags/constants at the top of each game script and in its How to Play panel; open questions for Anne are tracked outside the repo.
 
 ## Architecture
 - **Each game is a single self-contained HTML file** (own inline `<style>`/`<script>`, no build step).
@@ -20,7 +25,7 @@ Built from a season deck: **Winter=blue, Spring=yellow(gold ink), Summer=green, 
 `git add -A && git commit && git push` → GitHub Pages auto-builds (~1 min). Repo: cdynia/igaa-parlor. Live: https://cdynia.github.io/igaa-parlor/ . Confirm: `gh api repos/cdynia/igaa-parlor/pages/builds/latest -q '.status'`. End commit messages with the Co-Authored-By + Claude-Session trailers.
 
 ## Gotchas (respect these — they cost real time)
-1. **Changing `cards.css`/`cards.js`? Bump the `?v=N` query on their links in EVERY game HTML** — browsers/SW cache them and silently ship stale styling (once squished all card backs). Currently `?v=8`.
+1. **Changing `cards.css`/`cards.js`? Bump the `?v=N` query on their links in EVERY game HTML** — browsers/SW cache them and silently ship stale styling (once squished all card backs). Currently `?v=9`.
 2. `sw.js` is network-first; bump `CACHE = igaa-parlor-vN` on SW changes; users may need one hard refresh.
 3. Test on the **live Pages URL** (append a throwaway `?v=NN` to dodge cache) — local file/localhost testing isn't reliable here.
 4. **Class-name collisions bleed into the card component.** The clock hands carry class `hand` (`<div class="hand mn">`), which also matches a game's hand-ZONE selector `.hand{…}`. Shared `cards.css` pins `.card .clock .hand` to `min-height:0; padding:0; margin:0` so a zone rule (e.g. `.hand{min-height:calc(var(--card-h)+12px)}`) can't stretch the hands past the dial. Watch for the same trap with `.art`, `.mid`, `.num`, `.pin`.

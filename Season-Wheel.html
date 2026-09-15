@@ -1,0 +1,1276 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a24">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IGAA Parlor">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>if('serviceWorker' in navigator){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<title>Season Wheel</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101a24'/%3E%3Cpath d='M32 32V10a22 22 0 0 1 22 22z' fill='%233d78bf'/%3E%3Cpath d='M32 32h22a22 22 0 0 1-22 22z' fill='%23e6b23a'/%3E%3Cpath d='M32 32v22a22 22 0 0 1-22-22z' fill='%2345a06a'/%3E%3Cpath d='M32 32H10a22 22 0 0 1 22-22z' fill='%23cf7620'/%3E%3Ccircle cx='32' cy='32' r='8' fill='%23101a24' stroke='%23e4c883' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --table-1:#16222e; --table-2:#0c141c;
+  --brass:#b98a3c; --brass-hi:#e4c883; --brass-deep:#8a6526;
+  --line:rgba(240,235,220,.10); --line-2:rgba(240,235,220,.16);
+  --muted:#9aa6b2; --muted-2:#c7d0d9; --paper:#f4efe3;
+  --blue:#3d78bf; --yellow:#e6b23a; --green:#45a06a; --orange:#cf7620;
+  --ink-blue:#2f6fc0; --ink-gold:#c99105; --ink-green:#2f9e4f; --ink-orange:#e2701c;
+  --shadow:0 14px 30px -12px rgba(0,0,0,.6);
+  --card-w:96px; --card-h:136px;
+}
+*{box-sizing:border-box}
+html,body{height:100%; margin:0; overflow:hidden}
+html{-webkit-text-size-adjust:100%}
+body{overscroll-behavior:none; color:var(--muted-2); font-family:"Archivo",system-ui,"Segoe UI",sans-serif;
+  background:radial-gradient(120% 90% at 50% 6%, #223141 0%, var(--table-1) 42%, var(--table-2) 100%); -webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); font-weight:600}
+button,input,select{font-family:inherit}
+.btn{border:1px solid var(--brass-deep); cursor:pointer; color:#211a0c; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+  background:linear-gradient(180deg,var(--brass-hi),var(--brass)); padding:.62em 1.2em; border-radius:9px; font-weight:700; font-size:.92rem;
+  box-shadow:0 2px 0 var(--brass-deep),0 8px 18px -8px rgba(0,0,0,.7); transition:transform .08s, filter .15s; white-space:nowrap}
+.btn:hover{filter:brightness(1.06)} .btn:active{transform:translateY(2px); box-shadow:0 0 0 var(--brass-deep)}
+.btn.ghost{background:transparent; color:var(--muted-2); border-color:var(--line-2); box-shadow:none; font-weight:500}
+.btn.ghost:hover{border-color:var(--brass); color:var(--brass-hi)}
+.btn:focus-visible{outline:3px solid var(--brass-hi); outline-offset:2px}
+.btn:disabled{opacity:.4; cursor:not-allowed; filter:none; transform:none}
+.btn.big{font-size:1.02rem; padding:.7em 1.5em}
+
+/* ---------- shell ---------- */
+#app{width:100%; height:100dvh; overflow:hidden; display:flex; flex-direction:column; gap:7px; padding:8px clamp(8px,2vw,18px) 10px}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.brand{display:flex; align-items:center; gap:11px}
+.brand .mark{width:38px; height:38px; border-radius:50%; flex:0 0 auto; position:relative;
+  background:conic-gradient(var(--blue) 0 25%, var(--yellow) 0 50%, var(--green) 0 75%, var(--orange) 0 100%);
+  box-shadow:0 0 0 2px #0c141c, 0 0 0 3px var(--brass)}
+.brand .mark::after{content:""; position:absolute; inset:30%; border-radius:50%; background:#101a24; border:1px solid var(--brass-hi)}
+.brand h1{font-size:1.18rem; line-height:1}
+.brand .sub{font-size:.72rem; color:var(--muted); letter-spacing:.12em; margin-top:3px}
+.tools{display:flex; gap:7px; flex-wrap:wrap}
+
+.scorebar{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; align-items:stretch}
+.pchip{display:flex; align-items:center; gap:10px; padding:6px 12px; border:1px solid var(--line); border-radius:12px; min-width:118px;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)); transition:border-color .2s, box-shadow .2s, transform .2s}
+.pchip.active{border-color:var(--brass); box-shadow:0 0 0 1px var(--brass); transform:translateY(-1px)}
+.pchip .who{display:flex; flex-direction:column; gap:1px; min-width:0}
+.pchip .nm{color:var(--paper); font-weight:600; font-size:.88rem; white-space:nowrap}
+.pchip .meta{font-size:.66rem; color:var(--muted); white-space:nowrap; display:flex; align-items:center; gap:4px}
+.pchip .dot{width:9px; height:9px; border-radius:3px; display:inline-block}
+.pchip .tot{font-family:"Fraunces",serif; color:var(--brass-hi); font-size:1.35rem; line-height:1; margin-left:auto}
+.pchip .tot.bump{animation:bump .45s ease}
+@keyframes bump{40%{transform:scale(1.35); color:#fff}}
+.infochip{display:flex; flex-direction:column; justify-content:center; padding:5px 12px; border-radius:12px; border:1px dashed var(--line-2); font-size:.68rem; color:var(--muted); line-height:1.35}
+.infochip b{color:var(--brass-hi); font-weight:700}
+
+.felt{position:relative; flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:8px; padding:10px 12px; border-radius:20px; overflow:hidden;
+  background:radial-gradient(140% 120% at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,0) 55%), linear-gradient(180deg,#1c3b34,#122a26);
+  border:1px solid rgba(255,255,255,.06); box-shadow:inset 0 2px 30px rgba(0,0,0,.45), var(--shadow)}
+.felt::after{content:""; position:absolute; inset:0; border-radius:20px; pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.035) 1px, transparent 1px); background-size:6px 6px; opacity:.5; mix-blend-mode:overlay}
+.banner{text-align:center; z-index:1}
+.banner .phase{font-family:"Fraunces",serif; font-size:clamp(1.02rem,2.4vw,1.4rem); color:var(--paper); line-height:1.15}
+.banner .hint{font-size:.8rem; color:#bfe0cf; margin-top:2px; min-height:1.1em}
+
+.tablezone{position:relative; z-index:1; flex:1 1 auto; min-height:0; display:flex; gap:14px}
+.handwrap{flex:1 1 auto; min-width:0; min-height:0; display:flex; align-items:center; justify-content:center}
+.handgrid{display:grid; grid-template-columns:repeat(var(--cols,6), var(--card-w)); grid-auto-rows:var(--card-h); gap:var(--hgap,10px); padding-top:6px}
+.hcell{position:relative; width:var(--card-w); height:var(--card-h); cursor:pointer; touch-action:none; transition:transform .15s ease; border-radius:12px}
+.hcell .card{transition:box-shadow .15s, filter .2s}
+.hcell:hover .card{box-shadow:0 0 0 2px rgba(228,200,131,.55), 0 16px 26px -12px rgba(0,0,0,.7)}
+.hcell:focus-visible{outline:3px solid var(--brass-hi); outline-offset:3px}
+.hcell.sel{transform:translateY(-7px)}
+.hcell.sel .card{box-shadow:0 0 0 3px var(--brass-hi), 0 18px 30px -12px rgba(0,0,0,.8)}
+.hcell.used .card{filter:saturate(.6) brightness(.86)}
+.hcell.used::after{content:""; position:absolute; inset:0; border-radius:12px; background:repeating-linear-gradient(135deg,rgba(16,26,36,.10) 0 6px,rgba(16,26,36,0) 6px 12px); pointer-events:none}
+.hcell.focus .card{filter:none; box-shadow:0 0 0 3px #fff, 0 0 22px 6px rgba(228,200,131,.85)}
+.hcell.newcard .card{box-shadow:0 0 0 3px var(--brass-hi), 0 0 24px 4px rgba(228,200,131,.6)}
+.hcell.dragging{opacity:.35}
+.hcell.deal{animation:dealIn .5s cubic-bezier(.2,.9,.25,1.04) both; animation-delay:var(--d,0ms)}
+@keyframes dealIn{from{transform:translate(18vw,-40vh) rotate(-20deg) scale(.55); opacity:0} to{transform:none; opacity:1}}
+.tags{position:absolute; top:-7px; right:-7px; display:flex; flex-direction:column; gap:2px; align-items:flex-end; z-index:6; pointer-events:none}
+.tag{font-family:"Archivo",sans-serif; font-weight:800; font-size:clamp(.54rem, calc(var(--card-w)*.115), .74rem); line-height:1; padding:3px 5px; border-radius:6px;
+  background:#101a24; color:var(--brass-hi); border:1px solid var(--brass); box-shadow:0 3px 8px -3px rgba(0,0,0,.7); white-space:nowrap}
+.tag.won{background:#1f5a3a; color:#fff; border-color:#7fd3a0}
+.tag.lost{background:#3a2a2a; color:#d9b3b3; border-color:#8a5a5a; text-decoration:line-through}
+.dragghost{position:fixed; z-index:90; pointer-events:none; transform:translate(-50%,-60%) rotate(-4deg) scale(1.05); filter:drop-shadow(0 18px 20px rgba(0,0,0,.6))}
+
+.panel{flex:0 0 clamp(270px,27vw,340px); display:flex; flex-direction:column; gap:10px; min-height:0}
+.pbox{background:rgba(6,14,12,.38); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:9px 11px; display:flex; flex-direction:column; gap:7px; min-height:0; min-width:0}
+.ptitle{display:flex; justify-content:space-between; align-items:baseline; gap:8px; font-weight:700; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--brass-hi)}
+.ptitle span{color:#8fb0a0; letter-spacing:.02em; text-transform:none; font-weight:500; font-size:.72rem}
+.ptitle b{font-family:"Fraunces",serif; font-size:1.05rem; color:var(--paper); letter-spacing:0}
+.builder{transition:outline-color .15s; outline:2px dashed transparent; outline-offset:-2px}
+.builder.over{outline-color:var(--brass-hi); background:rgba(228,200,131,.08)}
+.bslots{display:flex; gap:6px; --mini-w:44px}
+.mini{--card-w:44px; --card-h:62px; width:44px; height:62px; position:relative; flex:0 0 auto}
+.mini .card{border-radius:7px; padding:3px}
+.mini .card .idx{font-size:7px}
+.bslot{width:44px; height:62px; border-radius:7px; border:1.5px dashed rgba(255,255,255,.18); flex:0 0 auto}
+.bopts{display:flex; flex-direction:column; gap:5px; min-height:0; overflow:auto}
+.opt{display:flex; align-items:center; gap:8px; width:100%; text-align:left; cursor:pointer; padding:6px 8px; border-radius:9px;
+  background:linear-gradient(180deg,rgba(228,200,131,.18),rgba(228,200,131,.08)); border:1px solid rgba(228,200,131,.45); color:var(--paper); font-size:.8rem}
+.opt:hover{background:linear-gradient(180deg,rgba(228,200,131,.3),rgba(228,200,131,.14))}
+.opt .ol{flex:1; min-width:0; line-height:1.2}
+.opt .ol small{display:block; color:#b9c9c0; font-size:.7rem}
+.opt .add{font-weight:800; color:var(--brass-hi); font-size:.75rem}
+.bnote{font-size:.74rem; color:#9fbcae; line-height:1.35}
+.code{font-family:"Archivo",sans-serif; font-weight:800; font-size:.7rem; padding:3px 6px; border-radius:6px; background:#0f1822; color:var(--brass-hi);
+  border:1px solid rgba(228,200,131,.4); min-width:40px; text-align:center; flex:0 0 auto}
+.tray{flex:1 1 auto}
+.traylist{display:flex; flex-direction:column; gap:5px; overflow:auto; min-height:0}
+.trow{display:flex; align-items:center; gap:7px; padding:5px 7px; border-radius:9px; background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.07); font-size:.78rem; cursor:pointer}
+.trow:hover{border-color:rgba(228,200,131,.4)}
+.trow .tn{flex:1; min-width:0; color:var(--paper); line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.trow .tn small{display:block; color:#9fbcae; font-size:.68rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.trow .tp{font-family:"Fraunces",serif; color:var(--brass-hi); font-size:.98rem; min-width:26px; text-align:right}
+.trow .rm{border:0; background:transparent; color:#9fbcae; cursor:pointer; font-size:1rem; line-height:1; padding:2px 4px; border-radius:5px}
+.trow .rm:hover{color:#fff; background:rgba(255,255,255,.08)}
+.trow.won{border-color:rgba(111,200,146,.55); background:rgba(69,160,106,.14)}
+.trow.won .tp{color:#9be3b7}
+.trow.lost{opacity:.6}
+.trow.lost .tp{color:#e3a3a3}
+.trow.live{border-color:#fff; box-shadow:0 0 0 1px #fff}
+.empty-tray{font-size:.76rem; color:#8fa99c; line-height:1.4}
+.controls{position:relative; z-index:1; display:flex; gap:8px; justify-content:center; flex-wrap:wrap; align-items:center; min-height:42px}
+
+.floatpts{position:fixed; z-index:95; pointer-events:none; font-family:"Fraunces",serif; font-weight:700; font-size:1.7rem; color:#fff;
+  text-shadow:0 2px 10px rgba(0,0,0,.7), 0 0 14px rgba(228,200,131,.9); transform:translate(-50%,-50%); animation:floatUp 1.1s ease-out forwards}
+.floatpts.zero{color:#f0b0b0; text-shadow:0 2px 10px rgba(0,0,0,.7)}
+@keyframes floatUp{0%{opacity:0; transform:translate(-50%,-10%) scale(.6)} 20%{opacity:1; transform:translate(-50%,-50%) scale(1.15)} 100%{opacity:0; transform:translate(-50%,-160%) scale(1)}}
+
+/* ---------- overlays ---------- */
+.overlay{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:16px;
+  background:radial-gradient(120% 120% at 50% 0%, rgba(20,30,40,.8), rgba(6,10,14,.94)); backdrop-filter:blur(3px)}
+.overlay[hidden]{display:none}
+.book{width:min(600px,100%); max-height:92dvh; overflow:auto; background:linear-gradient(180deg,#1b2836,#111a24);
+  border:1px solid rgba(228,200,131,.25); border-radius:18px; padding:24px 26px; box-shadow:0 40px 90px -30px rgba(0,0,0,.85)}
+.book .eyebrow{color:var(--brass-hi); font-size:.74rem; letter-spacing:.2em; text-transform:uppercase; margin-bottom:6px}
+.book h2{font-size:clamp(1.6rem,5vw,2.2rem); line-height:1.03; color:var(--paper)}
+.book p.lede{color:var(--muted-2); line-height:1.5; margin:10px 0 16px; font-size:.93rem}
+.book h3{color:var(--brass-hi); font-family:"Archivo",sans-serif; font-weight:700; font-size:.76rem; letter-spacing:.1em; text-transform:uppercase; margin:16px 0 6px}
+.book p,.book li{color:var(--muted-2); line-height:1.55; font-size:.9rem}
+.book ul{padding-left:18px; margin:6px 0}
+.book .note{font-size:.76rem; color:var(--muted); margin-top:12px; line-height:1.5}
+.cover-tabs{display:flex; gap:5px; margin-bottom:14px}
+.cover-tabs i{height:10px; flex:1; border-radius:3px}
+.field{margin:0 0 14px}
+.field .flabel{font-size:.8rem; color:var(--muted); margin-bottom:7px}
+.chips{display:flex; gap:7px; flex-wrap:wrap}
+.chip{border:1px solid var(--line-2); background:transparent; color:var(--muted-2); min-width:44px; height:40px; padding:0 12px; border-radius:10px; cursor:pointer; font-size:.9rem; font-weight:600}
+.chip:hover{border-color:var(--brass)} .chip.sel{background:linear-gradient(180deg,var(--brass-hi),var(--brass)); color:#211a0c; border-color:var(--brass-deep)}
+.seats{display:flex; flex-direction:column; gap:7px}
+.seat{display:grid; grid-template-columns:1fr auto 1fr; gap:7px; align-items:center}
+.seat input,.seat select{width:100%; min-width:0; background:#0f1720; color:var(--paper); border:1px solid var(--line-2); border-radius:8px; padding:8px 9px; font-size:.88rem}
+.seg{display:inline-flex; border:1px solid var(--line-2); border-radius:8px; overflow:hidden}
+.seg button{border:0; background:transparent; color:var(--muted-2); padding:8px 10px; cursor:pointer; font-size:.8rem; font-weight:600}
+.seg button.on{background:linear-gradient(180deg,var(--brass-hi),var(--brass)); color:#211a0c}
+.row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.todaybox{display:block; line-height:1.5; padding:9px 11px; border-radius:10px; background:rgba(228,200,131,.07); border:1px solid rgba(228,200,131,.25); font-size:.82rem; color:var(--muted-2)}
+.todaybox b{color:var(--brass-hi)}
+
+/* how-to combo table */
+.ctable{width:100%; border-collapse:collapse; font-size:.8rem; margin-top:6px}
+.ctable th{text-align:left; color:var(--brass-hi); font-weight:700; font-size:.68rem; letter-spacing:.08em; text-transform:uppercase; padding:6px 6px; border-bottom:1px solid var(--line-2)}
+.ctable td{padding:6px 6px; border-bottom:1px solid var(--line); color:var(--muted-2); vertical-align:top; line-height:1.4}
+.ctable td.c{font-weight:800; color:var(--paper); white-space:nowrap}
+.ctable td.p{font-family:"Fraunces",serif; color:var(--brass-hi); white-space:nowrap; text-align:right}
+.ctable tr.grp td{color:var(--brass-hi); font-weight:700; font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; padding-top:12px; border-bottom:1px solid var(--line-2)}
+.legend{display:flex; gap:12px; flex-wrap:wrap; margin:8px 0 2px}
+.legend span{display:flex; align-items:center; gap:6px; font-size:.82rem}
+.legend i{width:13px; height:13px; border-radius:3px; display:inline-block}
+.credit{margin-top:16px; padding:10px 12px; border-radius:10px; background:rgba(228,200,131,.07); border:1px solid rgba(228,200,131,.22); font-size:.8rem; color:var(--muted-2); line-height:1.5}
+
+/* spin stage */
+.stagebox{width:min(440px,100%); max-height:94dvh; overflow:auto; text-align:center; background:linear-gradient(180deg,#1b2836,#111a24); border:1px solid rgba(228,200,131,.3);
+  border-radius:20px; padding:18px 18px 16px; box-shadow:0 40px 90px -30px rgba(0,0,0,.9)}
+.stagebox .eyebrow{color:var(--brass-hi); font-size:.72rem; letter-spacing:.2em; text-transform:uppercase}
+.stagebox h2{font-size:clamp(1.25rem,4.4vw,1.7rem); margin:4px 0 2px}
+.stagebox .need{font-size:.88rem; color:var(--muted-2); min-height:1.3em}
+.stagecards{display:flex; gap:6px; justify-content:center; margin:10px 0 4px}
+.wheelwrap{position:relative; width:var(--wheel,min(300px,62vw,40dvh)); height:var(--wheel,min(300px,62vw,40dvh)); margin:12px auto 6px}
+.wrotor{position:absolute; inset:0; transition-property:transform; transition-timing-function:cubic-bezier(.13,.72,.1,1); will-change:transform}
+.wrotor svg{width:100%; height:100%; display:block; filter:drop-shadow(0 14px 22px rgba(0,0,0,.55))}
+.wpointer{position:absolute; left:50%; top:-10px; width:34px; height:46px; transform:translateX(-50%); transform-origin:50% 12px; z-index:3;
+  filter:drop-shadow(0 4px 5px rgba(0,0,0,.55))}
+.wpointer.tick{animation:tick .11s ease-in-out infinite alternate}
+@keyframes tick{from{transform:translateX(-50%) rotate(-9deg)} to{transform:translateX(-50%) rotate(7deg)}}
+.stageresult{min-height:2.2em; font-family:"Fraunces",serif; font-size:1.25rem; color:var(--paper); display:flex; align-items:center; justify-content:center; gap:8px; flex-wrap:wrap}
+.stageresult .sw{display:inline-block; width:18px; height:18px; border-radius:5px; box-shadow:0 0 0 2px rgba(255,255,255,.7)}
+.stageresult.win{color:#9be3b7} .stageresult.lose{color:#f0b0b0}
+.stagebtns{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:8px; min-height:44px}
+
+/* score sheet */
+.sheetbook{width:min(1100px,100%)}
+.sheetwrap{overflow:auto; margin-top:12px; border-radius:12px; border:1px solid #cfc6ae; background:#fdfbf5}
+.sheet{border-collapse:collapse; width:100%; min-width:860px; color:#24272e; font-size:.8rem}
+.sheet th,.sheet td{border:1px solid #ddd3bb; padding:5px 5px; text-align:center}
+.sheet thead th{background:#f1ead8; font-size:.68rem; letter-spacing:.04em}
+.sheet thead tr.grp th{background:#1b2836; color:#e4c883; font-size:.66rem; letter-spacing:.1em; text-transform:uppercase}
+.sheet td.nm{text-align:left; font-weight:700; white-space:nowrap}
+.sheet td.nm small{display:block; font-weight:500; color:#6b7280; font-size:.68rem}
+.sheet td.rd{font-weight:800; color:#8a6526}
+.sheet td.tot{font-family:"Fraunces",serif; font-weight:700; font-size:.95rem}
+.sheet td.game{background:#f6ecd0; font-family:"Fraunces",serif; font-weight:700; font-size:.95rem}
+.sheet td.z{color:#c3bba6}
+.sheet tr.rstart td{border-top:2px solid #b98a3c}
+
+/* final */
+.stamp-big{display:inline-block; padding:14px 26px; border:4px solid var(--brass); border-radius:12px; color:var(--brass-hi); font-family:"Fraunces",serif; font-weight:700;
+  font-size:clamp(1.3rem,4.5vw,2rem); transform:rotate(-4deg); margin:6px 0 10px; animation:slam .5s cubic-bezier(.2,1.2,.3,1)}
+@keyframes slam{0%{transform:rotate(-4deg) scale(2.4); opacity:0}60%{opacity:1}100%{transform:rotate(-4deg) scale(1)}}
+.standings{list-style:none; padding:0; margin:12px 0}
+.standings li{display:flex; justify-content:space-between; padding:10px 12px; border-bottom:1px solid var(--line); color:var(--muted-2)}
+.standings li.win{color:var(--brass-hi); font-weight:700}
+.standings li .p{font-family:"Fraunces",serif}
+#errbox{position:fixed; left:8px; bottom:8px; z-index:999; background:#7a1f1f; color:#fff; font:12px monospace; padding:6px 8px; border-radius:6px; max-width:90vw}
+
+@media (max-width:859px){
+  .tablezone{flex-direction:column; gap:8px}
+  .panel{flex:0 0 auto; flex-direction:row; height:clamp(124px,19dvh,172px)}
+  .pbox{flex:1 1 0}
+  .bslots{gap:4px}
+  .mini,.bslot{--card-w:34px; --card-h:48px; width:34px; height:48px}
+  .mini .card .idx{font-size:5.5px}
+  .trow .tn small{display:none}
+  .opt .ol small{display:none}
+  .opt .ol{white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+}
+.opt .optpts{display:none; font-family:"Fraunces",serif; color:var(--brass-hi)}
+.stagecards .mini{--card-w:60px; --card-h:85px; width:60px; height:85px}
+.stagecards .mini .card .idx{font-size:6.6px}
+@media (max-width:640px){
+  .tools .btn{padding:.45em .7em; font-size:.78rem}
+  .brand .sub{display:none}
+  .brand h1{font-size:1.02rem}
+  .brand .mark{width:30px; height:30px}
+  .pchip{min-width:0; padding:4px 8px; gap:6px}
+  .pchip .tot{font-size:1.1rem}
+  .pchip .meta{display:none}
+  .infochip{display:none}
+  .felt{padding:8px 7px}
+  .banner .hint{font-size:.72rem}
+  .seat{grid-template-columns:1fr auto; row-gap:5px; padding-bottom:6px; border-bottom:1px solid var(--line)}
+  .seat select{grid-column:1/-1}
+  .btn.big{font-size:.92rem; padding:.6em 1.1em}
+  .builder .ptitle span{display:none}
+  .opt{padding:5px 6px; gap:5px; font-size:.72rem}
+  .opt .code{min-width:34px; font-size:.62rem; padding:2px 4px}
+  .opt .add{display:none}
+  .opt .optpts{display:inline}
+  .bnote{font-size:.68rem}
+  .trow{gap:5px; padding:4px 6px}
+  .trow .tn{display:none}
+  .trow .tp{margin-left:auto}
+}
+/* short landscape phones: hand left, builder + tray right */
+@media (max-height:520px) and (min-aspect-ratio:4/3){
+  #app{gap:5px; padding-top:6px; padding-bottom:6px}
+  .brand .sub{display:none} .brand h1{font-size:1rem} .brand .mark{width:28px; height:28px}
+  .tools .btn{padding:.4em .7em; font-size:.78rem}
+  .pchip{padding:3px 9px; min-width:0} .pchip .tot{font-size:1.05rem} .pchip .meta{display:none}
+  .infochip{display:none}
+  .felt{padding:6px 8px; gap:4px}
+  .banner .hint{display:none}
+  .banner .phase{font-size:.95rem}
+  .tablezone{flex-direction:row; gap:8px}
+  .panel{flex:0 0 clamp(210px,30vw,280px); flex-direction:column; height:auto; gap:6px}
+  .pbox{padding:6px 8px; gap:5px}
+  .builder .ptitle span{display:none}
+  .controls{min-height:0}
+  .controls .btn{padding:.4em .9em; font-size:.82rem}
+}
+@media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} }
+</style>
+<link rel="stylesheet" href="cards.css?v=9">
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"></div>
+      <div><h1>Season Wheel</h1><div class="sub">Build combos · spin to finish them</div></div>
+    </div>
+    <div class="tools">
+      <a class="btn ghost" href="index.html">← Parlor</a>
+      <button class="btn ghost" id="btnSheet">Score sheet</button>
+      <button class="btn ghost" id="btnHelp">How to play</button>
+      <button class="btn ghost" id="btnNew">New game</button>
+    </div>
+  </div>
+
+  <div class="scorebar" id="scorebar"></div>
+
+  <div class="felt" id="felt">
+    <div class="banner">
+      <div class="phase" id="phaseText">Season Wheel</div>
+      <div class="hint" id="hintText"></div>
+    </div>
+    <div class="tablezone" id="tablezone">
+      <div class="handwrap" id="handwrap"><div class="handgrid" id="handgrid"></div></div>
+      <div class="panel" id="panel">
+        <div class="pbox builder" id="builder">
+          <div class="ptitle">Combo builder <span id="builderHint">tap or drag cards here</span></div>
+          <div class="bslots" id="bslots"></div>
+          <div class="bopts" id="bopts"></div>
+        </div>
+        <div class="pbox tray">
+          <div class="ptitle">This hand <b id="turnPts">0</b></div>
+          <div class="traylist" id="traylist"></div>
+        </div>
+      </div>
+    </div>
+    <div class="controls" id="controls"></div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div class="overlay" id="setupOverlay">
+  <div class="book">
+    <div class="cover-tabs"><i style="background:var(--blue)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i></div>
+    <div class="eyebrow">Main deck + spinner · 2–4 players · ages 9+</div>
+    <h2>Season Wheel</h2>
+    <p class="lede">Each turn you're dealt 12 cards. Build the best-scoring combos you can: appointments, bookends, sequences, Noons. Missing one card? Spin the Season Wheel and let the color finish it.</p>
+    <div class="field">
+      <div class="flabel">Players</div>
+      <div class="chips" id="countChips"></div>
+    </div>
+    <div class="field">
+      <div class="flabel">Seats: name · who plays · birth month (for the Birthday Appointment)</div>
+      <div class="seats" id="seats"></div>
+    </div>
+    <div class="field">
+      <div class="flabel">Game length</div>
+      <div class="chips" id="goalChips"></div>
+    </div>
+    <div class="field"><div class="todaybox" id="todayBox"></div></div>
+    <div class="row">
+      <button class="btn big" id="btnStart">Deal the first hand</button>
+      <button class="btn ghost" id="btnHelp2">How to play</button>
+    </div>
+    <p class="note">Pass-and-play friendly: every turn is its own 12-card hand, so players can share one screen. Computer seats build and spin on their own.</p>
+  </div>
+</div>
+
+<!-- HELP -->
+<div class="overlay" id="helpOverlay" hidden>
+  <div class="book">
+    <div class="eyebrow">How to play</div>
+    <h2>Make the best combos</h2>
+    <div class="legend">
+      <span><i style="background:var(--blue)"></i>Winter · BLUE</span>
+      <span><i style="background:var(--yellow)"></i>Spring · YELLOW</span>
+      <span><i style="background:var(--green)"></i>Summer · GREEN</span>
+      <span><i style="background:var(--orange)"></i>Fall · ORANGE</span>
+    </div>
+    <h3>Your turn</h3>
+    <ul>
+      <li>You're dealt <b>12 cards</b> from the main deck.</li>
+      <li>Tap cards (or drag them into the <b>Combo builder</b>). When your picks make a combo, tap it to add it to <b>This hand</b>. <b>Suggest best</b> builds the highest-scoring plan for you.</li>
+      <li>You may make <b>more than one combo of the same type</b>.</li>
+      <li>Press <b>Score &amp; spin</b>. Complete combos score right away. Combos marked <b>-S</b> may use the <b>spinner</b> to supply the missing card: spin the right color and you score, miss and that combo scores nothing.</li>
+    </ul>
+    <h3>Using a card twice</h3>
+    <p>A card normally counts in <b>one</b> combo. The exceptions are <b>Four Seasons (4S)</b>, <b>3 Months in a Season (3M)</b> and <b>Noons (3N/4N)</b>. A card in one of those sets can <i>also</i> be used in one other combo. Example: the September card in your Original Appointment can also help make 3 Months in a Season.</p>
+    <h3>Bonus cards</h3>
+    <p>Completing a <b>4-card combo</b> earns a <b>bonus card</b>. That means Four Seasons (dealt or spun), all Four Noons, or winning the 3-Noon gamble. The bonus card joins your hand, and you can build more combos with it.</p>
+    <h3>Combo point values</h3>
+    <table class="ctable">
+      <tr><th>Code</th><th>Combo</th><th style="text-align:right">Pts</th></tr>
+      <tr class="grp"><td colspan="3">5 points</td></tr>
+      <tr><td class="c">TA</td><td><b>Today's Appointment</b>: the current month's card + today's day of the week (any color) + any color NOON.</td><td class="p">5</td></tr>
+      <tr><td class="c">BA-S</td><td><b>Birthday Appointment</b>: your birth-month card with a same-color day <i>and</i> time. Have the birth month plus just one same-color day or time? Take an <b>extra-chance spin</b>: spin your birth season's color to score.</td><td class="p">5</td></tr>
+      <tr><td class="c">4S-S</td><td><b>Four Seasons</b>: one month card of each season. Have 3 of 4? Spin the missing color. Made it: <b>bonus card</b>.</td><td class="p">5</td></tr>
+      <tr class="grp"><td colspan="3">4 points</td></tr>
+      <tr><td class="c">3M-S</td><td><b>3 Months in a Season</b>: e.g. Sept + Oct + Nov. Have 2 of 3? Spin that season's color.</td><td class="p">4</td></tr>
+      <tr><td class="c">OA</td><td><b>Original Appointment</b>: a month + day + time, all the same color.</td><td class="p">4</td></tr>
+      <tr class="grp"><td colspan="3">3 points</td></tr>
+      <tr><td class="c">RA</td><td><b>Rainbow Appointment</b>: a month + day + time, all different colors.</td><td class="p">3</td></tr>
+      <tr><td class="c">WES</td><td><b>Bookends</b>: Saturday and Sunday of the same color, plus any Wednesday or any NOON.</td><td class="p">3</td></tr>
+      <tr><td class="c">3N-S</td><td><b>3 Noons</b>: keep 3 points, <i>or</i> try your luck: spin the 4th Noon color for <b>6 points + bonus card</b>, or lose it all. Holding all <b>4 Noons</b> scores 6 + bonus card.</td><td class="p">3 / 6</td></tr>
+      <tr class="grp"><td colspan="3">2 points mixed colors · 4 points same color</td></tr>
+      <tr><td class="c">PA-S</td><td><b>Potential Appointment</b>: pick a month + a day (or a time). <i>Different colors:</i> spin a third different color for a Rainbow (2). <i>Same color:</i> spin that color for an Original (4).</td><td class="p">2 / 4</td></tr>
+      <tr><td class="c">DS</td><td><b>3-Day Sequence</b>: three days in a row within Sun–Sat (no wrap-around).</td><td class="p">2 / 4</td></tr>
+      <tr><td class="c">WMT</td><td><b>Weekend + Time</b>: Saturday and Sunday (any colors) plus any time card matching the color of the Saturday or the Sunday.</td><td class="p">2 / 4</td></tr>
+      <tr><td class="c">AM</td><td><b>3 AM Times</b>: any three AM time cards.</td><td class="p">2 / 4</td></tr>
+      <tr><td class="c">PM</td><td><b>3 PM Times</b>: any three PM time cards.</td><td class="p">2 / 4</td></tr>
+      <tr><td class="c">TS</td><td><b>Time Sequence</b>: 9-10-11 AM or 1-2-3 PM.</td><td class="p">2 / 4</td></tr>
+      <tr><td class="c">TD</td><td><b>3 Different Times</b>: 1 AM + 1 PM + 1 NOON.</td><td class="p">2 / 4</td></tr>
+    </table>
+    <h3>Winning</h3>
+    <p>Play a single hand, or keep going round after round until someone reaches the game score. The round is always finished so everyone gets the same number of turns. Most points wins.</p>
+    <h3>Digital edition notes</h3>
+    <ul>
+      <li>On Anne's sheets, "TA" means both Today's Appointment and 3 AM Times. Here, <b>TA = Today's Appointment</b> and the time combos are <b>AM</b> and <b>PM</b>.</li>
+      <li>The deck is reshuffled each round. If it runs low, the hands already scored that round are shuffled back in.</li>
+      <li>A card shared by 4S, 3M, or a Noon set can join one other combo. Two sets of the same shared type still need different cards.</li>
+      <li>"Today" uses this device's date. The day card is the day of the week.</li>
+    </ul>
+    <div class="credit"><b>Season Wheel</b>: an original game by <b>Anne Gyorfi, "The Game Lady"</b>, inspired by Steve (5/21/26). Part of the <b>I've Got an Appointment</b> family. Digital edition for the IGAA Parlor.</div>
+    <div class="row" style="margin-top:14px"><button class="btn" id="btnCloseHelp">Got it</button></div>
+  </div>
+</div>
+
+<!-- SCORE SHEET -->
+<div class="overlay" id="sheetOverlay" hidden>
+  <div class="book sheetbook">
+    <div class="row" style="justify-content:space-between">
+      <div><div class="eyebrow">Season Wheel</div><h2>Score sheet</h2></div>
+      <button class="btn" id="btnCloseSheet">Close</button>
+    </div>
+    <div class="sheetwrap"><table class="sheet" id="sheetTable"></table></div>
+    <p class="note">-S means the spinner can be used to complete the combo. Point columns show what each player scored per combo code in that round.</p>
+  </div>
+</div>
+
+<!-- SPIN STAGE -->
+<div class="overlay" id="stage" hidden>
+  <div class="stagebox">
+    <div class="eyebrow" id="stEyebrow">Spin the Season Wheel</div>
+    <h2 id="stTitle">—</h2>
+    <div class="need" id="stNeed"></div>
+    <div class="stagecards" id="stCards"></div>
+    <div class="wheelwrap">
+      <svg class="wpointer" id="wPointer" viewBox="0 0 34 46" aria-hidden="true"><path d="M17 44 L4 13 A13 13 0 1 1 30 13 Z" fill="#e4c883" stroke="#8a6526" stroke-width="2"/><circle cx="17" cy="13" r="5" fill="#101a24" stroke="#8a6526" stroke-width="1.5"/></svg>
+      <div class="wrotor" id="wRotor"></div>
+    </div>
+    <div class="stageresult" id="stResult"></div>
+    <div class="stagebtns" id="stBtns"></div>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div class="overlay" id="finalOverlay" hidden>
+  <div class="book" style="text-align:center">
+    <div class="eyebrow">Final score</div>
+    <div class="stamp-big" id="finalStamp">Season Wheel</div>
+    <h2 id="finalTitle">—</h2>
+    <ul class="standings" id="standings"></ul>
+    <div class="row" style="justify-content:center">
+      <button class="btn" id="btnAgain">Play again</button>
+      <button class="btn ghost" id="btnFinalSheet">View score sheet</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============================ DATA ============================ */
+const SEASONS=[
+  {color:"blue",   name:"Winter", months:["December","January","February"]},
+  {color:"yellow", name:"Spring", months:["March","April","May"]},
+  {color:"green",  name:"Summer", months:["June","July","August"]},
+  {color:"orange", name:"Fall",   months:["September","October","November"]},
+];
+const COLORS=["blue","yellow","green","orange"];
+const CWORD={blue:"BLUE",yellow:"YELLOW",green:"GREEN",orange:"ORANGE"};
+const SNAME={blue:"Winter",yellow:"Spring",green:"Summer",orange:"Fall"};
+const CFILL={blue:"#3d78bf",yellow:"#e6b23a",green:"#45a06a",orange:"#cf7620"};
+const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const TIMES=[
+  {label:"9:00 AM",ap:"AM",hr:9},{label:"10:00 AM",ap:"AM",hr:10},{label:"11:00 AM",ap:"AM",hr:11},
+  {label:"12:00 NOON",ap:"NOON",hr:12},{label:"1:00 PM",ap:"PM",hr:1},{label:"2:00 PM",ap:"PM",hr:2},{label:"3:00 PM",ap:"PM",hr:3},
+];
+const TIME_ORDER=[9,10,11,12,1,2,3];
+const CAL=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const MONTH_COLOR={}; SEASONS.forEach(s=>s.months.forEach(m=>MONTH_COLOR[m]=s.color));
+const NOW=new Date();
+const TODAY={month:CAL[NOW.getMonth()], day:DAYS[NOW.getDay()], date:NOW.getDate()};
+const AI_NAMES=["Robin","Sam","Alex","Jordan"];
+
+const INFO={
+  "TA":{name:"Today's Appointment"}, "BA":{name:"Birthday Appointment"}, "BA-S":{name:"Birthday extra-chance"},
+  "4S":{name:"Four Seasons"}, "4S-S":{name:"Four Seasons (spin)"}, "3M":{name:"3 Months in a Season"}, "3M-S":{name:"3 Months (spin)"},
+  "OA":{name:"Original Appointment"}, "RA":{name:"Rainbow Appointment"}, "WES":{name:"Bookends + Wed/Noon"},
+  "4N":{name:"Four Noons"}, "3N-S":{name:"3 Noons"}, "PA-S":{name:"Potential Appointment"},
+  "DS":{name:"3-Day Sequence"}, "WMT":{name:"Weekend + Time"}, "AM":{name:"3 AM Times"}, "PM":{name:"3 PM Times"},
+  "TS":{name:"Time Sequence"}, "TD":{name:"AM + PM + Noon"},
+};
+const SHEET_GROUPS=[
+  {label:"5 points", cols:["TA","BA-S","4S-S"]},
+  {label:"4 points", cols:["3M-S","OA"]},
+  {label:"3 points", cols:["RA","WES","3N-S"]},
+  {label:"2 mixed · 4 same", cols:["PA-S","DS","WMT","AM","PM","TS","TD"]},
+];
+
+let CARD_ID=0;
+function buildDeck(){
+  const deck=[];
+  for(const s of SEASONS){
+    for(const m of s.months) deck.push({id:++CARD_ID, cat:"season", color:s.color, season:s.name, value:m});
+    for(const d of DAYS)     deck.push({id:++CARD_ID, cat:"day", color:s.color, season:s.name, value:d, kind:(d==="Saturday"||d==="Sunday")?"WEEKEND":"WEEKDAY"});
+    for(const t of TIMES)    deck.push({id:++CARD_ID, cat:"time", color:s.color, season:s.name, value:t.label, ap:t.ap, hr:t.hr});
+  }
+  return deck;
+}
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+const $=id=>document.getElementById(id);
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch])); }
+
+/* ============================ COMBOS ============================ */
+function combos(arr,k){
+  const out=[], n=arr.length, idx=[];
+  (function rec(start){
+    if(idx.length===k){ out.push(idx.map(i=>arr[i])); return; }
+    for(let i=start;i<n;i++){ idx.push(i); rec(i+1); idx.pop(); }
+  })(0);
+  return out;
+}
+function mk(code, cards, pts, opt){
+  opt=opt||{};
+  const ids=cards.map(c=>c.id).sort((a,b)=>a-b);
+  const c={code, sheet:opt.sheet||code, name:INFO[code].name, ids, pts, fam:opt.fam||null, spin:opt.spin||null,
+    bonus:!!opt.bonus, gamble:!!opt.gamble, missing:opt.missing||null, note:opt.note||""};
+  c.key=code+":"+ids.join(",");
+  let p=1;
+  if(c.spin) p=c.spin.type==="match"?0.25:0.5;
+  c.ev = c.gamble ? 3 : c.pts*p + (c.bonus?1.2*p:0) + (c.spin?0:0.01); // tiny tie-break toward sure points
+  return c;
+}
+function sameColor(cs){ return cs.every(c=>c.color===cs[0].color); }
+
+function tripleCombos(cs, ctx){
+  const out=[];
+  const S=cs.filter(x=>x.cat==="season"), D=cs.filter(x=>x.cat==="day"), T=cs.filter(x=>x.cat==="time");
+  const same=sameColor(cs), distinct=new Set(cs.map(x=>x.color)).size===3;
+  if(S.length===1&&D.length===1&&T.length===1){
+    const s=S[0], d=D[0], t=T[0];
+    if(s.value===ctx.month && d.value===ctx.day && t.ap==="NOON") out.push(mk("TA",cs,5));
+    if(same){
+      out.push(mk("OA",cs,4));
+      if(ctx.birth && s.value===ctx.birth) out.push(mk("BA",cs,5,{sheet:"BA-S"}));
+    }
+    if(distinct) out.push(mk("RA",cs,3));
+  }
+  if(D.length===3){
+    const ix=D.map(x=>DAYS.indexOf(x.value)).sort((a,b)=>a-b);
+    if(ix[1]===ix[0]+1 && ix[2]===ix[1]+1) out.push(mk("DS",cs,same?4:2,{note:same?"same color":"mixed"}));
+  }
+  if(D.length>=2 && S.length===0){
+    const sat=D.find(x=>x.value==="Saturday"), sun=D.find(x=>x.value==="Sunday");
+    if(sat&&sun){
+      const third=cs.find(x=>x!==sat&&x!==sun);
+      if(sat.color===sun.color && ((third.cat==="day"&&third.value==="Wednesday")||(third.cat==="time"&&third.ap==="NOON"))) out.push(mk("WES",cs,3));
+      if(third.cat==="time" && (third.color===sat.color||third.color===sun.color)) out.push(mk("WMT",cs,same?4:2,{note:same?"same color":"mixed"}));
+    }
+  }
+  if(T.length===3){
+    const aps=T.map(x=>x.ap);
+    const note={note:same?"same color":"mixed"};
+    if(aps.every(a=>a==="AM")) out.push(mk("AM",cs,same?4:2,note));
+    if(aps.every(a=>a==="PM")) out.push(mk("PM",cs,same?4:2,note));
+    if(aps.includes("AM")&&aps.includes("PM")&&aps.includes("NOON")) out.push(mk("TD",cs,same?4:2,note));
+    const hs=T.map(x=>x.hr).sort((a,b)=>a-b).join(",");
+    if(hs==="9,10,11"||hs==="1,2,3") out.push(mk("TS",cs,same?4:2,note));
+  }
+  return out;
+}
+function pairCombos(cs, ctx){
+  const out=[];
+  const s=cs.find(x=>x.cat==="season"), o=cs.find(x=>x!==s);
+  if(!s||!o||o.cat==="season") return out;
+  if(ctx.birth && s.value===ctx.birth && o.color===s.color)
+    out.push(mk("BA-S",cs,5,{spin:{type:"match",color:s.color}}));
+  if(o.color===s.color) out.push(mk("PA-S",cs,4,{spin:{type:"match",color:s.color}, note:"spin for an Original"}));
+  else out.push(mk("PA-S",cs,2,{spin:{type:"avoid",colors:[s.color,o.color]}, note:"spin for a Rainbow"}));
+  return out;
+}
+function exclusiveCands(cards, ctx){
+  let out=[];
+  for(const t of combos(cards,3)) out=out.concat(tripleCombos(t,ctx));
+  for(const p of combos(cards,2)) out=out.concat(pairCombos(p,ctx));
+  return out;
+}
+function familyCands(fam, cards){
+  const out=[];
+  if(fam==="S4"){
+    const ss=cards.filter(c=>c.cat==="season");
+    for(const q of combos(ss,4)) if(new Set(q.map(c=>c.color)).size===4) out.push(mk("4S",q,5,{fam:"S4",bonus:true,sheet:"4S-S"}));
+    for(const q of combos(ss,3)) if(new Set(q.map(c=>c.color)).size===3){
+      const miss=COLORS.find(col=>!q.some(c=>c.color===col));
+      out.push(mk("4S-S",q,5,{fam:"S4",bonus:true,spin:{type:"match",color:miss}}));
+    }
+  } else if(fam==="M3"){
+    const ss=cards.filter(c=>c.cat==="season");
+    for(const q of combos(ss,3)) if(sameColor(q)) out.push(mk("3M",q,4,{fam:"M3",sheet:"3M-S"}));
+    for(const q of combos(ss,2)) if(sameColor(q)) out.push(mk("3M-S",q,4,{fam:"M3",spin:{type:"match",color:q[0].color}}));
+  } else if(fam==="N"){
+    const nn=cards.filter(c=>c.cat==="time"&&c.ap==="NOON");
+    for(const q of combos(nn,4)) out.push(mk("4N",q,6,{fam:"N",bonus:true,sheet:"3N-S"}));
+    for(const q of combos(nn,3)){
+      const miss=COLORS.find(col=>!q.some(c=>c.color===col));
+      out.push(mk("3N-S",q,3,{fam:"N",gamble:true,missing:miss}));
+    }
+  }
+  return out;
+}
+/* max-weight set packing over a hand (<=16 cards → bitmask DP) */
+function pack(cands, cards){
+  const n=cards.length; if(!n) return [];
+  const index=new Map(cards.map((c,i)=>[c.id,i]));
+  const byLow=Array.from({length:n},()=>[]);
+  for(const cd of cands){
+    let m=0, ok=true;
+    for(const id of cd.ids){ if(!index.has(id)){ok=false;break;} m|=1<<index.get(id); }
+    if(!ok) continue;
+    cd._m=m; byLow[31-Math.clz32(m & -m)].push(cd);
+  }
+  const full=(1<<n)-1, memo=new Map();
+  function best(mask){
+    if(mask===full) return {v:0,list:[]};
+    const hit=memo.get(mask); if(hit) return hit;
+    let i=0; while((mask>>i)&1) i++;
+    let r=best(mask|(1<<i));
+    for(const cd of byLow[i]){
+      if(cd._m & mask) continue;
+      const sub=best(mask|cd._m), v=sub.v+cd.ev;
+      if(v>r.v+1e-9) r={v, list:[cd].concat(sub.list)};
+    }
+    memo.set(mask,r); return r;
+  }
+  return best(0).list;
+}
+
+/* ============================ STATE ============================ */
+let G=null;
+let autoTimer=null;
+const FAMS=["S4","M3","N"];
+function cur(){ return G.players[G.current]; }
+function ctxFor(p){ return {birth:p.birth, month:TODAY.month, day:TODAY.day}; }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function cardById(id){ return G.hand.find(c=>c.id===id); }
+
+function newGame(seats, goal){
+  clearTimeout(autoTimer);
+  $("stage").hidden=true;
+  G={tok:Math.random(), goal, round:1, current:0, players:seats.map(s=>({name:s.name, human:s.human, birth:s.birth, total:0, rounds:[]})),
+     deck:[], usedPile:[], hand:[], ex:new Set(), fam:{S4:new Set(),M3:new Set(),N:new Set()}, tray:[], sel:[], phase:"idle",
+     turnPts:0, focus:null, deal:false, newIds:new Set(), over:false, bonusMsg:""};
+  startRound();
+}
+function startRound(){
+  G.deck=shuffle(buildDeck()); G.usedPile=[]; G.current=0;
+  startTurn();
+}
+function drawCard(){
+  if(!G.deck.length){ G.deck=shuffle(G.usedPile); G.usedPile=[]; }
+  return G.deck.pop();
+}
+function sortHand(h){
+  const cat={season:0,day:1,time:2};
+  return h.sort((a,b)=> cat[a.cat]-cat[b.cat]
+    || (a.cat==="season" ? CAL.indexOf(a.value)-CAL.indexOf(b.value) : 0)
+    || (a.cat==="day" ? DAYS.indexOf(a.value)-DAYS.indexOf(b.value) : 0)
+    || (a.cat==="time" ? TIME_ORDER.indexOf(a.hr)-TIME_ORDER.indexOf(b.hr) : 0)
+    || COLORS.indexOf(a.color)-COLORS.indexOf(b.color));
+}
+function startTurn(presetHand){
+  const p=cur();
+  if(G.deck.length<12){ G.deck=shuffle(G.deck.concat(G.usedPile)); G.usedPile=[]; }
+  G.hand = presetHand || sortHand(Array.from({length:12},drawCard));
+  G.ex=new Set(); G.fam={S4:new Set(),M3:new Set(),N:new Set()};
+  G.tray=[]; G.sel=[]; G.turnPts=0; G.focus=null; G.deal=true; G.newIds=new Set(); G.bonusMsg="";
+  p.rounds[G.round-1]={codes:{}, total:0};
+  G.phase = p.human ? "build" : "ai";
+  render();
+  setTimeout(()=>{ if(G.deal){ G.deal=false; } }, 50);
+  if(!p.human){ const tok=G.tok; setTimeout(()=>{ if(tok===G.tok) aiPlan(tok); }, 1100); }
+}
+
+/* candidates available right now for the current player */
+function availableCands(){
+  const ctx=ctxFor(cur());
+  const exCards=G.hand.filter(c=>!G.ex.has(c.id));
+  let all=exclusiveCands(exCards,ctx);
+  for(const f of FAMS) all=all.concat(familyCands(f, G.hand.filter(c=>!G.fam[f].has(c.id))));
+  return all;
+}
+function suggestPlan(){
+  const ctx=ctxFor(cur());
+  const exCards=G.hand.filter(c=>!G.ex.has(c.id));
+  let plan=pack(exclusiveCands(exCards,ctx), exCards);
+  for(const f of FAMS){
+    const fc=G.hand.filter(c=>!G.fam[f].has(c.id));
+    plan=plan.concat(pack(familyCands(f,fc), fc));
+  }
+  return plan;
+}
+function claim(c, on){
+  const set = c.fam ? G.fam[c.fam] : G.ex;
+  c.ids.forEach(id=> on ? set.add(id) : set.delete(id));
+}
+function addCombo(c){
+  if(G.tray.some(t=>t.key===c.key)) return;
+  const t=Object.assign({}, c, {state:"planned", got:0});
+  G.tray.push(t); claim(t,true);
+}
+function removeCombo(key){
+  const i=G.tray.findIndex(t=>t.key===key && t.state==="planned");
+  if(i<0) return;
+  claim(G.tray[i],false); G.tray.splice(i,1);
+}
+function clearPlan(){ G.tray.filter(t=>t.state==="planned").map(t=>t.key).forEach(removeCombo); G.sel=[]; }
+function humanSuggest(){
+  if(G.phase!=="build") return;
+  clearPlan();
+  suggestPlan().forEach(addCombo);
+  render();
+}
+function selectionOptions(){
+  if(G.sel.length<2) return [];
+  const key=G.sel.slice().sort((a,b)=>a-b).join(",");
+  const seen=new Set();
+  return availableCands().filter(c=>c.ids.join(",")===key).filter(c=>{ if(seen.has(c.code)) return false; seen.add(c.code); return true; }).sort((a,b)=>b.pts-a.pts || a.ev-b.ev);
+}
+function toggleSel(id, forceOn){
+  if(G.phase!=="build") return;
+  const i=G.sel.indexOf(id);
+  if(i>=0 && !forceOn) G.sel.splice(i,1);
+  else if(i<0){ if(G.sel.length>=4) G.sel.shift(); G.sel.push(id); }
+  render();
+}
+
+/* ============================ SCORING ============================ */
+function addPoints(p, sheet, pts){
+  const r=p.rounds[G.round-1];
+  r.codes[sheet]=(r.codes[sheet]||0)+pts; r.total+=pts; p.total+=pts;
+  G.turnPts+=pts;
+}
+async function resolvePlan(){
+  const tok=G.tok, p=cur(), human=p.human;
+  const plan=G.tray.filter(t=>t.state==="planned").sort((a,b)=>((a.spin||a.gamble)?1:0)-((b.spin||b.gamble)?1:0));
+  G.phase="resolve"; G.sel=[]; render();
+  let bonus=0;
+  for(const c of plan){
+    if(tok!==G.tok) return;
+    G.focus=c.key; render();
+    await sleep(human?420:320);
+    let pts=c.pts, won=true;
+    if(c.gamble){
+      const choice = human ? await stageChoice(c,tok) : "keep";
+      if(tok!==G.tok) return;
+      if(choice==="gamble"){
+        won=await stageSpin(c,{type:"match",color:c.missing},human,tok,6);
+        pts=won?6:0; c.note=won?"Lucky! doubled":"gamble lost";
+        if(won) bonus++;
+      } else { pts=3; c.note="kept 3 points"; }
+    } else if(c.spin){
+      won=await stageSpin(c,c.spin,human,tok,c.pts);
+      pts=won?c.pts:0;
+      if(won&&c.bonus) bonus++;
+    } else if(c.bonus){ bonus++; }
+    if(tok!==G.tok) return;
+    c.state=pts>0?"won":"lost"; c.got=pts;
+    addPoints(p,c.sheet,pts);
+    floatOnCombo(c,pts);
+    render(true);
+    await sleep(human?380:260);
+  }
+  if(tok!==G.tok) return;
+  G.focus=null;
+  if(bonus>0){
+    G.newIds=new Set();
+    for(let i=0;i<bonus;i++){ const bc=drawCard(); if(bc){ G.hand.push(bc); G.newIds.add(bc.id); } }
+    G.bonusMsg=`Bonus card${bonus>1?"s":""}! ${bonus>1?bonus+" new cards join":"A new card joins"} your hand.`;
+    G.phase = human ? "build" : "ai";
+    render();
+    if(!human) setTimeout(()=>{ if(tok===G.tok) aiPlan(tok); }, 900);
+    return;
+  }
+  finishTurn();
+}
+function finishTurn(){
+  const tok=G.tok, p=cur();
+  G.phase="done"; G.focus=null; G.newIds=new Set();
+  G.usedPile=G.usedPile.concat(G.hand);
+  render();
+  const nx=nextSeat();
+  const allCpu=G.players.every(x=>!x.human);
+  if(!p.human && ((nx && !nx.human) || (!nx && allCpu))){ autoTimer=setTimeout(()=>{ if(tok===G.tok && G.phase==="done") nextTurn(); }, 2400); }
+}
+function nextSeat(){
+  if(G.current<G.players.length-1) return G.players[G.current+1];
+  if(roundEndsGame()) return null;
+  return G.players[0];
+}
+function roundEndsGame(){ return G.goal===0 || G.players.some(p=>p.total>=G.goal); }
+function nextTurn(){
+  clearTimeout(autoTimer);
+  if(G.current<G.players.length-1){ G.current++; startTurn(); return; }
+  if(roundEndsGame()){ endGame(); return; }
+  G.round++; startRound();
+}
+function endGame(){
+  G.over=true; G.phase="over"; render();
+  const ranked=G.players.slice().sort((a,b)=>b.total-a.total);
+  const top=ranked[0].total, winners=ranked.filter(p=>p.total===top);
+  $("finalTitle").textContent = winners.length>1 ? `Tie: ${winners.map(w=>w.name).join(" & ")}` : `${winners[0].name} ${winners[0].name==="You"?"win":"wins"}!`;
+  $("finalStamp").textContent = winners.length>1 ? "It's a tie" : "Wheel champion";
+  $("standings").innerHTML=ranked.map(p=>`<li class="${p.total===top?"win":""}"><span>${esc(p.name)}</span><span class="p">${p.total} pts</span></li>`).join("");
+  $("finalOverlay").hidden=false;
+}
+
+/* ============================ AI ============================ */
+async function aiPlan(tok){
+  if(tok!==G.tok) return;
+  const plan=suggestPlan();
+  for(const c of plan){
+    if(tok!==G.tok) return;
+    addCombo(c); G.focus=c.key; render(); await sleep(380);
+  }
+  G.focus=null;
+  await sleep(350);
+  if(tok!==G.tok) return;
+  if(!plan.length && !G.tray.some(t=>t.state==="planned")){ finishTurn(); return; }
+  resolvePlan();
+}
+
+/* ============================ SPINNER ============================ */
+const WHEEL_N=8;
+let wheelRot=0;
+function wheelSVG(){
+  const n=WHEEL_N, cx=120, cy=120, R=104;
+  const pt=(a,r)=>[cx+r*Math.sin(a), cy-r*Math.cos(a)];
+  let s=`<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg">
+    <defs><radialGradient id="rimG" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#f1dca0"/><stop offset=".7" stop-color="#b98a3c"/><stop offset="1" stop-color="#7a5a22"/></radialGradient>
+    <radialGradient id="shine" cx="50%" cy="30%" r="70%"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset=".6" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
+    <circle cx="${cx}" cy="${cy}" r="118" fill="url(#rimG)"/><circle cx="${cx}" cy="${cy}" r="109" fill="#0f1822"/>`;
+  for(let i=0;i<n;i++){
+    const col=COLORS[i%4], a0=i/n*2*Math.PI, a1=(i+1)/n*2*Math.PI;
+    const [x0,y0]=pt(a0,R), [x1,y1]=pt(a1,R);
+    s+=`<path d="M${cx} ${cy} L${x0.toFixed(2)} ${y0.toFixed(2)} A${R} ${R} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z" fill="${CFILL[col]}" stroke="#0f1822" stroke-width="1.6"/>`;
+    const deg=(i+.5)*360/n, ink=col==="yellow"?"#3d2c05":"#fff";
+    s+=`<g transform="rotate(${deg} ${cx} ${cy})"><text x="${cx}" y="${cy-72}" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="800" font-size="12.5" letter-spacing=".5" fill="${ink}">${CWORD[col]}</text>
+      <text x="${cx}" y="${cy-58}" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-weight="600" font-size="10" fill="${ink}" opacity=".9">${SNAME[col]}</text></g>`;
+  }
+  for(let i=0;i<n;i++){ const [x,y]=pt(i/n*2*Math.PI,112); s+=`<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="3.4" fill="#f4e2a8" stroke="#6b4c1a" stroke-width="1"/>`; }
+  s+=`<circle cx="${cx}" cy="${cy}" r="${R}" fill="url(#shine)"/>
+    <circle cx="${cx}" cy="${cy}" r="30" fill="url(#rimG)"/><circle cx="${cx}" cy="${cy}" r="25" fill="#101a24"/>
+    <text x="${cx}" y="${cy+4.5}" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-weight="700" font-size="13" fill="#e4c883">IGAA</text></svg>`;
+  return s;
+}
+function spinWheel(dur){
+  const rotor=$("wRotor"), ptr=$("wPointer");
+  const idx=Math.floor(Math.random()*WHEEL_N), seg=360/WHEEL_N;
+  const center=(idx+.5)*seg + (Math.random()-.5)*seg*.62;
+  const delta=(((-center - wheelRot)%360)+720)%360;
+  wheelRot += 360*(4+Math.floor(Math.random()*2)) + delta;
+  rotor.style.transitionDuration=dur+"ms";
+  rotor.style.transform=`rotate(${wheelRot}deg)`;
+  ptr.classList.add("tick");
+  setTimeout(()=>ptr.classList.remove("tick"), dur*.78);
+  return new Promise(r=>setTimeout(()=>r(COLORS[idx%4]), dur+80));
+}
+function miniCards(ids){ return ids.map(id=>{ const c=cardById(id); return c?`<div class="mini">${cardFaceHTML(c)}</div>`:""; }).join(""); }
+function needText(spin, pts){
+  if(spin.type==="match") return `Spin <b>${CWORD[spin.color]}</b> (${SNAME[spin.color]}) to score ${pts}.`;
+  return `Spin any color <b>except ${spin.colors.map(c=>CWORD[c]).join(" or ")}</b> to score ${pts}.`;
+}
+function waitClick(btn){ return new Promise(res=>{ btn.onclick=()=>{ btn.onclick=null; res(); }; }); }
+function openStage(c, eyebrow){
+  $("stEyebrow").textContent=eyebrow||"Spin the Season Wheel";
+  $("stTitle").textContent=`${c.code} · ${c.name}`;
+  $("stCards").innerHTML=miniCards(c.ids);
+  $("stResult").className="stageresult"; $("stResult").innerHTML="";
+  $("stBtns").innerHTML="";
+  $("stage").hidden=false;
+}
+async function stageChoice(c,tok){
+  openStage(c,"Try your luck?");
+  $("stNeed").innerHTML=`Keep <b>3 points</b>, or spin <b>${CWORD[c.missing]}</b> (the missing Noon color) for <b>6 points + a bonus card</b>. Any other color and you score nothing.`;
+  $("stBtns").innerHTML=`<button class="btn ghost" id="stKeep">Keep 3 points</button><button class="btn" id="stGamble">Try your luck</button>`;
+  const choice=await new Promise(res=>{ $("stKeep").onclick=()=>res("keep"); $("stGamble").onclick=()=>res("gamble"); });
+  if(choice==="keep") $("stage").hidden=true;
+  return choice;
+}
+async function stageSpin(c, spin, human, tok, pts){
+  if($("stage").hidden) openStage(c);
+  $("stEyebrow").textContent = human ? "Spin the Season Wheel" : `${cur().name} spins`;
+  $("stNeed").innerHTML=needText(spin,pts);
+  $("stResult").className="stageresult"; $("stResult").innerHTML="";
+  if(human){
+    $("stBtns").innerHTML=`<button class="btn big" id="stSpin">Spin</button>`;
+    await waitClick($("stSpin"));
+    $("stBtns").innerHTML="";
+  } else { await sleep(450); }
+  if(tok!==G.tok) return false;
+  const col=await spinWheel(human?2900:1900);
+  const won = spin.type==="match" ? col===spin.color : !spin.colors.includes(col);
+  const res=$("stResult");
+  res.className="stageresult "+(won?"win":"lose");
+  res.innerHTML=`<span class="sw" style="background:${CFILL[col]}"></span>${CWORD[col]}: ${won?`made it! +${pts}`:"no luck, 0 points"}`;
+  if(human){
+    $("stBtns").innerHTML=`<button class="btn" id="stOk">Continue</button>`;
+    await Promise.race([waitClick($("stOk")), sleep(3200)]);
+  } else await sleep(1150);
+  $("stage").hidden=true;
+  return won;
+}
+
+/* ============================ RENDER ============================ */
+function render(bumped){
+  if(!G) return;
+  renderScorebar(bumped); renderBanner(); renderHand(); renderBuilder(); renderTray(); renderControls();
+  (window.__igaaFit || fitBoard)();
+}
+function renderScorebar(bumped){
+  const chips=G.players.map((p,i)=>{
+    const r=p.rounds[G.round-1];
+    const active=i===G.current && !G.over;
+    return `<div class="pchip ${active?"active":""}">
+      <div class="who"><div class="nm">${esc(p.name)}</div>
+      <div class="meta"><span class="dot" style="background:${CFILL[MONTH_COLOR[p.birth]]}"></span>${p.birth.slice(0,3)}${p.human?"":" · CPU"}${r?` · +${r.total}`:""}</div></div>
+      <div class="tot ${bumped&&active?"bump":""}">${p.total}</div></div>`;
+  }).join("");
+  const tc=MONTH_COLOR[TODAY.month];
+  $("scorebar").innerHTML=chips+`<div class="infochip"><span>Round <b>${G.round}</b> · ${G.goal?`to <b>${G.goal}</b>`:"<b>single hand</b>"}</span><span>Today: <b style="color:${CFILL[tc]}">${TODAY.month.slice(0,3).toUpperCase()}</b> + <b>${TODAY.day.slice(0,3).toUpperCase()}</b> + NOON</span></div>`;
+}
+function renderBanner(){
+  const p=cur(), ph=$("phaseText"), h=$("hintText");
+  const you=p.name==="You";
+  if(G.phase==="build"){
+    ph.textContent = G.bonusMsg ? G.bonusMsg : `${you?"Your":p.name+"'s"} hand: build your combos`;
+    h.textContent = G.bonusMsg ? "Build with the new card, or press Score & spin to finish." : "Select 2–4 cards to see what they make, or tap Suggest best.";
+  } else if(G.phase==="ai"){ ph.textContent=`${p.name} is building combos…`; h.textContent=G.bonusMsg||"Watch the table."; }
+  else if(G.phase==="resolve"){ ph.textContent=`Scoring ${you?"your":p.name+"'s"} combos…`; h.textContent="Complete combos score first, then the spins."; }
+  else if(G.phase==="done"||G.phase==="over"){
+    ph.textContent=`${p.name} scored ${G.turnPts} point${G.turnPts===1?"":"s"} this hand`;
+    const nx=nextSeat();
+    h.textContent = nx ? `Next up: ${nx.name}${G.current===G.players.length-1?` (round ${G.round+1})`:""}.` : "That's the game.";
+  }
+}
+function tagsFor(id){
+  return G.tray.filter(t=>t.ids.includes(id)).map(t=>`<span class="tag ${t.state==="won"?"won":t.state==="lost"?"lost":""}">${t.code}</span>`).join("");
+}
+function renderHand(){
+  const grid=$("handgrid");
+  const focusIds=new Set(); const f=G.tray.find(t=>t.key===G.focus); if(f) f.ids.forEach(i=>focusIds.add(i));
+  grid.innerHTML=G.hand.map((c,i)=>{
+    const cls=["hcell"];
+    if(G.sel.includes(c.id)) cls.push("sel");
+    if(G.ex.has(c.id)) cls.push("used");
+    if(focusIds.has(c.id)) cls.push("focus");
+    if(G.newIds.has(c.id)) cls.push("newcard");
+    if(G.deal) cls.push("deal");
+    return `<div class="${cls.join(" ")}" data-id="${c.id}" style="--d:${i*55}ms" tabindex="${G.phase==="build"?0:-1}" role="button" aria-label="${esc(c.value)} ${CWORD[c.color]}">${cardFaceHTML(c)}<div class="tags">${tagsFor(c.id)}</div></div>`;
+  }).join("");
+  G.deal=false;
+}
+function renderBuilder(){
+  const slots=[];
+  for(let i=0;i<4;i++){ const id=G.sel[i]; slots.push(id!=null?`<div class="mini">${cardFaceHTML(cardById(id))}</div>`:`<div class="bslot"></div>`); }
+  $("bslots").innerHTML=slots.join("");
+  const el=$("bopts");
+  if(G.phase!=="build"){ el.innerHTML=`<div class="bnote">${G.phase==="done"||G.phase==="over"?"Hand complete.":"Cards are locked while combos score."}</div>`; return; }
+  if(G.sel.length<2){ el.innerHTML=`<div class="bnote">${G.sel.length?"Add another card or two.":"Pick cards that go together: same color, a sequence, Noons…"}</div>`; return; }
+  const opts=selectionOptions();
+  if(!opts.length){ el.innerHTML=`<div class="bnote">No combo with these ${G.sel.length} cards${G.sel.some(id=>G.ex.has(id))?" (some are already used)":""}.</div>`; return; }
+  el.innerHTML=opts.map((o,i)=>`<button class="opt" data-i="${i}"><span class="code">${o.code}</span><span class="ol">${o.name}<small>${optDesc(o)}</small></span><span class="add">ADD</span><span class="optpts">${o.gamble?"3/6":o.pts}</span></button>`).join("");
+  el.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{ addCombo(opts[+b.dataset.i]); G.sel=[]; render(); });
+}
+function optDesc(o){
+  if(o.gamble) return `3 pts, or gamble for 6 + bonus`;
+  let s = o.spin ? (o.spin.type==="match" ? `spin ${CWORD[o.spin.color]} · ${o.pts} pts` : `spin not ${o.spin.colors.map(c=>CWORD[c]).join("/")} · ${o.pts} pts`) : `${o.pts} pts`;
+  if(o.bonus) s+=" + bonus card";
+  if(o.fam) s+=" · cards reusable";
+  return s;
+}
+function renderTray(){
+  $("turnPts").textContent=G.turnPts;
+  const el=$("traylist");
+  if(!G.tray.length){ el.innerHTML=`<div class="empty-tray">${G.phase==="done"?"No combos this hand.":"Your combos appear here. Tap one to highlight its cards."}</div>`; return; }
+  el.innerHTML=G.tray.map(t=>{
+    const pts = t.state==="planned" ? (t.gamble?"3/6":t.spin?`${t.pts}?`:t.pts) : (t.state==="won"?`+${t.got}`:"0");
+    const sub = t.state==="planned" ? optDesc(t) : (t.state==="won" ? (t.note||"scored") : (t.gamble?t.note:"spin missed"));
+    return `<div class="trow ${t.state} ${G.focus===t.key?"live":""}" data-key="${t.key}"><span class="code">${t.code}</span>
+      <span class="tn">${t.name}<small>${sub}</small></span><span class="tp">${pts}</span>
+      ${t.state==="planned"&&G.phase==="build"?`<button class="rm" data-rm="${t.key}" aria-label="Remove combo">✕</button>`:""}</div>`;
+  }).join("");
+  el.querySelectorAll(".trow").forEach(r=>r.onclick=(e)=>{
+    const rm=e.target.closest("[data-rm]");
+    if(rm){ removeCombo(rm.dataset.rm); render(); return; }
+    if(G.phase==="build"||G.phase==="done"){ G.focus = G.focus===r.dataset.key?null:r.dataset.key; render(); }
+  });
+  const live=el.querySelector(".trow.live"); if(live) live.scrollIntoView({block:"nearest"});
+}
+function renderControls(){
+  const el=$("controls"); el.innerHTML="";
+  const p=cur();
+  const btn=(txt,cls,fn,dis)=>{ const b=document.createElement("button"); b.className="btn "+(cls||""); b.textContent=txt; b.onclick=fn; if(dis) b.disabled=true; el.appendChild(b); return b; };
+  if(G.phase==="build"){
+    btn("Suggest best","ghost",humanSuggest);
+    btn("Clear","ghost",()=>{ clearPlan(); render(); }, !G.tray.some(t=>t.state==="planned") && !G.sel.length);
+    const planned=G.tray.filter(t=>t.state==="planned");
+    btn(planned.length?`Score & spin ▶`:"End hand ▶","big",()=>{ if(planned.length) resolvePlan(); else finishTurn(); });
+  } else if(G.phase==="done"){
+    const nx=nextSeat();
+    btn(nx?`Next: ${nx.name} ▶`:"See final scores ▶","big",nextTurn);
+    btn("Score sheet","ghost",openSheet);
+  } else if(G.phase==="over"){
+    btn("Play again","big",()=>{ $("setupOverlay").hidden=false; });
+  } else {
+    const s=document.createElement("span"); s.style.cssText="font-size:.8rem;color:#9fbcae"; s.textContent=p.human?"Scoring…":`${p.name} is playing…`; el.appendChild(s);
+  }
+}
+function floatOnCombo(c, pts){
+  const cells=c.ids.map(id=>document.querySelector(`.hcell[data-id="${id}"]`)).filter(Boolean);
+  if(!cells.length) return;
+  let x=0,y=0; cells.forEach(e=>{ const r=e.getBoundingClientRect(); x+=r.left+r.width/2; y+=r.top+r.height/2; });
+  const f=document.createElement("div"); f.className="floatpts"+(pts?"":" zero"); f.textContent=pts?`+${pts}`:"0";
+  f.style.left=(x/cells.length)+"px"; f.style.top=(y/cells.length)+"px";
+  document.body.appendChild(f); setTimeout(()=>f.remove(),1200);
+}
+
+/* size the hand so 12–16 cards always fit — no scrolling */
+function fitBoard(){
+  const de=document.documentElement;
+  const wrap=$("handwrap"), grid=$("handgrid");
+  if(!wrap||!grid) return;
+  const n=Math.max(12, G?G.hand.length:12);
+  const W=wrap.clientWidth, H=wrap.clientHeight-8;
+  if(W<=0||H<=0) return;
+  const gap=W<520?6:10;
+  let best={w:0,cols:6};
+  for(let cols=3; cols<=Math.min(n,12); cols++){
+    const rows=Math.ceil(n/cols);
+    const w=Math.min((W-(cols-1)*gap-4)/cols, ((H-(rows-1)*gap)/rows)/1.42);
+    if(w>best.w+0.5) best={w,cols};
+  }
+  const size=Math.max(34, Math.min(best.w, 132));
+  de.style.setProperty("--card-w", size+"px");
+  grid.style.setProperty("--cols", best.cols);
+  grid.style.setProperty("--hgap", gap+"px");
+}
+
+/* ============================ SCORE SHEET ============================ */
+function openSheet(){ renderSheet(); $("sheetOverlay").hidden=false; }
+function renderSheet(){
+  if(!G){ $("sheetTable").innerHTML=`<tr><td style="padding:20px">Start a game to fill in the score sheet.</td></tr>`; return; }
+  const cols=SHEET_GROUPS.flatMap(g=>g.cols);
+  let h=`<thead><tr class="grp"><th rowspan="2">Round</th><th rowspan="2">Name · birth month</th>${SHEET_GROUPS.map(g=>`<th colspan="${g.cols.length}">${g.label}</th>`).join("")}<th colspan="2">Total scores</th></tr>
+    <tr>${cols.map(c=>`<th>${c==="TA"?`TA<br><small>${TODAY.month.slice(0,3)} · ${TODAY.day.slice(0,3)} · NOON</small>`:c}</th>`).join("")}<th>Round</th><th>Game</th></tr></thead><tbody>`;
+  const run=G.players.map(()=>0);
+  for(let r=0;r<G.round;r++){
+    G.players.forEach((p,pi)=>{
+      const rec=p.rounds[r];
+      if(rec) run[pi]+=rec.total;
+      h+=`<tr class="${pi===0?"rstart":""}"><td class="rd">${pi===0?r+1:""}</td><td class="nm">${esc(p.name)}<small>${p.birth}${p.human?"":" · computer"}</small></td>`+
+        cols.map(c=>{ const v=rec?rec.codes[c]:null; return v?`<td>${v}</td>`:`<td class="z">${rec&&v===0?"0":"·"}</td>`; }).join("")+
+        `<td class="tot">${rec?rec.total:"–"}</td><td class="game">${rec?run[pi]:"–"}</td></tr>`;
+    });
+  }
+  $("sheetTable").innerHTML=h+"</tbody>";
+}
+
+/* ============================ DRAG & TAP ============================ */
+(function(){
+  const grid=$("handgrid"), builder=$("builder");
+  let drag=null;
+  grid.addEventListener("pointerdown",e=>{
+    const cell=e.target.closest(".hcell"); if(!cell||!G||G.phase!=="build") return;
+    drag={id:+cell.dataset.id, x:e.clientX, y:e.clientY, cell, ghost:null};
+  });
+  window.addEventListener("pointermove",e=>{
+    if(!drag) return;
+    if(!drag.ghost && Math.hypot(e.clientX-drag.x, e.clientY-drag.y)>9){
+      const g=document.createElement("div"); g.className="dragghost";
+      g.style.width=drag.cell.offsetWidth+"px"; g.style.height=drag.cell.offsetHeight+"px";
+      g.innerHTML=drag.cell.querySelector(".card").outerHTML; document.body.appendChild(g);
+      drag.ghost=g; drag.cell.classList.add("dragging");
+    }
+    if(drag.ghost){
+      drag.ghost.style.left=e.clientX+"px"; drag.ghost.style.top=e.clientY+"px";
+      const r=builder.getBoundingClientRect();
+      builder.classList.toggle("over", e.clientX>=r.left&&e.clientX<=r.right&&e.clientY>=r.top&&e.clientY<=r.bottom);
+    }
+  });
+  function end(e){
+    if(!drag) return;
+    const d=drag; drag=null;
+    if(d.ghost){
+      d.ghost.remove(); d.cell.classList.remove("dragging");
+      const over=builder.classList.contains("over"); builder.classList.remove("over");
+      if(over) toggleSel(d.id,true);
+    } else if(e.type==="pointerup") toggleSel(d.id);
+  }
+  window.addEventListener("pointerup",end);
+  window.addEventListener("pointercancel",end);
+  grid.addEventListener("keydown",e=>{
+    const cell=e.target.closest(".hcell"); if(!cell) return;
+    if(e.key==="Enter"||e.key===" "){ e.preventDefault(); toggleSel(+cell.dataset.id); const again=document.querySelector(`.hcell[data-id="${cell.dataset.id}"]`); if(again) again.focus(); }
+  });
+})();
+
+/* ============================ SETUP UI ============================ */
+const cfg={count:2, goal:50, seats:[
+  {name:"You", human:true, birth:TODAY.month},
+  {name:"Robin", human:false, birth:"October"},
+  {name:"Sam", human:false, birth:"April"},
+  {name:"Alex", human:false, birth:"July"},
+]};
+function buildSetup(){
+  $("countChips").innerHTML=[2,3,4].map(n=>`<button class="chip ${cfg.count===n?"sel":""}" data-n="${n}">${n}</button>`).join("");
+  $("countChips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ readSeats(); cfg.count=+b.dataset.n; buildSetup(); });
+  const goals=[[0,"Single hand"],[30,"First to 30"],[50,"First to 50"],[80,"First to 80"]];
+  $("goalChips").innerHTML=goals.map(([v,l])=>`<button class="chip ${cfg.goal===v?"sel":""}" data-v="${v}">${l}</button>`).join("");
+  $("goalChips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ readSeats(); cfg.goal=+b.dataset.v; buildSetup(); });
+  $("seats").innerHTML=cfg.seats.slice(0,cfg.count).map((s,i)=>`
+    <div class="seat" data-i="${i}">
+      <input type="text" maxlength="14" value="${esc(s.name)}" aria-label="Player ${i+1} name">
+      <span class="seg"><button class="${s.human?"on":""}" data-h="1">Human</button><button class="${s.human?"":"on"}" data-h="0">Computer</button></span>
+      <select aria-label="Player ${i+1} birth month">${CAL.map(m=>`<option ${m===s.birth?"selected":""}>${m}</option>`).join("")}</select>
+    </div>`).join("");
+  $("seats").querySelectorAll(".seat").forEach(row=>{
+    row.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{ readSeats(); cfg.seats[+row.dataset.i].human=b.dataset.h==="1"; buildSetup(); });
+  });
+  const tc=MONTH_COLOR[TODAY.month];
+  $("todayBox").innerHTML=`Today is <b>${TODAY.day}, ${TODAY.month} ${TODAY.date}</b>. Today's Appointment needs the <b style="color:${CFILL[tc]}">${TODAY.month.toUpperCase()}</b> card (${CWORD[tc]}) + any <b>${TODAY.day.toUpperCase()}</b> + any <b>NOON</b>.`;
+}
+function readSeats(){
+  $("seats").querySelectorAll(".seat").forEach(row=>{
+    const s=cfg.seats[+row.dataset.i];
+    s.name=row.querySelector("input").value.trim()||(s.human?"Player "+(+row.dataset.i+1):AI_NAMES[+row.dataset.i]);
+    s.birth=row.querySelector("select").value;
+  });
+}
+$("btnStart").onclick=()=>{
+  readSeats();
+  $("setupOverlay").hidden=true; $("finalOverlay").hidden=true;
+  newGame(cfg.seats.slice(0,cfg.count).map(s=>Object.assign({},s)), cfg.goal);
+};
+function openHelp(){ $("helpOverlay").hidden=false; }
+$("btnHelp").onclick=openHelp; $("btnHelp2").onclick=openHelp;
+$("btnCloseHelp").onclick=()=>$("helpOverlay").hidden=true;
+$("btnSheet").onclick=openSheet; $("btnFinalSheet").onclick=openSheet;
+$("btnCloseSheet").onclick=()=>$("sheetOverlay").hidden=true;
+$("btnNew").onclick=()=>{ buildSetup(); $("setupOverlay").hidden=false; };
+$("btnAgain").onclick=()=>{ $("finalOverlay").hidden=true; buildSetup(); $("setupOverlay").hidden=false; };
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ $("helpOverlay").hidden=true; $("sheetOverlay").hidden=true; } });
+$("wRotor").innerHTML=wheelSVG();
+buildSetup();
+
+/* ============================ DEMO (#demo) ============================ */
+function findCard(deck, pred){ const i=deck.findIndex(pred); return i>=0?deck.splice(i,1)[0]:null; }
+function runTests(){
+  const out=[]; const ok=(name,cond)=>out.push((cond?"PASS  ":"FAIL  ")+name);
+  const deck=buildDeck(); const P=(cat,val,color)=>deck.find(c=>c.cat===cat&&c.value===val&&c.color===color);
+  const ctx={birth:"March",month:"September",day:"Monday"};
+  const codes=cs=>tripleCombos(cs,ctx).map(c=>c.code+c.pts).sort().join(",");
+  ok("OA same color = 4", codes([P("season","December","blue"),P("day","Sunday","blue"),P("time","9:00 AM","blue")])==="OA4");
+  ok("Birthday month full = BA 5 (and OA 4)", codes([P("season","March","yellow"),P("day","Sunday","yellow"),P("time","9:00 AM","yellow")])==="BA5,OA4");
+  ok("Rainbow = 3", codes([P("season","December","blue"),P("day","Sunday","green"),P("time","9:00 AM","orange")])==="RA3");
+  ok("Today's Appt = 5", codes([P("season","September","orange"),P("day","Monday","blue"),P("time","12:00 NOON","green")])==="RA3,TA5");
+  ok("DS mixed = 2", codes([P("day","Monday","blue"),P("day","Tuesday","green"),P("day","Wednesday","blue")])==="DS2");
+  ok("DS no wrap Sat-Sun-Mon", codes([P("day","Saturday","blue"),P("day","Sunday","blue"),P("day","Monday","blue")])==="");
+  ok("WES Sat+Sun same + Wed = 3", codes([P("day","Saturday","blue"),P("day","Sunday","blue"),P("day","Wednesday","green")])==="WES3");
+  ok("Sat+Sun+Noon same color = WES 3 / WMT 4", codes([P("day","Saturday","blue"),P("day","Sunday","blue"),P("time","12:00 NOON","blue")])==="WES3,WMT4");
+  ok("WMT mixed = 2", codes([P("day","Saturday","blue"),P("day","Sunday","green"),P("time","2:00 PM","green")])==="WMT2");
+  ok("WMT time must match Sat or Sun", codes([P("day","Saturday","blue"),P("day","Sunday","green"),P("time","2:00 PM","orange")])==="");
+  ok("3 AM same = AM 4 + TS 4", codes([P("time","9:00 AM","blue"),P("time","10:00 AM","blue"),P("time","11:00 AM","blue")])==="AM4,TS4");
+  ok("3 PM mixed = 2", codes([P("time","1:00 PM","blue"),P("time","1:00 PM","green"),P("time","3:00 PM","blue")])==="PM2");
+  ok("TD AM+PM+NOON mixed = 2", codes([P("time","9:00 AM","blue"),P("time","1:00 PM","green"),P("time","12:00 NOON","blue")])==="TD2");
+  ok("PA-S same color spins for match 4", pairCombos([P("season","June","green"),P("day","Friday","green")],ctx).map(c=>c.code+c.pts+c.spin.type).join()==="PA-S4match");
+  ok("PA-S mixed spins to avoid 2", pairCombos([P("season","June","green"),P("day","Friday","blue")],ctx).map(c=>c.code+c.pts+c.spin.type+c.spin.colors.join("")).join()==="PA-S2avoidgreenblue");
+  ok("BA-S extra chance", pairCombos([P("season","March","yellow"),P("time","2:00 PM","yellow")],ctx).map(c=>c.code+c.pts).sort().join()==="BA-S5,PA-S4");
+  const fs=familyCands("S4",[P("season","December","blue"),P("season","March","yellow"),P("season","June","green")]);
+  ok("4S-S spins for missing ORANGE", fs.length===1 && fs[0].spin.color==="orange" && fs[0].bonus);
+  const f4=familyCands("S4",[P("season","December","blue"),P("season","March","yellow"),P("season","June","green"),P("season","October","orange")]);
+  ok("4S sure + bonus", f4.some(c=>c.code==="4S"&&!c.spin&&c.bonus));
+  const m3=familyCands("M3",[P("season","September","orange"),P("season","October","orange"),P("season","November","orange")]);
+  ok("3M sure 4 + three 3M-S pairs", m3.filter(c=>c.code==="3M").length===1 && m3.filter(c=>c.code==="3M-S").length===3);
+  const nn=familyCands("N",COLORS.map(c=>P("time","12:00 NOON",c)));
+  ok("4 Noons = 6 + bonus", nn.some(c=>c.code==="4N"&&c.pts===6&&c.bonus));
+  const n3=familyCands("N",["blue","yellow","green"].map(c=>P("time","12:00 NOON",c)));
+  ok("3 Noons gamble targets ORANGE", n3.length===1 && n3[0].gamble && n3[0].missing==="orange");
+  const hand=[P("season","December","blue"),P("day","Sunday","blue"),P("time","9:00 AM","blue"),P("day","Monday","green"),P("time","10:00 AM","orange"),P("season","June","green")];
+  const pl=pack(exclusiveCands(hand,ctx),hand).map(c=>c.code).sort().join();
+  ok("pack keeps OA and adds PA-S ("+pl+")", pl==="OA,PA-S");
+  // soak: random hands through the full suggester
+  G={hand:[],ex:new Set(),fam:{S4:new Set(),M3:new Set(),N:new Set()},players:[{birth:"May"}],current:0};
+  let worst=0, total=0, err=null;
+  try{
+    for(let i=0;i<300;i++){
+      G.hand=shuffle(buildDeck()).slice(0,12+(i%5)); G.ex=new Set(); G.fam={S4:new Set(),M3:new Set(),N:new Set()};
+      const t0=performance.now(); const plan=suggestPlan(); const dt=performance.now()-t0; worst=Math.max(worst,dt);
+      const used=new Set(); plan.filter(c=>!c.fam).forEach(c=>c.ids.forEach(id=>{ if(used.has(id)) throw new Error("card reused in exclusive combos"); used.add(id); }));
+      FAMS.forEach(f=>{ const u=new Set(); plan.filter(c=>c.fam===f).forEach(c=>c.ids.forEach(id=>{ if(u.has(id)) throw new Error("card reused inside family "+f); u.add(id); })); });
+      total+=plan.reduce((s,c)=>s+(c.spin||c.gamble?0:c.pts),0);
+    }
+  }catch(e){ err=e.message; }
+  ok(`300 random hands: no reuse violations${err?" ("+err+")":""} · worst ${worst.toFixed(1)} ms · avg sure pts ${(total/300).toFixed(1)}`, !err && worst<400);
+  document.body.insertAdjacentHTML("beforeend",`<pre id="testout" style="position:fixed;inset:20px;z-index:999;background:#fdfbf5;color:#111;font:14px/1.5 monospace;padding:16px;overflow:auto;border-radius:10px">${out.join("\n")}</pre>`);
+}
+function demo(kind){
+  $("setupOverlay").hidden=true;
+  if(kind==="test"){ runTests(); return; }
+  if(kind==="auto"){ newGame(["Robin","Sam","Alex","Jordan"].map((n,i)=>({name:n,human:false,birth:CAL[i*3]})), 30); return; }
+  if(kind==="bot"){ // a robot clicks through the HUMAN path: taps, builder options, suggest, spins, gambles
+    newGame([{name:"You",human:true,birth:"March"},{name:"Robin",human:false,birth:"October"},{name:"Pat",human:true,birth:TODAY.month}],30);
+    let n=0;
+    setInterval(()=>{
+      n++;
+      if(!$("finalOverlay").hidden) return;
+      if(!$("stage").hidden){ const b=$("stSpin")||$("stOk")||(n%2?$("stGamble"):$("stKeep")); if(b) b.click(); return; }
+      if(G.phase==="build"){
+        const planned=G.tray.some(t=>t.state==="planned");
+        if(n%3===0 && !planned){
+          G.hand.filter(c=>!G.ex.has(c.id)).slice(0,3).forEach(c=>toggleSel(c.id));
+          const o=document.querySelector("#bopts .opt"); if(o){ o.click(); return; }
+          G.sel=[]; render();
+        }
+        const btns=[...document.querySelectorAll("#controls .btn")];
+        if(!planned && n%2){ const s=btns.find(b=>b.textContent==="Suggest best"); if(s){ s.click(); return; } }
+        btns[btns.length-1].click(); return;
+      }
+      if(G.phase==="done"){ const b=document.querySelector("#controls .btn.big"); if(b) b.click(); }
+    }, 300);
+    return;
+  }
+  newGame([{name:"You",human:true,birth:"March"},{name:"Robin",human:false,birth:"October"},{name:"Sam",human:false,birth:"July"}], 50);
+  G.tok=Math.random(); // cancel any queued AI
+  G.players[0].rounds=[{codes:{OA:4,"4S-S":5,DS:2},total:11}];
+  G.players[1].rounds=[{codes:{RA:3,"3M-S":4,TS:4,"PA-S":2},total:13}];
+  G.players[2].rounds=[{codes:{TA:5,WMT:2,AM:2},total:9}];
+  G.players.forEach(p=>p.total=p.rounds[0].total);
+  G.round=2; G.current=0;
+  const deck=buildDeck(); const tc=MONTH_COLOR[TODAY.month];
+  const pick=(cat,val,color)=>findCard(deck,c=>c.cat===cat&&c.value===val&&c.color===color);
+  const hand=[
+    pick("season","December","blue"), pick("day","Sunday","blue"), pick("time","10:00 AM","blue"),
+    pick("season","March","yellow"), pick("day","Friday","yellow"),
+    pick("season","July","green"), pick("season",TODAY.month,tc)||pick("season","September","orange"),
+    pick("time","12:00 NOON","green"), pick("time","12:00 NOON","orange"), pick("time","12:00 NOON","yellow"),
+    pick("day",TODAY.day,"green")||pick("day","Monday","green"), pick("day","Saturday","orange"),
+  ];
+  G.deck=shuffle(deck);
+  startTurn(sortHand(hand));
+  G.deal=false;
+  const cands=availableCands();
+  const oa=cands.find(c=>c.code==="OA" && cardById(c.ids[0]).color==="blue"); if(oa) addCombo(oa);
+  const s4=cands.find(c=>c.code==="4S"); if(s4) addCombo(s4);
+  const m=G.hand.find(c=>c.value==="March"), f=G.hand.find(c=>c.value==="Friday"&&c.color==="yellow");
+  G.sel=[m.id,f.id];
+  render();
+  if(kind==="spin"){ const c=cands.find(x=>x.code==="BA-S"); openStage(c); $("stNeed").innerHTML=needText(c.spin,5); $("stBtns").innerHTML=`<button class="btn big">Spin</button>`; }
+  if(kind==="sheet") openSheet();
+  if(kind==="help") openHelp();
+  if(kind==="gamble"){ const c=cands.find(x=>x.code==="3N-S"); stageChoice(c,G.tok); }
+}
+if(/^#demo/.test(location.hash)){
+  window.addEventListener("error",e=>{ const b=document.getElementById("errbox")||document.body.appendChild(Object.assign(document.createElement("div"),{id:"errbox"})); b.textContent+=" "+e.message; });
+}
+</script>
+<script src="cards.js?v=9"></script>
+<script>
+window.__igaaFit = fitBind(fitBoard);
+if(/^#demo/.test(location.hash)){ try{ demo(location.hash.replace("#demo","").replace("-","")); }catch(err){ document.body.insertAdjacentHTML("beforeend",`<div id="errbox">${err.message}</div>`); } }
+</script>
+</body>
+</html>

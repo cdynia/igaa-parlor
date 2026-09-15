@@ -1,0 +1,1193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a24">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IGAA Parlor">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>if('serviceWorker' in navigator && location.protocol!=='file:'){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<title>Priority Mail — IGAA Parlor</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101a24'/%3E%3Crect x='12' y='14' width='9' height='12' rx='2' fill='%233d78bf'/%3E%3Crect x='22' y='14' width='9' height='12' rx='2' fill='%23e6b23a'/%3E%3Crect x='32' y='14' width='9' height='12' rx='2' fill='%2345a06a'/%3E%3Crect x='42' y='14' width='9' height='12' rx='2' fill='%23cf7620'/%3E%3Ctext x='32' y='47' font-family='Georgia' font-size='19' fill='%23e6d2a0' text-anchor='middle' font-weight='700'%3EIGAA%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --table-1:#16222e; --table-2:#0c141c; --paper:#f4efe3;
+  --brass:#b98a3c; --brass-hi:#e4c883; --brass-deep:#8a6526;
+  --line:rgba(240,235,220,.10); --line-2:rgba(240,235,220,.16);
+  --muted:#9aa6b2; --muted-2:#c7d0d9;
+  --blue:#3d78bf; --yellow:#e6b23a; --green:#45a06a; --orange:#cf7620;
+  --teal:#2f8f8a; --teal-hi:#8fd6cf; --coral:#e0785f;
+  --shadow:0 14px 30px -12px rgba(0,0,0,.6);
+  --card-w:90px; --card-h:calc(var(--card-w)*1.42);
+}
+*{box-sizing:border-box}
+html,body{height:100%; margin:0}
+html{-webkit-text-size-adjust:100%}
+body{overflow:hidden; overscroll-behavior:none; color:var(--muted-2); font-family:"Archivo",system-ui,"Segoe UI",sans-serif;
+  background:radial-gradient(120% 90% at 50% 6%, #223141 0%, var(--table-1) 42%, var(--table-2) 100%); -webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); font-weight:600}
+button{font-family:inherit}
+.btn{border:1px solid var(--brass-deep); cursor:pointer; color:#211a0c; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+  background:linear-gradient(180deg,var(--brass-hi),var(--brass)); padding:.62em 1.15em; border-radius:9px; font-weight:700; font-size:.92rem;
+  box-shadow:0 2px 0 var(--brass-deep),0 8px 18px -8px rgba(0,0,0,.7); transition:transform .08s, filter .15s; white-space:nowrap}
+.btn:hover{filter:brightness(1.06)} .btn:active{transform:translateY(2px); box-shadow:0 0 0 var(--brass-deep)}
+.btn:focus-visible{outline:3px solid var(--brass-hi); outline-offset:2px}
+.btn:disabled{opacity:.4; cursor:not-allowed; filter:none; transform:none}
+.btn.ghost{background:transparent; color:var(--muted-2); border-color:var(--line-2); box-shadow:none; font-weight:500}
+.btn.ghost:hover{border-color:var(--brass); color:var(--brass-hi)}
+.btn.teal{background:linear-gradient(180deg,#5fbdb5,var(--teal)); border-color:#1f625e; color:#06201e; box-shadow:0 2px 0 #1f625e,0 8px 18px -8px rgba(0,0,0,.7)}
+.btn.sm{padding:.45em .8em; font-size:.8rem}
+
+/* ---------- full-screen game shell ---------- */
+#app{width:100%; height:100dvh; overflow:hidden; display:flex; flex-direction:column; gap:8px; padding:8px clamp(8px,2vw,18px) 10px}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.brand{display:flex; align-items:center; gap:11px; min-width:0}
+.brand .stamp{width:34px; height:34px; border-radius:7px; flex:0 0 auto; position:relative; background:#fbf8f0;
+  box-shadow:0 0 0 2px #fbf8f0, 0 0 0 3px rgba(0,0,0,.25); display:flex; align-items:center; justify-content:center}
+.brand .stamp::before{content:""; position:absolute; inset:3px; border-radius:4px; background:repeating-linear-gradient(135deg,var(--teal) 0 4px,transparent 4px 8px,var(--brass) 8px 12px,transparent 12px 16px); opacity:.6}
+.brand .stamp b{position:relative; font-family:"Fraunces",serif; color:#1b2a36; font-size:.95rem; background:#fbf8f0; border-radius:3px; padding:0 3px; line-height:1.15}
+.brand h1{font-size:1.12rem; line-height:1}
+.brand .sub{font-size:.72rem; color:var(--muted); letter-spacing:.1em; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.tools{display:flex; gap:6px; flex-wrap:wrap} .tools .btn{gap:0}
+
+/* ---------- scoreboard ---------- */
+.scoreboard{display:flex; flex-wrap:wrap; gap:8px; justify-content:center}
+.pchip{display:flex; flex-direction:column; gap:5px; padding:7px 10px; border:1px solid var(--line); border-radius:12px; min-width:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.045),rgba(255,255,255,.01)); transition:border-color .2s, box-shadow .2s, transform .2s}
+.pchip.active{border-color:var(--brass); box-shadow:0 0 0 1px var(--brass),0 10px 26px -12px rgba(185,138,60,.7); transform:translateY(-1px)}
+.pchip .top{display:flex; align-items:baseline; justify-content:space-between; gap:10px}
+.pchip .nm{color:var(--paper); font-weight:700; font-size:.86rem; white-space:nowrap}
+.pchip .nm small{color:var(--muted); font-weight:500; font-size:.7rem; margin-left:4px}
+.pchip .stat{color:var(--brass-hi); font-weight:700; font-size:.8rem; white-space:nowrap; font-variant-numeric:tabular-nums}
+.pchip .tabs{display:flex; gap:3px; flex-wrap:nowrap}
+.pchip .tab{font-size:.6rem; font-weight:800; letter-spacing:.02em; padding:3px 4px; min-width:22px; text-align:center; border-radius:4px;
+  color:#aeb8c2; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.09); white-space:nowrap; line-height:1}
+.pchip .tab.on{background:linear-gradient(180deg,var(--brass-hi),var(--brass)); color:#231a08; border-color:var(--brass-deep)}
+.pchip .tab.on::before{content:"✓ "}
+.tokens{display:inline-flex; gap:2px; vertical-align:middle}
+.tokens i{width:8px; height:8px; border-radius:50%; background:rgba(255,255,255,.12); display:block}
+.tokens i.on{background:var(--brass-hi); box-shadow:0 0 6px rgba(228,200,131,.6)}
+.team{display:flex; flex-direction:column; gap:5px; padding:6px 8px; border-radius:14px; border:1px solid var(--line-2)}
+.team.t0{background:rgba(185,138,60,.08); border-color:rgba(185,138,60,.35)}
+.team.t1{background:rgba(47,143,138,.08); border-color:rgba(47,143,138,.35)}
+.team .thead{display:flex; justify-content:space-between; gap:12px; font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; color:var(--muted); padding:0 3px}
+.team .thead b{color:var(--paper); letter-spacing:0; font-size:.86rem; text-transform:none}
+.team .members{display:flex; gap:6px; flex-wrap:wrap}
+.team .pchip{background:rgba(0,0,0,.15)}
+
+/* ---------- felt ---------- */
+.felt{position:relative; flex:0 0 auto; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px; padding:12px 12px; border-radius:20px;
+  background:radial-gradient(140% 120% at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,0) 55%), linear-gradient(180deg,#1c3b34,#122a26);
+  border:1px solid rgba(255,255,255,.06); box-shadow:inset 0 2px 30px rgba(0,0,0,.45), var(--shadow)}
+.banner{text-align:center; z-index:1}
+.banner .phase{font-family:"Fraunces",serif; font-size:clamp(1rem,2.4vw,1.35rem); color:var(--paper); line-height:1.15}
+.banner .hint{font-size:.8rem; color:#bfe0cf; margin-top:2px; min-height:1.1em}
+.piles{display:flex; gap:clamp(14px,4vw,34px); align-items:flex-start; z-index:1}
+.pile{display:flex; flex-direction:column; align-items:center; gap:5px; --card-w:var(--pile-w,96px); --card-h:calc(var(--pile-w,96px)*1.42)}
+.pile .plabel{font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:#a7c6b7; white-space:nowrap}
+.pile .slot{width:var(--card-w); height:var(--card-h); position:relative}
+.pile .count{font-size:.66rem; color:#8fb0a0; min-height:1em}
+.pile.playable .slot{cursor:pointer}
+.pile.playable .cardback,.pile.playable .card,.pile.playable .empty{outline:2px dashed var(--brass-hi); outline-offset:4px; border-radius:12px; animation:pulse 1.6s ease-in-out infinite}
+@keyframes pulse{0%,100%{outline-color:rgba(228,200,131,.4)}50%{outline-color:rgba(228,200,131,1)}}
+.pile.drawn .empty{border-style:dotted; color:#6d8c7d}
+.empty{width:var(--card-w); height:var(--card-h); border-radius:12px; border:2px dashed rgba(255,255,255,.18); display:flex; align-items:center; justify-content:center;
+  color:#7f9d8e; font-size:.68rem; text-align:center; padding:6px; line-height:1.2}
+.ticker{font-size:.76rem; color:#a9c4b8; text-align:center; min-height:1.15em; z-index:1; max-width:100%; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.ticker b{color:var(--paper)}
+
+/* ---------- your Priority Mail ---------- */
+.mailzone{flex:1 1 auto; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px}
+.handhead{display:flex; align-items:center; gap:10px; color:var(--muted); font-size:.78rem; flex-wrap:wrap; justify-content:center}
+.handhead .you{color:var(--paper); font-weight:600; font-family:"Fraunces",serif; font-size:1rem}
+.pmrow{display:flex; flex-wrap:wrap; gap:8px; justify-content:center; margin:0 auto}
+.pmcol{position:relative; display:flex; flex-direction:column; align-items:center; border-radius:13px; transition:transform .16s}
+.pmcol .gslot{position:relative; z-index:1}
+.pmcol .mslot{position:relative; z-index:2; margin-top:calc(var(--card-h)*-0.28)}
+.pmcol .mslot .empty{background:rgba(10,18,26,.55); border-color:rgba(228,200,131,.22); color:#8c9aa6; font-size:calc(var(--card-w)*0.12); backdrop-filter:blur(1px)}
+.pmcol .mslot.open{margin-top:6px}
+.pmcol .mslot.open .empty{height:calc(var(--card-h)*0.72 - 6px); background:rgba(10,18,26,.3); backdrop-filter:none}
+.pmcol.done .gslot .card{box-shadow:0 0 0 2px var(--brass-hi), var(--shadow)}
+.pmcol.done .gslot::after{content:"✓"; position:absolute; top:-6px; right:-6px; width:20px; height:20px; border-radius:50%; z-index:5;
+  background:linear-gradient(180deg,var(--brass-hi),var(--brass)); color:#231a08; font-weight:800; font-size:.72rem; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.pmcol.target{cursor:pointer}
+.pmcol.target .mslot .empty{border-color:var(--brass-hi); color:var(--brass-hi); animation:pulse2 1.3s ease-in-out infinite}
+.pmcol.target:hover{transform:translateY(-6px)}
+@keyframes pulse2{0%,100%{box-shadow:0 0 0 0 rgba(228,200,131,.0)}50%{box-shadow:0 0 0 4px rgba(228,200,131,.35)}}
+.loosewrap{display:flex; flex-direction:column; align-items:center; gap:3px}
+.loosewrap .llabel{font-size:.64rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
+.loose{display:flex; gap:8px; justify-content:center; min-height:var(--card-h)}
+.loose .card{transition:transform .16s, box-shadow .16s}
+.loose.selectable .card{cursor:pointer}
+.loose.selectable .card:hover{transform:translateY(-8px)}
+.loose .card.sel{transform:translateY(-12px); box-shadow:0 0 0 3px var(--teal-hi), 0 18px 30px -12px rgba(0,0,0,.7)}
+.card.fresh{animation:drop .35s cubic-bezier(.2,.8,.25,1)}
+@keyframes drop{from{transform:translateY(-30px) scale(.92); opacity:0}to{transform:none; opacity:1}}
+.controls{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; align-items:center; min-height:40px}
+.flyer{position:fixed; z-index:40; pointer-events:none; transform-origin:0 0; will-change:transform}
+.flyer .card{box-shadow:0 24px 40px -14px rgba(0,0,0,.8)}
+
+/* ---------- overlays ---------- */
+.overlay{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:14px;
+  background:radial-gradient(120% 120% at 50% 0%, rgba(20,30,40,.8), rgba(6,10,14,.95)); backdrop-filter:blur(3px)}
+[hidden]:not(.toast){display:none!important}
+.book{width:min(640px,100%); max-height:calc(100dvh - 28px); overflow:auto; background:linear-gradient(180deg,#1b2836,#111a24);
+  border:1px solid rgba(228,200,131,.25); border-radius:18px; padding:clamp(16px,3vw,26px); box-shadow:0 40px 90px -30px rgba(0,0,0,.85)}
+.book .airmail{height:8px; border-radius:4px; margin-bottom:14px; background:repeating-linear-gradient(135deg,var(--teal) 0 10px,transparent 10px 16px,var(--brass) 16px 26px,transparent 26px 32px)}
+.book .eyebrow{color:var(--brass-hi); font-size:.74rem; letter-spacing:.2em; text-transform:uppercase; margin-bottom:6px}
+.book h2{font-size:clamp(1.5rem,5vw,2.2rem); line-height:1.03; color:var(--paper)}
+.book p.lede{color:var(--muted-2); line-height:1.5; margin:8px 0 14px}
+.book h3{color:var(--brass-hi); font-family:"Archivo",sans-serif; font-weight:700; font-size:.74rem; letter-spacing:.12em; text-transform:uppercase; margin:14px 0 5px}
+.book p,.book li{color:var(--muted-2); line-height:1.5; font-size:.88rem}
+.book ul,.book ol{padding-left:18px; margin:5px 0}
+.book .credit{font-size:.74rem; color:var(--muted); margin-top:4px}
+.field{margin:0 0 12px}
+.flabel{font-size:.8rem; color:var(--muted); margin-bottom:7px}
+.vers{display:grid; grid-template-columns:repeat(5,1fr); gap:8px}
+.ver{border:1px solid var(--line-2); background:transparent; color:var(--muted-2); padding:10px 8px; border-radius:12px; cursor:pointer; text-align:center; transition:all .12s; display:flex; flex-direction:column; gap:3px; align-items:center}
+.ver:hover{border-color:var(--brass)} .ver.sel{border-color:var(--brass); background:rgba(185,138,60,.14); box-shadow:0 0 0 1px var(--brass)}
+.ver .rn{font-family:"Fraunces",serif; font-size:1.6rem; color:var(--paper); line-height:1}
+.ver .vt{font-size:.74rem; font-weight:700; color:var(--brass-hi)}
+.ver .vn{font-size:.64rem; color:var(--muted)}
+.verdesc{margin-top:10px; padding:10px 12px; border-radius:10px; background:rgba(0,0,0,.2); border:1px solid var(--line); font-size:.86rem; line-height:1.45; min-height:3.2em}
+.chips{display:flex; gap:7px; flex-wrap:wrap}
+.chip{border:1px solid var(--line-2); background:transparent; color:var(--muted-2); min-width:42px; height:40px; padding:0 10px; border-radius:10px; cursor:pointer; font-size:.92rem; font-weight:600; transition:all .12s}
+.chip:hover{border-color:var(--brass)} .chip.sel{background:linear-gradient(180deg,var(--brass-hi),var(--brass)); color:#211a0c; border-color:var(--brass-deep)}
+.row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.note{font-size:.74rem; color:var(--muted); margin-top:10px; line-height:1.45}
+.tbl-wrap{overflow-x:auto; margin:10px 0}
+table.score{width:100%; border-collapse:collapse; font-size:.84rem; font-variant-numeric:tabular-nums}
+table.score th{font-size:.64rem; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); font-weight:700; text-align:right; padding:6px 7px; border-bottom:1px solid var(--line-2); white-space:nowrap}
+table.score th:first-child, table.score td:first-child{text-align:left}
+table.score td{padding:7px; text-align:right; border-bottom:1px solid var(--line); color:var(--muted-2); white-space:nowrap}
+table.score td.nm{color:var(--paper); font-family:"Fraunces",serif}
+table.score tr.win td{color:var(--brass-hi); font-weight:700}
+table.score td.neg{color:var(--coral)}
+.samples{display:flex; gap:8px; flex-wrap:wrap; margin:8px 0; --card-w:62px; --card-h:88px}
+.samples figure{margin:0; display:flex; flex-direction:column; align-items:center; gap:4px}
+.samples figcaption{font-size:.68rem; color:var(--brass-hi); font-weight:700}
+.exgrid{display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin:12px 0; --card-w:clamp(58px,15vw,84px); --card-h:calc(var(--card-w)*1.42)}
+.exgrid .excard{position:relative; cursor:pointer; border-radius:12px; transition:transform .12s}
+.exgrid .excard.sel{transform:translateY(-8px)}
+.exgrid .excard.sel::after{content:"SWAP"; position:absolute; inset:auto 0 -2px 0; margin:auto; width:max-content; padding:2px 8px; border-radius:20px; background:var(--teal); color:#fff; font-size:.62rem; font-weight:800; letter-spacing:.1em; z-index:4}
+.exgrid .excard.sel .card{box-shadow:0 0 0 3px var(--teal-hi), var(--shadow); opacity:.8}
+.toast{position:fixed; left:50%; top:clamp(70px,16vh,140px); transform:translateX(-50%); z-index:45; padding:10px 18px; border-radius:30px; pointer-events:none;
+  background:linear-gradient(180deg,#24384a,#16222e); border:1px solid var(--brass); color:var(--paper); font-weight:600; font-size:.9rem; box-shadow:0 20px 40px -14px rgba(0,0,0,.8); transition:opacity .25s, transform .25s; max-width:92vw; text-align:center}
+.toast[hidden]{display:block; opacity:0; transform:translate(-50%,-10px)}
+
+@media (max-width:700px){
+  .vers{grid-template-columns:repeat(5,1fr); gap:5px} .ver{padding:8px 3px} .ver .rn{font-size:1.3rem} .ver .vt{font-size:.62rem}
+  .tools .btn{padding:.42em .62em; font-size:.76rem} .brand h1{font-size:1rem} .brand .stamp{width:28px; height:28px}
+  .pchip{padding:5px 7px} .pchip .tab{font-size:.55rem; min-width:18px; padding:2px 3px}
+  .banner .hint{font-size:.74rem} .felt{padding:9px 8px; border-radius:16px}
+  .hide-sm{display:none}
+}
+/* compact (narrow phones + landscape phones): 2-col scoreboard, dot tabs */
+#app.compact .scoreboard{display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:6px}
+#app.wide .scoreboard{grid-template-columns:repeat(4,minmax(0,1fr))}
+#app.wide .scoreboard:has(.team){grid-template-columns:repeat(2,minmax(0,1fr))}
+#app.compact .pchip{padding:5px 8px; gap:4px; min-width:0}
+#app.compact .pchip .nm{overflow:hidden; text-overflow:ellipsis}
+#app.compact .pchip .nm small{display:none}
+#app.compact .pchip .tabs{gap:3px; flex-wrap:wrap}
+#app.compact .pchip .tab{font-size:0; width:11px; height:11px; min-width:0; padding:0; border-radius:3px}
+#app.compact .pchip .tab.on::before{content:none}
+#app.compact .team{padding:5px 6px}
+#app.compact .team .members{flex-wrap:nowrap}
+#app.compact .team .members .pchip{flex:1 1 0}
+#app.compact .tokens i{width:6px; height:6px}
+/* wide = landscape phone: table on the left, your Priority Mail on the right */
+#app.wide{display:grid; grid-template-columns:auto minmax(0,1fr); grid-template-rows:auto auto minmax(0,1fr); column-gap:10px; row-gap:6px; padding-top:6px; padding-bottom:6px}
+#app.wide .topbar, #app.wide .scoreboard{grid-column:1 / -1}
+#app.wide .felt{grid-column:1; grid-row:3; align-self:stretch}
+#app.wide .mailzone{grid-column:2; grid-row:3; min-width:0}
+#app.wide .brand .sub{display:none}
+#app.wide .banner .phase{font-size:1rem}
+#app.wide .tools .btn{padding:.36em .6em; font-size:.74rem}
+#app.wide .banner .hint{display:none}
+#app.wide .piles{gap:14px}
+#app.wide .felt{width:max(calc(var(--pile-w)*3 + 64px), 250px); min-width:0; overflow:hidden; padding-left:8px; padding-right:8px}
+#app.wide .pile .plabel{font-size:.56rem; letter-spacing:.06em}
+#app.compact .team .pchip .tab{width:9px; height:9px}
+#app.compact .team .pchip .tabs{gap:2px}
+@media (prefers-reduced-motion:reduce){
+
+ *{animation-duration:.001ms!important; transition-duration:.001ms!important} }
+</style>
+<link rel="stylesheet" href="cards.css?v=9">
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="stamp"><b id="brandRoman">I</b></div>
+      <div style="min-width:0"><h1>Priority Mail</h1><div class="sub" id="subText">Anne Gyorfi · The Game Lady</div></div>
+    </div>
+    <div class="tools">
+      <a class="btn ghost" href="index.html">← Parlor</a>
+      <button class="btn ghost" id="btnSpeed" title="Computer speed">Speed: Normal</button>
+      <button class="btn ghost" id="btnHelp">How to play</button>
+      <button class="btn ghost" id="btnNew">New<span class="hide-sm">&nbsp;game</span></button>
+    </div>
+  </div>
+
+  <div class="scoreboard" id="scoreboard"></div>
+
+  <div class="felt" id="felt">
+    <div class="banner"><div class="phase" id="phaseText">Priority Mail</div><div class="hint" id="hintText"></div></div>
+    <div class="piles">
+      <div class="pile" id="drawPile"><div class="plabel">Main deck</div><div class="slot" id="drawSlot"></div><div class="count" id="drawCount"></div></div>
+      <div class="pile drawn" id="drawnPile"><div class="plabel">Drawn</div><div class="slot" id="drawnSlot"></div><div class="count" id="drawnCount"></div></div>
+      <div class="pile" id="discardPile"><div class="plabel">Discard</div><div class="slot" id="discardSlot"></div><div class="count" id="discardCount"></div></div>
+    </div>
+    <div class="ticker" id="ticker"></div>
+  </div>
+
+  <div class="mailzone" id="mailzone">
+    <div class="handhead"><span class="you">Your Priority Mail</span><span id="handStatus"></span></div>
+    <div class="pmrow" id="pmrow"></div>
+    <div class="loosewrap" id="loosewrap" hidden><div class="llabel" id="looseLabel">Loose Main cards</div><div class="loose" id="loose"></div></div>
+    <div class="controls" id="controls"></div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div class="overlay" id="setupOverlay">
+  <div class="book">
+    <div class="airmail"></div>
+    <div class="eyebrow">Anne Gyorfi · The Game Lady · Games #030–034</div>
+    <h2>Priority Mail</h2>
+    <p class="lede">Deal yourself a row of Good News / Bad News cards, then hunt the Main deck for cards that match them. Five versions, from a quick first game to partners.</p>
+    <div class="field"><div class="flabel">Version</div><div class="vers" id="verSel"></div><div class="verdesc" id="verDesc"></div></div>
+    <div class="field" id="oppField"><div class="flabel">Computer opponents</div><div class="chips" id="oppChips"></div></div>
+    <div class="field" id="targetField"><div class="flabel">Points to win</div><div class="chips" id="targetChips"></div></div>
+    <div class="row">
+      <button class="btn" id="btnStart">Deal the cards</button>
+      <button class="btn ghost" id="btnHelp2">How to play</button>
+    </div>
+    <p class="note">The Good News / Bad News card list is a designed stand-in built from Anne's point-value rules. The real card text drops in later.</p>
+  </div>
+</div>
+
+<!-- HELP -->
+<div class="overlay" id="helpOverlay" hidden><div class="book" id="helpBook"></div></div>
+
+<!-- ROUND / GAME END -->
+<div class="overlay" id="roundOverlay" hidden><div class="book" id="roundBook"></div></div>
+
+<!-- BETWEEN-ROUND GNBN EXCHANGE -->
+<div class="overlay" id="exOverlay" hidden><div class="book" id="exBook"></div></div>
+
+<div class="toast" id="toast" hidden></div>
+
+<script>
+"use strict";
+/* ===================== MAIN DECK DATA ===================== */
+const SEASONS=[
+  {color:"blue",name:"Winter",months:["December","January","February"]},
+  {color:"yellow",name:"Spring",months:["March","April","May"]},
+  {color:"green",name:"Summer",months:["June","July","August"]},
+  {color:"orange",name:"Fall",months:["September","October","November"]},
+];
+const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const WEEKDAYS=["Monday","Tuesday","Wednesday","Thursday","Friday"];
+const WEEKEND=["Saturday","Sunday"];
+const TIMES=[{label:"9:00 AM",ap:"AM",hr:9},{label:"10:00 AM",ap:"AM",hr:10},{label:"11:00 AM",ap:"AM",hr:11},
+  {label:"12:00 NOON",ap:"NOON",hr:12},{label:"1:00 PM",ap:"PM",hr:1},{label:"2:00 PM",ap:"PM",hr:2},{label:"3:00 PM",ap:"PM",hr:3}];
+const AI_NAMES=["Robin","Sam","Alex","Jordan","Casey","Riley","Morgan"];
+let UID=0;
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+// Same 68-card Main deck and card shapes as IGAA-Advanced.html (no MAIL cards)
+function buildMainDeck(){
+  const d=[];
+  for(const s of SEASONS){
+    for(const m of s.months) d.push({id:++UID,cat:"season",color:s.color,season:s.name,value:m});
+    for(const dy of DAYS) d.push({id:++UID,cat:"day",color:s.color,season:s.name,value:dy,kind:WEEKEND.includes(dy)?"WEEKEND":"WEEKDAY"});
+    for(const t of TIMES) d.push({id:++UID,cat:"time",color:s.color,season:s.name,value:t.label,ap:t.ap,hr:t.hr});
+  }
+  return d;
+}
+
+/* =========================================================================
+   GOOD NEWS / BAD NEWS DECK  ▸  REPLACE THIS BLOCK WITH THE REAL CARD TEXT
+   -------------------------------------------------------------------------
+   Same GNBN data model as buildGNBN() in IGAA-Advanced.html:
+     {type:"gnbn", kind:"lose"|"ask", target:{cat, match, label}, flavor}
+   plus two display fields: target.short (card face) and target.tab (chip).
+     day    match = array of day names       e.g. ["Saturday","Sunday"]
+     time   match = "AM" | "PM" | "NOON"
+     season match = "Winter" | "Spring" | "Summer" | "Fall"
+   Priority Mail ignores LOSE / ASK FOR and matches ANY color, so targets
+   carry no color. Point values are NOT stored — pmPoints() derives them
+   from how many Main cards can match (Anne's rule), so real cards score
+   correctly without editing anything else.
+   n:[LOSE count, ASK FOR count]  — counts are a designed placeholder (40).
+   Types come from Priority Mail III's point table:
+     5  Mon thru Fri (1 card)        10  weekday "thru" cards · AM · PM
+     15 Weekend · "OR" cards         20  NOON · SATURDAY · SUNDAY
+     25 Season cards (8 cards)
+   ========================================================================= */
+const GNBN_LIST=[
+  {n:[0,1], cat:"day",  match:["Monday","Tuesday","Wednesday","Thursday","Friday"], short:"MON thru FRI", tab:"M–F"},
+  {n:[1,1], cat:"day",  match:["Monday","Tuesday","Wednesday"],   short:"MON thru WED", tab:"M–W"},
+  {n:[1,1], cat:"day",  match:["Tuesday","Wednesday","Thursday"], short:"TUE thru THU", tab:"T–T"},
+  {n:[1,1], cat:"day",  match:["Wednesday","Thursday","Friday"],  short:"WED thru FRI", tab:"W–F"},
+  {n:[2,1], cat:"time", match:"AM",   short:"AM",   tab:"AM"},
+  {n:[1,2], cat:"time", match:"PM",   short:"PM",   tab:"PM"},
+  {n:[1,2], cat:"day",  match:["Saturday","Sunday"], short:"WEEKEND", tab:"WKND"},
+  {n:[1,0], cat:"day",  match:["Monday","Tuesday"],   short:"MON or TUE", tab:"M/T"},
+  {n:[0,1], cat:"day",  match:["Tuesday","Wednesday"],short:"TUE or WED", tab:"T/W"},
+  {n:[1,0], cat:"day",  match:["Wednesday","Thursday"],short:"WED or THU",tab:"W/T"},
+  {n:[0,1], cat:"day",  match:["Thursday","Friday"],  short:"THU or FRI", tab:"T/F"},
+  {n:[1,0], cat:"day",  match:["Monday","Friday"],    short:"MON or FRI", tab:"M/F"},
+  {n:[0,1], cat:"day",  match:["Monday","Wednesday"], short:"MON or WED", tab:"M/W"},
+  {n:[1,0], cat:"day",  match:["Tuesday","Thursday"], short:"TUE or THU", tab:"T/Th"},
+  {n:[2,1], cat:"time", match:"NOON", short:"NOON", tab:"NOON"},
+  {n:[1,2], cat:"day",  match:["Saturday"], short:"SATURDAY", tab:"SAT"},
+  {n:[2,1], cat:"day",  match:["Sunday"],   short:"SUNDAY", tab:"SUN"},
+  {n:[1,1], cat:"season", match:"Winter", short:"WINTER", tab:"WIN"},
+  {n:[1,1], cat:"season", match:"Spring", short:"SPRING", tab:"SPR"},
+  {n:[1,1], cat:"season", match:"Summer", short:"SUMMER", tab:"SUM"},
+  {n:[1,1], cat:"season", match:"Fall",   short:"FALL",   tab:"FALL"},
+];
+const GNBN_FLAVOR={lose:["Overslept","Traffic jam","Plans cancelled","Rain check","Double-booked","Lost your planner","Phone died"],
+                   ask:["Let's go shopping","Doctor's note","Coffee date","Road trip","Family dinner","Study group","Big meeting","Weekend plans"]};
+/* ======================= end of GNBN deck block ======================= */
+
+function targetLabel(t){
+  if(t.cat==="season") return `a ${t.match} month`;
+  if(t.cat==="time") return t.match==="NOON"?"a NOON card":`an ${t.match} card`;
+  if(t.match.length===5) return "a Monday thru Friday card";
+  if(t.match.length===3) return `a ${t.match[0]} thru ${t.match[2]} card`;
+  return `a ${t.match.join(" or ")} card`;
+}
+function buildGNBN(){
+  const cards=[]; let lf=0, af=0;
+  for(const e of GNBN_LIST){
+    const target={cat:e.cat, match:e.match, short:e.short, tab:e.tab}; target.label=targetLabel(target);
+    for(let i=0;i<e.n[0];i++) cards.push({id:++UID,type:"gnbn",cat:"gnbn",kind:"lose",target,flavor:GNBN_FLAVOR.lose[lf++%7]});
+    for(let i=0;i<e.n[1];i++) cards.push({id:++UID,type:"gnbn",cat:"gnbn",kind:"ask", target,flavor:GNBN_FLAVOR.ask[af++%8]});
+  }
+  return cards;
+}
+
+/* ===================== MATCHING + POINTS ===================== */
+function fits(card,t){
+  if(!card||!t) return false;
+  if(t.cat==="day") return card.cat==="day" && t.match.includes(card.value);
+  if(t.cat==="time") return card.cat==="time" && card.ap===t.match;
+  if(t.cat==="season") return card.cat==="season" && card.season===t.match;
+  return false;
+}
+const REF_DECK=buildMainDeck();
+function availability(t){ return REF_DECK.filter(c=>fits(c,t)).length; }
+// Anne: fewer matching Main cards = more specific = more points
+function pmPoints(t){ const a=availability(t); return a>=20?5 : a>=12?10 : a>=8?15 : a>=4?20 : 25; }
+const TIERS=[5,10,15,20,25];
+
+/* ===================== VERSIONS ===================== */
+const VERS={
+  I:  {key:"I",  num:"030", name:"Priority Mail I",  level:"Playful",  players:"2–4", slots:5, mode:"first",  exchange:false, tag:"First to five",
+       desc:"Five Priority Mail cards each. Draw, match, discard. The first player to match all five wins."},
+  II: {key:"II", num:"031", name:"Priority Mail II", level:"Playful",  players:"2–4", slots:5, mode:"tokens", exchange:true, rounds:7, tag:"7 rounds of tokens",
+       desc:"Win a round by matching all five and take a token. Swap Priority Mail between rounds. Most tokens after 7 rounds wins."},
+  III:{key:"III",num:"032", name:"Priority Mail III",level:"Playful",  players:"2–4", slots:7, mode:"points", exchange:true, targets:[200,300,500], target:300, tag:"Points race",
+       desc:"Seven cards each. Specific cards score more (5 to 25 points). Everyone scores their matches each round. Race to the target."},
+  IV: {key:"IV", num:"033", name:"Priority Mail IV", level:"Advanced", players:"2–4", slots:7, mode:"net",    exchange:true, targets:[150,250,400], target:250, tag:"Unmatched costs",
+       desc:"Like III, but every Priority Mail card you did not match subtracts its points."},
+  V:  {key:"V",  num:"034", name:"Priority Mail V",  level:"Advanced", players:"4",   slots:5, mode:"team",   exchange:true, targets:[150,200,300], target:200, tag:"Partners", teams:true,
+       desc:"You and a computer partner against two computer players. Hold 10 cards, swap Main cards with your partner, and score as a team."},
+};
+const VER_KEYS=["I","II","III","IV","V"];
+
+/* ===================== STATE ===================== */
+let G=null;
+let SPEED=1;           // multiplier on computer pacing
+const sleep=ms=>new Promise(r=>setTimeout(r,Math.max(0,ms*SPEED)));
+let waiter=null;
+function waitFor(){ return new Promise(r=>{ waiter=r; }); }
+function answer(v){ const w=waiter; waiter=null; if(w) w(v); }
+
+function newGame(verKey,opps,target){
+  const V=VERS[verKey];
+  const names=shuffle(AI_NAMES.slice());
+  let players;
+  if(V.teams){ // partners sit across: You(0) · opp(1) · partner(2) · opp(3)
+    players=[{name:"You",human:true,team:0},{name:names[0],human:false,team:1},{name:names[1],human:false,team:0,partnerOfYou:true},{name:names[2],human:false,team:1}];
+  } else {
+    players=[{name:"You",human:true,team:-1}];
+    for(let i=0;i<opps;i++) players.push({name:names[i],human:false,team:-1});
+  }
+  players.forEach((p,i)=>Object.assign(p,{idx:i,slots:[],loose:[],tokens:0,score:0,passed:false,history:[]}));
+  answer(null);
+  G={ver:V,key:verKey,target:target||V.target||0,players,round:0,dealer:Math.floor(Math.random()*players.length),
+     current:0,draw:[],discard:[],gdeck:shuffle(buildGNBN()),gdiscard:[],phase:"idle",gen:(G?G.gen:0)+1,
+     drawn:null,freshId:null,placeOpts:[],sel:[],swapReq:null,ticker:"",turns:0,roundOver:false,over:false,teamScore:[0,0]};
+  for(const p of players) for(let k=0;k<V.slots;k++) p.slots.push({g:drawG(),card:null});
+  startRound(G.dealer);
+}
+function drawG(){
+  if(!G.gdeck.length){ G.gdeck=shuffle(G.gdiscard); G.gdiscard=[]; }
+  return G.gdeck.pop();
+}
+function partnerOf(p){ return G.ver.teams ? G.players[(p.idx+2)%4] : null; }
+function isNoon(g){ return g.target.cat==="time" && g.target.match==="NOON"; }
+// Anne: no more than one NOON Priority Mail card — extras are exchanged
+function fixNoons(p){
+  let guard=0;
+  while(p.slots.filter(s=>isNoon(s.g)).length>1 && guard++<20){
+    const i=p.slots.map(s=>isNoon(s.g)).lastIndexOf(true);
+    G.gdiscard.push(p.slots[i].g); p.slots[i].g=drawG();
+    if(p.human) G.noonFixed=true;
+  }
+}
+function startRound(dealer){
+  G.round++; G.roundOver=false; G.turns=0; G.noonFixed=false;
+  G.draw=shuffle(buildMainDeck()); G.discard=[];
+  for(const p of G.players){ p.slots.forEach(s=>s.card=null); p.loose=[]; p.passed=false; fixNoons(p); }
+  if(G.ver.teams){ for(let r=0;r<5;r++) for(const p of G.players) p.loose.push(G.draw.pop()); G.players.forEach(pairLoose); }
+  G.discard.push(G.draw.pop());
+  G.dealer=dealer; G.current=(dealer+1)%G.players.length;
+  G.drawn=null; G.freshId=null; G.sel=[]; G.swapReq=null;
+  tick(`<b>${G.players[dealer].name}</b> deals${G.ver.mode==="first"?"":` round ${G.round}`}. <b>${G.players[G.current].name}</b> goes first.`);
+  if(G.noonFixed) toast("You had two NOON cards, so one was exchanged.");
+  renderAll();
+  runRound(G.gen);
+}
+/* ===================== HELPERS ===================== */
+function openSlots(p,card){ return p.slots.filter(s=>!s.card && fits(card,s.g.target)); }
+function allOpen(p){ return p.slots.filter(s=>!s.card); }
+function matchedCount(p){ return p.slots.filter(s=>s.card).length; }
+function complete(p){ return p.slots.every(s=>s.card); }
+function bestSlot(opts){ return opts.slice().sort((a,b)=>availability(a.g.target)-availability(b.g.target))[0]; }
+function fitsAnyOpen(p,card){ return !!p && openSlots(p,card).length>0; }
+function drawMain(){
+  if(!G.draw.length && G.discard.length>1){ const top=G.discard.pop(); G.draw=shuffle(G.discard); G.discard=[top]; tick("Main deck ran out, so the discards were reshuffled."); }
+  return G.draw.pop()||null;
+}
+function describe(c){
+  if(c.cat==="season") return `${c.value}`;
+  const col={blue:"blue",yellow:"yellow",green:"green",orange:"orange"}[c.color];
+  return `${col} ${c.value}`;
+}
+function pName(p,lower){ return p.human?(lower?"you":"You"):p.name; }
+// V: pair any loose Main cards with open Priority Mail (most specific slots first)
+function pairLoose(p){
+  let changed=true;
+  while(changed){
+    changed=false;
+    const open=allOpen(p).sort((a,b)=>availability(a.g.target)-availability(b.g.target));
+    for(const s of open){
+      const i=p.loose.findIndex(c=>fits(c,s.g.target));
+      if(i>=0){ s.card=p.loose.splice(i,1)[0]; changed=true; break; }
+    }
+  }
+}
+// Can this player still possibly finish? (bipartite match of open slots to reachable cards)
+function canFinish(p,pool){
+  const open=allOpen(p); if(!open.length) return true;
+  const own=pool.concat(p.loose||[]);
+  const usedBy=new Map();
+  function aug(si,seen){
+    for(let ci=0;ci<own.length;ci++){
+      if(seen.has(ci)||!fits(own[ci],open[si].g.target)) continue;
+      seen.add(ci);
+      if(!usedBy.has(ci)||aug(usedBy.get(ci),seen)){ usedBy.set(ci,si); return true; }
+    }
+    return false;
+  }
+  for(let si=0;si<open.length;si++) if(!aug(si,new Set())) return false;
+  return true;
+}
+function roundIsDead(){
+  if(G.turns>900) return true;
+  const pool=G.draw.concat(G.discard, G.ver.teams?G.players.flatMap(p=>p.loose):[]);
+  if(G.ver.teams){
+    return [0,1].every(t=>!G.players.filter(p=>p.team===t).every(p=>canFinish(p,pool)));
+  }
+  return !G.players.some(p=>canFinish(p,pool));
+}
+
+/* ===================== FLYING CARDS ===================== */
+function fly(card,fromEl,toEl){
+  return new Promise(res=>{
+    if(!fromEl||!toEl||SPEED<0.05||document.hidden) return res();
+    const a=fromEl.getBoundingClientRect(), b=toEl.getBoundingClientRect();
+    if(!a.width||!b.width) return res();
+    const f=document.createElement("div"); f.className="flyer";
+    f.style.cssText=`left:${a.left}px;top:${a.top}px;--card-w:${a.width}px;--card-h:${a.width*1.42}px`;
+    f.innerHTML=cardFaceHTML(card);
+    document.body.appendChild(f);
+    const s=b.width/a.width, dx=b.left-a.left, dy=b.top-a.top;
+    const small=b.width<a.width*0.5;
+    const anim=f.animate([{transform:"translate(0,0) scale(1)",opacity:1},
+      {transform:`translate(${dx}px,${dy}px) scale(${s})`,opacity:small?0.2:1}],
+      {duration:Math.max(140,430*SPEED),easing:"cubic-bezier(.3,.7,.2,1)",fill:"forwards"});
+    const done=()=>{ f.remove(); res(); };
+    anim.onfinish=done; setTimeout(done,1500);
+  });
+}
+const $=id=>document.getElementById(id);
+function slotEl(p,k){
+  if(p.human) return document.querySelector(`#pmrow .pmcol[data-i="${k}"] .mslot`);
+  return document.querySelector(`#scoreboard .pchip[data-p="${p.idx}"] .tab[data-s="${k}"]`);
+}
+function looseEl(p){ return p.human ? $("loose") : document.querySelector(`#scoreboard .pchip[data-p="${p.idx}"] .nm`); }
+
+/* ===================== TURN LOOP ===================== */
+async function runRound(gen){
+  await sleep(350);
+  while(G && gen===G.gen && !G.roundOver){
+    G.turns++;
+    try{ if(G.ver.teams) await turnV(gen); else await turnBasic(gen); }
+    catch(err){ console.error(err); window.__pmErrors=(window.__pmErrors||[]).concat(String(err&&err.stack||err)); G.drawn=null; G.swapReq=null; G.sel=[]; G.phase="moving"; }
+    if(!G || gen!==G.gen || G.roundOver) return;
+    if(roundIsDead()){ endRound(null,"dead"); return; }
+    G.current=(G.current+1)%G.players.length;
+  }
+}
+
+/* ---- Priority Mail I–IV: draw one card; match it or discard it ---- */
+async function turnBasic(gen){
+  const p=G.players[G.current];
+  let src;
+  if(p.human){ G.phase="draw"; renderAll(); src=await waitFor(); }
+  else { G.phase="ai"; renderAll(); await sleep(520); const top=G.discard[G.discard.length-1]; src=(top&&fitsAnyOpen(p,top))?"discard":"deck"; }
+  if(gen!==G.gen) return;
+  const fromEl=src==="discard"?$("discardSlot"):$("drawSlot");
+  const card=src==="discard"?G.discard.pop():drawMain();
+  if(!card){ tick("No cards left to draw."); return; }
+  G.phase="moving"; renderPiles();
+  await fly(card,fromEl,$("drawnSlot"));
+  if(gen!==G.gen) return;
+  G.drawn=card; G.freshId=null; renderAll();
+  await sleep(p.human?260:380);
+  if(gen!==G.gen) return;
+  const opts=openSlots(p,card);
+  let slot=null;
+  if(opts.length===1||(opts.length>1&&!p.human)) slot=bestSlot(opts);
+  else if(opts.length>1){ G.phase="place"; G.placeOpts=opts; renderAll(); slot=await waitFor(); if(gen!==G.gen) return; }
+  G.drawn=null; G.placeOpts=[]; G.phase="moving"; renderAll();
+  if(slot){
+    const k=p.slots.indexOf(slot);
+    await fly(card,$("drawnSlot"),slotEl(p,k));
+    if(gen!==G.gen) return;
+    slot.card=card; G.freshId=card.id;
+    tick(`<b>${pName(p)}</b> matched ${describe(card)} to ${slot.g.target.short}${src==="discard"?" (from the discard)":""}.`);
+  } else {
+    await fly(card,$("drawnSlot"),$("discardSlot"));
+    if(gen!==G.gen) return;
+    G.discard.push(card);
+    tick(`<b>${pName(p)}</b> drew ${describe(card)}: no match, discarded.`);
+  }
+  renderAll();
+  if(complete(p)) endRound(p,"complete");
+}
+
+/* ---- Priority Mail V: swap with partner OR draw (then discard to 10) ---- */
+async function turnV(gen){
+  const p=G.players[G.current], q=partnerOf(p);
+  if(complete(p)){
+    p.passed=true;
+    tick(`<b>${pName(p)}</b> matched all 5 and says “Pass.”`); renderAll();
+    await sleep(650);
+    if(q.passed){ endRound(p,"team"); }
+    return;
+  }
+  let act;
+  if(p.human){ G.phase="v-choose"; G.sel=[]; renderAll(); act=await waitFor(); }
+  else { G.phase="ai"; renderAll(); await sleep(560); act=aiChooseV(p); }
+  if(gen!==G.gen) return;
+  if(act && act.swap){ await doSwap(p,act.swap,gen); renderAll(); return; }
+  const src=act==="discard"?"discard":"deck";
+  const fromEl=src==="discard"?$("discardSlot"):$("drawSlot");
+  const card=src==="discard"?G.discard.pop():drawMain();
+  if(!card) return;
+  G.phase="moving"; renderPiles();
+  const opts=openSlots(p,card);
+  let slot=null;
+  if(opts.length===1||(opts.length>1&&!p.human)) slot=bestSlot(opts);
+  else if(opts.length>1){
+    await fly(card,fromEl,$("drawnSlot")); G.drawn=card; G.phase="place"; G.placeOpts=opts; renderAll();
+    slot=await waitFor(); if(gen!==G.gen) return; G.drawn=null; G.placeOpts=[];
+  }
+  if(slot){
+    await fly(card,G.drawn?$("drawnSlot"):fromEl,slotEl(p,p.slots.indexOf(slot)));
+    if(gen!==G.gen) return;
+    slot.card=card;
+    tick(`<b>${pName(p)}</b> paired ${describe(card)} with ${slot.g.target.tab}.`);
+  } else {
+    await fly(card,fromEl,looseEl(p));
+    if(gen!==G.gen) return;
+    p.loose.push(card);
+    tick(`<b>${pName(p)}</b> drew from the ${src==="discard"?"discard":"Main deck"}.`);
+  }
+  G.freshId=card.id; renderAll();
+  // keep 10 cards: 5 Priority Mail + 5 Main
+  while(matchedCount(p)+p.loose.length>5){
+    let id;
+    if(p.human && p.loose.length>1){ G.phase="v-discard"; renderAll(); id=await waitFor(); if(gen!==G.gen) return; }
+    else { if(!p.human) await sleep(380); id=aiDiscardV(p).id; }
+    const i=p.loose.findIndex(c=>c.id===id); if(i<0) continue;
+    const c=p.loose[i];
+    const el=p.human?document.querySelector(`#loose .card[data-id="${id}"]`):looseEl(p);
+    p.loose.splice(i,1); G.phase="moving"; renderAll();
+    await fly(c,el,$("discardSlot"));
+    if(gen!==G.gen) return;
+    G.discard.push(c); renderAll();
+  }
+}
+async function doSwap(p,ids,gen){
+  const q=partnerOf(p), n=ids.length;
+  tick(`<b>${pName(p)}</b>: “${q.human?"Partner":q.name}, swap ${n}?”`);
+  let back=null;
+  if(q.human){
+    G.swapReq={from:p.idx,n}; G.sel=[]; G.phase="v-swap-respond"; renderAll();
+    back=await waitFor(); if(gen!==G.gen) return;
+  } else {
+    renderAll(); await sleep(700); if(gen!==G.gen) return;
+    back=aiAnswerSwap(q,p,ids);
+  }
+  G.swapReq=null; G.sel=[]; G.phase="moving";
+  if(!back){ toast(`${pName(q)}: “No.”`); tick(`<b>${pName(q)}</b> said no. Turn over.`); p.lastSwap=G.turns; return; }
+  const give=p.loose.filter(c=>ids.includes(c.id)), get=q.loose.filter(c=>back.includes(c.id));
+  p.loose=p.loose.filter(c=>!ids.includes(c.id)).concat(get);
+  q.loose=q.loose.filter(c=>!back.includes(c.id)).concat(give);
+  const pb=matchedCount(p), qb=matchedCount(q);
+  pairLoose(p); pairLoose(q);
+  p.lastSwap=G.turns;
+  const gained=(matchedCount(p)-pb)+(matchedCount(q)-qb);
+  toast(`${pName(q)}: “Yes!” Swapped ${n}${gained?`, ${gained} new match${gained>1?"es":""}`:""}.`);
+  tick(`<b>${pName(p)}</b> and <b>${pName(q,true)}</b> swapped ${n} Main card${n>1?"s":""}${gained?` for ${gained} new match${gained>1?"es":""}`:""}.`);
+}
+
+/* ===================== COMPUTER PLAYERS (V) ===================== */
+function aiChooseV(p){
+  const q=partnerOf(p), top=G.discard[G.discard.length-1];
+  if(!complete(q) && p.loose.length && q.loose.length && (p.lastSwap==null||G.turns-p.lastSwap>=8)){
+    const helpful=p.loose.filter(c=>fitsAnyOpen(q,c)).slice(0,q.loose.length);
+    if(helpful.length && Math.random()<0.8) return {swap:helpful.map(c=>c.id)};
+  }
+  if(top && fitsAnyOpen(p,top)) return "discard";
+  return "deck";
+}
+function aiDiscardV(p){
+  const q=partnerOf(p);
+  const junk=p.loose.filter(c=>!fitsAnyOpen(q,c));
+  const pool=junk.length?junk:p.loose;
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+function aiAnswerSwap(q,p,ids){
+  const n=ids.length;
+  if(q.loose.length<n) return null;
+  const offered=p.loose.filter(c=>ids.includes(c.id));
+  const helpsMe=offered.some(c=>fitsAnyOpen(q,c));
+  const forThem=q.loose.filter(c=>fitsAnyOpen(p,c));
+  if(!helpsMe && !forThem.length) return null;
+  const rest=q.loose.filter(c=>!forThem.includes(c));
+  return forThem.concat(shuffle(rest)).slice(0,n).map(c=>c.id);
+}
+function aiExchange(p){
+  const V=G.ver, out=[];
+  p.slots.forEach((s,k)=>{
+    const pts=pmPoints(s.g.target);
+    let pr=0;
+    if(V.mode==="tokens") pr=pts>=20?0.6:0;
+    else if(V.mode==="points") pr=pts<=5?0.3:0;
+    else pr=pts>=20?0.45:0;
+    if(Math.random()<pr) out.push(k);
+  });
+  return out;
+}
+
+/* ===================== ROUND END + SCORING ===================== */
+function roundPoints(p){
+  const tiers={5:0,10:0,15:0,20:0,25:0}; let plus=0, minus=0;
+  for(const s of p.slots){ const v=pmPoints(s.g.target); if(s.card){ plus+=v; tiers[v]++; } else minus+=v; }
+  const net=G.ver.mode==="points"?plus:plus-minus;
+  return {tiers,plus,minus,net};
+}
+function endRound(who,reason){
+  if(G.roundOver) return;
+  G.roundOver=true; G.phase="idle"; answer(null);
+  const V=G.ver, res={who,reason,rows:[]};
+  if(V.mode==="tokens" && who) who.tokens++;
+  for(const p of G.players){
+    const rp=roundPoints(p); p.last=rp;
+    if(V.mode==="points"||V.mode==="net") p.score+=rp.net;
+    p.history.push(rp.net);
+  }
+  if(V.teams){ for(const t of [0,1]){ G.teamScore[t]+=G.players.filter(p=>p.team===t).reduce((a,p)=>a+p.last.net,0); } }
+  // game over?
+  if(V.mode==="first") G.over=true;
+  else if(V.mode==="tokens") G.over=G.round>=V.rounds;
+  else if(V.teams) G.over=G.teamScore.some(s=>s>=G.target);
+  else G.over=G.players.some(p=>p.score>=G.target);
+  renderAll();
+  tick(reason==="dead"?"No one can finish with the cards left, so the round ends.":`<b>${pName(who)}</b> ${V.teams?"and partner cleared their Priority Mail":"matched every Priority Mail card"}!`);
+  setTimeout(()=>showRoundOverlay(res), 700*Math.max(SPEED,0.3));
+}
+function nextRoundFlow(){
+  const V=G.ver;
+  G.players.filter(p=>!p.human).forEach(p=>{
+    const ks=aiExchange(p);
+    ks.forEach(k=>{ G.gdiscard.push(p.slots[k].g); p.slots[k].g=drawG(); });
+    if(ks.length) p.exchanged=ks.length; else p.exchanged=0;
+  });
+  if(V.exchange) showExchange(); else startRound((G.dealer+1)%G.players.length);
+}
+/* ===================== RENDER ===================== */
+function showPts(){ return G && ["points","net","team"].includes(G.ver.mode); }
+function gWithPts(g){ return Object.assign({},g,{pts:showPts()?pmPoints(g.target):null}); }
+function num(n){ return typeof n==="number"?(n<0?"−"+Math.abs(n):String(n)):n; }
+function sgn(n){ return n<0?"−"+Math.abs(n):"+"+n; }
+function tokenDots(n,max){ let s=""; for(let i=0;i<max;i++) s+=`<i class="${i<n?"on":""}"></i>`; return `<span class="tokens">${s}</span>`; }
+function tick(msg){ if(G) G.ticker=msg; const t=$("ticker"); if(t) t.innerHTML=msg; }
+let toastT=null;
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,2200); }
+
+function renderAll(){
+  if(!G) return;
+  renderTop(); renderScoreboard(); renderPiles(); renderPM(); renderLoose(); renderBanner(); renderControls();
+  $("ticker").innerHTML=G.ticker||"";
+  if(window.__pmFit) window.__pmFit(); else fitBoard();
+}
+function renderTop(){
+  const V=G.ver;
+  $("brandRoman").textContent=G.key;
+  let s=`#${V.num} · ${V.name}`;
+  if(V.mode==="tokens") s+=` · Round ${G.round} of ${V.rounds}`;
+  else if(V.mode!=="first") s+=` · Round ${G.round} · to ${G.target}`;
+  $("subText").textContent=s;
+}
+function chipHTML(p){
+  const V=G.ver, active=p.idx===G.current&&!G.roundOver;
+  let stat;
+  if(V.mode==="tokens") stat=tokenDots(p.tokens,V.rounds);
+  else if(V.mode==="points"||V.mode==="net") stat=`${num(p.score)} pts`;
+  else stat=`${matchedCount(p)}/${p.slots.length}`;
+  const tags=[];
+  if(p.idx===G.dealer) tags.push("dealer");
+  if(V.teams && p.passed) tags.push("passed");
+  if(V.teams && !p.human) tags.push(`${p.loose.length} loose`);
+  const tabs=p.slots.map((s,k)=>`<span class="tab ${s.card?"on":""}" data-s="${k}" title="${s.g.target.label}">${s.g.target.tab}</span>`).join("");
+  return `<div class="pchip ${active?"active":""}" data-p="${p.idx}"><div class="top"><span class="nm">${p.human?"You":p.name}${tags.length?`<small>${tags.join(" · ")}</small>`:""}</span><span class="stat">${stat}</span></div><div class="tabs">${tabs}</div></div>`;
+}
+function renderScoreboard(){
+  const el=$("scoreboard");
+  if(G.ver.teams){
+    const team=(t,label)=>`<div class="team t${t}"><div class="thead"><span>${label}</span><b>${num(G.teamScore[t])} pts</b></div><div class="members">${G.players.filter(p=>p.team===t).map(chipHTML).join("")}</div></div>`;
+    el.innerHTML=team(0,"Your team")+team(1,"Opponents");
+  } else el.innerHTML=G.players.map(chipHTML).join("");
+}
+function renderPiles(){
+  const cur=G.players[G.current], you=G.players[0];
+  const human=cur.human && !G.roundOver;
+  $("drawSlot").innerHTML=G.draw.length?cardBackHTML():`<div class="empty">Reshuffles from discards</div>`;
+  $("drawCount").textContent=`${G.draw.length} left`;
+  const top=G.discard[G.discard.length-1];
+  $("discardSlot").innerHTML=top?cardFaceHTML(top):`<div class="empty">No discards</div>`;
+  $("discardCount").textContent=`${G.discard.length} card${G.discard.length!==1?"s":""}`;
+  $("drawnSlot").innerHTML=G.drawn?cardFaceHTML(G.drawn,"fresh"):`<div class="empty">${G.roundOver?"":(cur.human?"Your draw":cur.name+"'s draw")}</div>`;
+  $("drawnCount").textContent=G.phase==="place"&&cur.human?"pick a slot":"";
+  const canDraw=human && (G.phase==="draw"||G.phase==="v-choose");
+  const canDiscard=canDraw && top && (G.ver.teams || fitsAnyOpen(you,top));
+  $("drawPile").classList.toggle("playable",canDraw);
+  $("discardPile").classList.toggle("playable",!!canDiscard);
+  $("drawPile").onclick=canDraw?()=>answer("deck"):null;
+  $("discardPile").onclick=canDiscard?()=>answer("discard"):null;
+}
+function renderPM(){
+  const you=G.players[0], row=$("pmrow");
+  row.innerHTML=you.slots.map((s,k)=>{
+    const target=G.phase==="place"&&G.current===0&&G.placeOpts.includes(s);
+    const low=s.card?cardFaceHTML(s.card,s.card.id===G.freshId?"fresh":""):`<div class="empty">${target?"Place here":"match"}</div>`;
+    return `<div class="pmcol ${s.card?"done":""} ${target?"target":""}" data-i="${k}"><div class="gslot">${cardFaceHTML(gWithPts(s.g),"kind-ignored")}</div><div class="mslot ${s.card?"":"open"}">${low}</div></div>`;
+  }).join("");
+  row.querySelectorAll(".pmcol.target").forEach(el=>{ el.onclick=()=>answer(you.slots[+el.dataset.i]); });
+  let st=`${matchedCount(you)} of ${you.slots.length} matched`;
+  if(showPts()){ const rp=roundPoints(you); st+=` · ${sgn(rp.net)} pts if the round ended now`; }
+  $("handStatus").textContent=st;
+}
+function renderLoose(){
+  const wrap=$("loosewrap");
+  if(!G.ver.teams){ wrap.hidden=true; return; }
+  wrap.hidden=false;
+  const you=G.players[0], el=$("loose");
+  const mine=G.current===0&&!G.roundOver;
+  const selecting=mine&&G.phase==="v-swap-select" || G.phase==="v-swap-respond"&&G.swapReq;
+  const discarding=mine&&G.phase==="v-discard";
+  el.classList.toggle("selectable",selecting||discarding);
+  el.innerHTML=you.loose.length?you.loose.map(c=>cardFaceHTML(c,[c.id===G.freshId?"fresh":"",G.sel.includes(c.id)?"sel":""].join(" ").trim())).join("")
+    :`<div class="empty" style="width:auto;padding:0 14px">no loose cards</div>`;
+  $("looseLabel").textContent=discarding?"Tap one to discard":selecting?"Tap cards to swap":`Loose Main cards · ${matchedCount(you)+you.loose.length+5}/10 held`;
+  el.querySelectorAll(".card").forEach(c=>{
+    const id=+c.dataset.id;
+    if(discarding) c.onclick=()=>answer(id);
+    else if(selecting) c.onclick=()=>{
+      const i=G.sel.indexOf(id);
+      if(i>=0) G.sel.splice(i,1);
+      else { const cap=G.phase==="v-swap-respond"&&G.swapReq?G.swapReq.n:99; if(G.sel.length<cap) G.sel.push(id); }
+      renderLoose(); renderControls();
+    };
+  });
+}
+function renderBanner(){
+  const cur=G.players[G.current], ph=$("phaseText"), hi=$("hintText");
+  const set=(a,b)=>{ ph.textContent=a; hi.textContent=b; };
+  if(G.roundOver) return set(G.over?"Game over":"Round over","");
+  if(G.phase==="v-swap-respond"&&G.swapReq){ const f=G.players[G.swapReq.from]; return set(`${f.name} asks: “Swap ${G.swapReq.n}?”`,`Pick ${G.swapReq.n} loose card${G.swapReq.n>1?"s":""} to give, or say no.`); }
+  if(!cur.human) return set(`${cur.name}'s turn`,G.ver.teams?(cur.team===0?"Your partner is playing…":"Opponent is playing…"):"Checking the mail…");
+  switch(G.phase){
+    case "draw": return set("Your turn: draw a card",G.discard.length&&fitsAnyOpen(cur,G.discard[G.discard.length-1])?"The discard matches! Take it, or draw from the Main deck.":"Tap the Main deck. The discard only lights up when it matches.");
+    case "place": return set("It fits more than one card","Tap the Priority Mail card to put it under.");
+    case "v-choose": return set("Your turn: draw or swap","Draw from a pile, or offer your partner a swap.");
+    case "v-swap-select": return set("Choose cards to swap",`Tap your loose Main cards, then offer the swap.`);
+    case "v-discard": return set("Discard one Main card","Keep 10 cards: tap a loose Main card to discard it.");
+    default: return set("Your turn","");
+  }
+}
+function btn(label,cls,fn,disabled){ const b=document.createElement("button"); b.className="btn "+(cls||""); b.textContent=label; b.onclick=fn; if(disabled) b.disabled=true; return b; }
+function renderControls(){
+  const el=$("controls"); el.innerHTML="";
+  if(G.roundOver) return;
+  const you=G.players[0], q=partnerOf(you);
+  if(G.phase==="v-choose"&&G.current===0){
+    const ok=you.loose.length&&q&&!complete(q)&&q.loose.length;
+    el.appendChild(btn("Swap with partner","teal",()=>{ G.phase="v-swap-select"; G.sel=[]; renderAll(); },!ok));
+  } else if(G.phase==="v-swap-select"&&G.current===0){
+    const n=G.sel.length;
+    el.appendChild(btn(n?`Offer “Swap ${n}”`:"Offer swap","teal",()=>answer({swap:G.sel.slice()}),!n||n>q.loose.length));
+    el.appendChild(btn("Cancel","ghost",()=>{ G.phase="v-choose"; G.sel=[]; renderAll(); }));
+    if(n>q.loose.length){ const s=document.createElement("span"); s.className="note"; s.style.margin="0"; s.textContent=`${q.name} only has ${q.loose.length} loose.`; el.appendChild(s); }
+  } else if(G.phase==="v-swap-respond"&&G.swapReq){
+    const n=G.swapReq.n;
+    el.appendChild(btn(`Yes, give ${n}`,"teal",()=>answer(G.sel.slice()),G.sel.length!==n));
+    el.appendChild(btn("No","ghost",()=>answer(null)));
+  }
+}
+
+/* Fit the whole board to the viewport: measure the fixed chrome, then pick
+   the largest card width (1–3 rows of Priority Mail) that fits with no scroll. */
+function fitBoard(){
+  if(!G) return;
+  const de=document.documentElement, vh=de.clientHeight, vw=de.clientWidth;
+  const app=$("app");
+  const wide=vh<560 && vw>vh*1.3;                 // landscape phone: felt | mail side by side
+  app.classList.toggle("wide",wide);
+  app.classList.toggle("compact",wide||vw<=560);  // dot tabs + 2-column scoreboard
+  const cs=getComputedStyle(app);
+  const W=app.clientWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight)-4;
+  const oh=el=>el&&!el.hidden&&el.offsetParent!==null?el.offsetHeight:0;
+  const teams=G.ver.teams, n=G.players[0].slots.length;
+  const fcs=getComputedStyle($("felt"));
+  const feltPadV=parseFloat(fcs.paddingTop)*2, feltPadH=parseFloat(fcs.paddingLeft)*2;
+  const pileGap=parseFloat(getComputedStyle(document.querySelector(".piles")).columnGap)||28;
+  const top=oh(document.querySelector(".topbar"))+oh($("scoreboard"))+18+(wide?12:24);
+  const bannerH=oh($("phaseText"))+oh($("hintText"))+oh($("ticker"))+feltPadV+16+42;
+  const mailChrome=oh(document.querySelector(".handhead"))+oh($("controls"))+18+(teams?oh($("looseLabel"))+9:0)+8;
+  const PR=wide?0.95:1.1, GAP=8, OV=1.72, LOOSE=teams?1.08:0;
+  let best={w:0,cols:n};
+  for(let r=1;r<=3;r++){
+    const cols=Math.ceil(n/r), span=Math.max(cols,teams?6:0);
+    let byH, byW;
+    if(wide){
+      const availH=vh-top;
+      byH=Math.min((availH-mailChrome-(r-1)*GAP-(teams?GAP:0))/(1.42*(OV*r+LOOSE)), (availH-bannerH)/(1.42*PR));
+      byW=Math.min((W-10-64-(span-1)*GAP)/(3*PR+span),(W-10-250-(span-1)*GAP)/span);
+    } else {
+      byH=(vh-top-bannerH-mailChrome-(r-1)*GAP-(teams?GAP:0))/(1.42*(PR+OV*r+LOOSE));
+      byW=Math.min((W-(span-1)*GAP)/span,(W-feltPadH-2*pileGap-8)/(3*PR));
+    }
+    const w=Math.min(byH,byW,128);
+    if(w>best.w*1.06) best={w,cols};
+  }
+  const w=Math.max(30,Math.floor(best.w));
+  de.style.setProperty("--card-w",w+"px");
+  de.style.setProperty("--pile-w",Math.floor(w*PR)+"px");
+  $("pmrow").style.maxWidth=(best.cols*w+(best.cols-1)*GAP+1)+"px";
+}
+
+/* ===================== ROUND / GAME OVERLAY ===================== */
+function winners(){
+  const V=G.ver;
+  if(V.teams){ const m=Math.max(...G.teamScore); return {teams:[0,1].filter(t=>G.teamScore[t]===m)}; }
+  const val=p=>V.mode==="first"?matchedCount(p):V.mode==="tokens"?p.tokens:p.score;
+  const m=Math.max(...G.players.map(val));
+  return {players:G.players.filter(p=>val(p)===m)};
+}
+function showRoundOverlay(res){
+  if(!G) return;
+  const V=G.ver, b=$("roundBook");
+  let kicker=G.over?`Game over · ${V.name}`:`Round ${G.round} complete`;
+  let title;
+  if(res.reason==="dead") title="The mail got stuck";
+  else if(V.teams) title=res.who.team===0?"Your team cleared the mail!":"The opponents cleared the mail!";
+  else title=res.who.human?"You matched every card!":`${res.who.name} matched every card!`;
+  let lede=res.reason==="dead"?"Nobody can finish with the cards that are left, so the round is scored as it stands.":"";
+  if(G.over){
+    const w=winners();
+    if(V.mode==="first" && res.who){ w.players=[res.who]; }
+    if(w.teams) title=w.teams.length>1?"It's a tie!":(w.teams[0]===0?"Your team wins!":"The opponents win");
+    else if(w.players.length>1) title=`Tie: ${w.players.map(p=>pName(p)).join(" & ")}`;
+    else title=w.players[0].human?"You win!":`${w.players[0].name} wins`;
+  }
+  const tiersHead=TIERS.map(t=>`<th>×${t}</th>`).join("");
+  let head, rows="";
+  if(V.mode==="first"){
+    head="<th>Player</th><th>Matched</th>";
+    rows=G.players.map(p=>`<tr class="${p===res.who?"win":""}"><td class="nm">${pName(p)}</td><td>${matchedCount(p)} / ${p.slots.length}</td></tr>`).join("");
+  } else if(V.mode==="tokens"){
+    head="<th>Player</th><th>Matched</th><th>Tokens</th>";
+    const m=Math.max(...G.players.map(p=>p.tokens));
+    rows=G.players.map(p=>`<tr class="${(G.over?p.tokens===m:p===res.who)?"win":""}"><td class="nm">${pName(p)}</td><td>${matchedCount(p)} / ${p.slots.length}</td><td>${tokenDots(p.tokens,V.rounds)} ${p.tokens}</td></tr>`).join("");
+  } else {
+    const net=V.mode!=="points";
+    head=`<th>${V.teams?"Team / player":"Player"}</th>${tiersHead}${net?"<th>Unmatched</th>":""}<th>Round</th><th>Total</th>`;
+    const line=(p,total,cls)=>{ const r=p.last; return `<tr class="${cls||""}"><td class="nm">${pName(p)}</td>${TIERS.map(t=>`<td>${r.tiers[t]||"·"}</td>`).join("")}${net?`<td class="neg">${r.minus?"−"+r.minus:"0"}</td>`:""}<td class="${r.net<0?"neg":""}">${sgn(r.net)}</td><td>${num(total)}</td></tr>`; };
+    if(V.teams){
+      for(const t of [0,1]){
+        const ms=G.players.filter(p=>p.team===t), rn=ms.reduce((a,p)=>a+p.last.net,0);
+        rows+=ms.map(p=>line(p,"")).join("");
+        rows+=`<tr class="${G.teamScore[t]===Math.max(...G.teamScore)?"win":""}"><td class="nm">${t===0?"Your team":"Opponents"}</td>${TIERS.map(()=>"<td></td>").join("")}<td></td><td>${sgn(rn)}</td><td>${num(G.teamScore[t])}</td></tr>`;
+      }
+    } else {
+      const m=Math.max(...G.players.map(p=>p.score));
+      rows=G.players.map(p=>line(p,p.score,p.score===m?"win":"")).join("");
+    }
+  }
+  const goal=V.mode==="tokens"?`${V.rounds-G.round} round${V.rounds-G.round!==1?"s":""} to go.`:(V.mode==="first"?"":`Playing to ${G.target} points.`);
+  b.innerHTML=`<div class="airmail"></div><div class="eyebrow">${kicker}</div><h2>${title}</h2>
+    ${lede?`<p class="lede">${lede}</p>`:""}
+    <div class="tbl-wrap"><table class="score"><thead><tr>${head}</tr></thead><tbody>${rows}</tbody></table></div>
+    ${!G.over&&goal?`<p class="note">${goal}</p>`:""}
+    <div class="row" style="margin-top:12px" id="roundBtns"></div>`;
+  const rb=$("roundBtns");
+  if(G.over){
+    rb.appendChild(btn("Play again","",()=>{ $("roundOverlay").hidden=true; newGame(G.key,G.players.length-1,G.target); }));
+    rb.appendChild(btn("Change version","ghost",()=>{ $("roundOverlay").hidden=true; $("setupOverlay").hidden=false; }));
+  } else {
+    rb.appendChild(btn(V.exchange?"Continue":"Next round","",()=>{ $("roundOverlay").hidden=true; nextRoundFlow(); }));
+  }
+  $("roundOverlay").hidden=false;
+}
+
+/* ===================== BETWEEN-ROUND EXCHANGE ===================== */
+function showExchange(){
+  const you=G.players[0], sel=new Set(), b=$("exBook");
+  const others=G.players.filter(p=>!p.human).map(p=>`${p.name} ${p.exchanged?`swapped ${p.exchanged}`:"kept all"}`).join(" · ");
+  const draw=()=>{
+    b.innerHTML=`<div class="airmail"></div><div class="eyebrow">Between rounds · round ${G.round+1} is next</div><h2>Swap any Priority Mail?</h2>
+      <p class="lede">Tap cards to hand back to the dealer. You get the same number of new cards from the top of the Good News / Bad News deck. It's a straight exchange, so you don't get to pick.</p>
+      <div class="exgrid">${you.slots.map((s,k)=>`<div class="excard ${sel.has(k)?"sel":""}" data-k="${k}">${cardFaceHTML(gWithPts(s.g),"kind-ignored")}</div>`).join("")}</div>
+      <p class="note">${others}</p>
+      <div class="row" style="margin-top:10px" id="exBtns"></div>`;
+    b.querySelectorAll(".excard").forEach(el=>el.onclick=()=>{ const k=+el.dataset.k; sel.has(k)?sel.delete(k):sel.add(k); draw(); });
+    $("exBtns").appendChild(btn(sel.size?`Swap ${sel.size} & deal`:"Keep all & deal","",()=>{
+      [...sel].forEach(k=>{ G.gdiscard.push(you.slots[k].g); you.slots[k].g=drawG(); });
+      $("exOverlay").hidden=true;
+      if(sel.size) toast(`You swapped ${sel.size} Priority Mail card${sel.size>1?"s":""}.`);
+      startRound((G.dealer+1)%G.players.length);
+    }));
+  };
+  draw();
+  $("exOverlay").hidden=false;
+}
+
+/* ===================== HOW TO PLAY (Anne's rules, per version) ===================== */
+function sampleCards(){
+  const picks=[0,4,6,15,17].map(i=>GNBN_LIST[i]);
+  return `<div class="samples">${picks.map(e=>{ const t={cat:e.cat,match:e.match,short:e.short,tab:e.tab}; const pts=pmPoints(t);
+    return `<figure>${cardFaceHTML({cat:"gnbn",kind:"ask",target:t,pts},"kind-ignored")}<figcaption>${pts} pts</figcaption></figure>`; }).join("")}</div>`;
+}
+const RULE_NOTES={
+  common:[
+    "The Main deck is the 68 season, day and time cards (no MAIL cards).",
+    "A Priority Mail card matches any color. For example, AM matches every 9, 10 or 11 AM card.",
+    "A drawn card that matches must go under its Priority Mail card. If it fits more than one, you choose.",
+    "The discard pile only lights up when its top card matches one of your open cards.",
+    "If you are dealt two NOON Priority Mail cards, the extra one is exchanged automatically.",
+    "If nobody can finish with the cards left, the round ends and is scored as it stands.",
+  ],
+  I:["The dealer changes each round, and the player to the dealer's left starts."],
+  II:["Players keep their Priority Mail between rounds. The Main cards are shuffled back each round.","A tie on tokens after round 7 is a shared win."],
+  III:["Everyone scores their matched cards when the round ends, not only the player who finished.","If more than one player passes the target in the same round, the highest total wins."],
+  IV:["Every player adds their matched cards and subtracts their unmatched cards each round.","If more than one player passes the target in the same round, the highest total wins."],
+  V:["Partners sit across from each other: you and your computer partner against two computer players.",
+     "Main cards that match your Priority Mail are paired automatically, including cards that are dealt or swapped to you.",
+     "After a draw you discard one loose Main card to stay at 10. It can be the card you just drew.",
+     "A swap trades the same number of loose Main cards. Each player picks the cards they give.",
+     "A player who has matched all 5 passes on each turn. The round ends when the second partner passes."],
+};
+function helpHTML(key){
+  const V=VERS[key];
+  const tabs=VER_KEYS.map(k=>`<button class="chip ${k===key?"sel":""}" data-help="${k}">${k}</button>`).join("");
+  const n=V.slots;
+  let how;
+  if(V.teams){
+    how=`<h3>Setup</h3><p>The dealer gives each player 5 GNBN cards and 5 Main cards. The GNBN cards are your Priority Mail cards. Turn the top Main card face up to start the discard pile. The player to the dealer's left goes first. Each player holds <b>10 cards</b> at all times.</p>
+      <h3>Your hand</h3><ul><li>Each Priority Mail card, with its matching Main card when you find one</li><li>Priority Mail cards not matched yet</li><li>Loose Main cards that match nothing. You swap or discard these.</li></ul>
+      <h3>On your turn, choose one</h3><ol><li><b>Swap with partner:</b> offer to swap any number of Main cards (“Swap 3”). If your partner says yes, you both exchange that many. If they say no, your turn ends.</li>
+      <li><b>Draw a card</b> from the top of the Main deck or the discard pile. If it matches, pair it with that Priority Mail card, then discard one loose Main card to stay at 10. If it doesn't match, discard any Main card you don't need.</li></ol>
+      <h3>Ending the round</h3><p>When you have matched all 5, you say <b>“Pass”</b> on your turn. When both partners have passed, the round ends. Unmatched Priority Mail cards count as negative points for the team.</p>`;
+  } else {
+    how=`<h3>Setup</h3><p>The dealer gives each player ${n} GNBN cards. These are your <b>Priority Mail</b> cards${key==="I"?" for the entire game":""}. Shuffle the Main deck and turn the top card face up to start the discard pile.</p>
+      <h3>How to play</h3><p>Place your ${n} Priority Mail cards face up, with no more than one NOON card (you may exchange one). On your turn, draw the top card of the Main deck or the top card of the discard pile. If it matches one of your Priority Mail cards, place it directly below that card. If it doesn't match, discard it.</p>`;
+  }
+  const between=V.exchange?`<h3>Between rounds</h3><p>Hand the dealer any Priority Mail cards you want to exchange. You get the same number of new cards from the top of the GNBN deck. It's a straight exchange, so you don't get to pick.</p>`:"";
+  const win={first:`The first player to match all 5 Priority Mail cards wins.`,
+    tokens:`The first player to match all 5 takes a <b>token</b> and the round ends. The player with the most tokens after <b>7 rounds</b> wins.<br><i>Token note:</i> Jenna plays with 7 small bird figures as tokens. Bring your own!`,
+    points:`The first player to match all 7 ends the round. Players score points for their matched Priority Mail. The first player to reach the agreed total wins.`,
+    net:`The first player to match all 7 ends the round. Add points for every card you matched and <b>subtract</b> points for every card you didn't. The first player to reach the agreed total wins.`,
+    team:`Each round, the team adds points for every matched Priority Mail card and subtracts points for every unmatched one. The first team to reach the agreed total (such as 200) wins.`}[V.mode];
+  const points=showPtsFor(V)?`<h3>Point values</h3><p>The fewer Main cards that can match a GNBN card, the more specific it is and the more points it's worth.</p>
+    <ul><li><b>5</b>: Mon thru Fri (matches any of 20 weekday cards)</li><li><b>10</b>: weekday “thru” cards, AM, PM (12 cards each)</li><li><b>15</b>: Weekend and “OR” cards (8 cards each)</li><li><b>20</b>: NOON, SATURDAY, SUNDAY (4 cards each)</li><li><b>25</b>: Season cards</li></ul>${sampleCards()}`:"";
+  const notes=RULE_NOTES.common.concat(RULE_NOTES[key]||[]);
+  return `<div class="airmail"></div><div class="chips" style="margin-bottom:12px">${tabs}</div>
+    <div class="eyebrow">Game #${V.num} · ${V.players} players · Ages 6+ · ${V.level}</div><h2>${V.name}</h2>
+    <p class="credit">Created by Anne Gyorfi, The Game Lady (1/1/2018) · Deck: Main + Good News / Bad News</p>
+    <h3>Object of the game</h3><p>Match Main deck cards with your Priority Mail GNBN cards. The words <b>LOSE</b> and <b>ASK FOR</b> on GNBN cards are ignored${key==="III"||key==="IV"?". Each GNBN type has a different point value":""}.</p>
+    ${how}${between}<h3>Winning the game</h3><p>${win}</p>${points}
+    <h3>Playing on this table</h3><ul>${notes.map(x=>`<li>${x}</li>`).join("")}</ul>
+    <div class="row" style="margin-top:14px"><button class="btn" id="btnCloseHelp">Got it</button></div>`;
+}
+function showPtsFor(V){ return ["points","net","team"].includes(V.mode); }
+function openHelp(key){
+  const b=$("helpBook"); b.innerHTML=helpHTML(key); b.scrollTop=0;
+  b.querySelectorAll("[data-help]").forEach(el=>el.onclick=()=>openHelp(el.dataset.help));
+  $("btnCloseHelp").onclick=()=>$("helpOverlay").hidden=true;
+  $("helpOverlay").hidden=false;
+}
+
+/* ===================== SETUP ===================== */
+const cfg={ver:"I",opps:2,target:{}};
+function buildSetup(){
+  const V=VERS[cfg.ver];
+  $("verSel").innerHTML=VER_KEYS.map(k=>`<button class="ver ${k===cfg.ver?"sel":""}" data-v="${k}"><span class="rn">${k}</span><span class="vt">${VERS[k].tag}</span><span class="vn">#${VERS[k].num}</span></button>`).join("");
+  $("verSel").querySelectorAll(".ver").forEach(el=>el.onclick=()=>{ cfg.ver=el.dataset.v; buildSetup(); });
+  $("verDesc").innerHTML=`<b style="color:var(--paper)">${V.name}</b> · ${V.players} players · ${V.level}<br>${V.desc}`;
+  $("oppField").hidden=!!V.teams;
+  $("oppChips").innerHTML=[1,2,3].map(n=>`<button class="chip ${cfg.opps===n?"sel":""}" data-n="${n}">${n}</button>`).join("");
+  $("oppChips").querySelectorAll(".chip").forEach(el=>el.onclick=()=>{ cfg.opps=+el.dataset.n; buildSetup(); });
+  $("targetField").hidden=!V.targets;
+  if(V.targets){
+    const cur=cfg.target[cfg.ver]||V.target;
+    $("targetChips").innerHTML=V.targets.map(t=>`<button class="chip ${t===cur?"sel":""}" data-t="${t}">${t}</button>`).join("");
+    $("targetChips").querySelectorAll(".chip").forEach(el=>el.onclick=()=>{ cfg.target[cfg.ver]=+el.dataset.t; buildSetup(); });
+  }
+}
+function setSpeed(s){ SPEED=s; $("btnSpeed").textContent=`Speed: ${s<1?"Fast":"Normal"}`; try{localStorage.setItem("pm-speed",String(s));}catch(e){} }
+$("btnSpeed").onclick=()=>setSpeed(SPEED<1?1:0.35);
+$("btnHelp").onclick=()=>openHelp(G?G.key:cfg.ver);
+$("btnHelp2").onclick=()=>openHelp(cfg.ver);
+$("btnNew").onclick=()=>{ if(G) cfg.ver=G.key; buildSetup(); $("setupOverlay").hidden=false; };
+$("btnStart").onclick=()=>{ $("setupOverlay").hidden=true; const V=VERS[cfg.ver]; newGame(cfg.ver,V.teams?3:cfg.opps,cfg.target[cfg.ver]||V.target); };
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") $("helpOverlay").hidden=true; });
+try{ const s=parseFloat(localStorage.getItem("pm-speed")); if(s>0) setSpeed(s); }catch(e){}
+buildSetup();
+
+/* ===================== #demo / #sim (screenshots + self-test) ===================== */
+function demo(key){
+  const V=VERS[key]; cfg.ver=key;
+  $("setupOverlay").hidden=true;
+  newGame(key,3,V.target);
+  const give=(p,count)=>{
+    for(const s of allOpen(p)){
+      if(matchedCount(p)>=count) break;
+      const i=G.draw.findIndex(c=>fits(c,s.g.target)); if(i>=0) s.card=G.draw.splice(i,1)[0];
+    }
+  };
+  G.round=V.mode==="first"?1:3;
+  G.players.forEach((p,i)=>{
+    p.slots.forEach(s=>{ if(s.card&&V.teams){ G.draw.push(s.card); s.card=null; } });
+    give(p,p.human?Math.ceil(p.slots.length/2):1+(i%3));
+    if(V.teams){ while(matchedCount(p)+p.loose.length>5) G.draw.unshift(p.loose.pop()); }
+  });
+  [[2,1,0,1],[185,140,95,160],[120,60,-15,90]].forEach((arr,j)=>G.players.forEach((p,i)=>{ if(j===0)p.tokens=arr[i]; if(j===1&&V.mode==="points")p.score=arr[i]; if(j===2&&V.mode==="net")p.score=arr[i]; }));
+  G.teamScore=[110,85];
+  for(let i=0;i<4;i++) G.discard.push(G.draw.pop());
+  G.dealer=3; G.current=0;
+  tick(`<b>${G.players[1].name}</b> matched a card. Your turn.`);
+  renderAll();
+}
+function sim(key,games){
+  const out={version:key,games:[],errors:[]};
+  window.addEventListener("error",e=>out.errors.push(String(e.message)));
+  window.addEventListener("unhandledrejection",e=>out.errors.push(String(e.reason&&e.reason.stack||e.reason)));
+  SPEED=0; $("setupOverlay").hidden=true;
+  let g=0, rec=null;
+  const write=()=>{ let pre=$("simout"); if(!pre){ pre=document.createElement("pre"); pre.id="simout"; document.body.appendChild(pre);} out.caught=window.__pmErrors||[]; pre.textContent=JSON.stringify(out); };
+  const start=()=>{ rec={rounds:0,turns:[],dead:0}; out.games.push(rec); newGame(key,3,VERS[key].target); G.players[0].human=false; };
+  showRoundOverlay=function(res){
+    rec.rounds++; rec.turns.push(G.turns); if(res.reason==="dead") rec.dead++;
+    if(G.over||rec.rounds>40){
+      rec.final=G.ver.teams?G.teamScore.slice():G.players.map(p=>G.ver.mode==="tokens"?p.tokens:G.ver.mode==="first"?matchedCount(p):p.score);
+      g++; write(); if(g<games) setTimeout(start,0); else { out.done=true; write(); }
+    } else setTimeout(()=>{ G.players.forEach(p=>{ const ks=aiExchange(p); ks.forEach(k=>{ G.gdiscard.push(p.slots[k].g); p.slots[k].g=drawG(); }); }); startRound((G.dealer+1)%G.players.length); },0);
+  };
+  start();
+}
+/* #uitest-X: drives the REAL UI as the human player (clicks piles, slots, loose cards, swap buttons, popups) */
+function uitest(key){
+  const out={version:key,steps:0,clicks:{},errors:[],rounds:0};
+  window.addEventListener("error",e=>out.errors.push(String(e.message)));
+  window.addEventListener("unhandledrejection",e=>out.errors.push(String(e.reason&&e.reason.stack||e.reason)));
+  const write=()=>{ let pre=$("simout"); if(!pre){ pre=document.createElement("pre"); pre.id="simout"; document.body.appendChild(pre);} out.caught=window.__pmErrors||[]; pre.textContent=JSON.stringify(out); };
+  const click=(el,tag)=>{ if(!el) return false; out.clicks[tag]=(out.clicks[tag]||0)+1; el.click(); return true; };
+  SPEED=0.02;
+  click(document.querySelector(`#verSel .ver[data-v="${key}"]`),"ver"); click($("btnStart"),"start");
+  const iv=setInterval(()=>{
+    out.steps++;
+    if(out.steps>400000){ out.timeout=true; write(); clearInterval(iv); return; }
+    if(!$("roundOverlay").hidden){
+      if(G.over){ out.done=true; out.rounds=G.round; out.final=G.ver.teams?G.teamScore.slice():G.players.map(p=>G.ver.mode==="tokens"?p.tokens:G.ver.mode==="first"?matchedCount(p):p.score); write(); clearInterval(iv); return; }
+      click($("roundBtns").querySelector("button"),"roundContinue"); return;
+    }
+    if(!$("exOverlay").hidden){
+      if(!document.querySelector("#exBook .excard.sel") && Math.random()<0.5){ click(document.querySelector("#exBook .excard"),"exSelect"); return; }
+      click(document.querySelector("#exBtns button"),"exDeal"); return;
+    }
+    if(!waiter) return;
+    const ph=G.phase, ctl=[...$("controls").querySelectorAll("button")];
+    if(ph==="draw"||ph==="v-choose"){
+      if(ph==="v-choose" && Math.random()<0.2 && ctl[0] && !ctl[0].disabled){ click(ctl[0],"swapOpen"); return; }
+      const dp=document.querySelector("#discardPile.playable");
+      click(dp&&Math.random()<0.7?dp:document.querySelector("#drawPile.playable"),"draw"); return;
+    }
+    if(ph==="place"){ click(document.querySelector("#pmrow .pmcol.target"),"placeChoice"); return; }
+    if(ph==="v-discard"){ click(document.querySelector("#loose .card"),"discard"); return; }
+    if(ph==="v-swap-select"){
+      const c=document.querySelector("#loose .card:not(.sel)");
+      if(!G.sel.length && c){ click(c,"swapPick"); return; }
+      click(ctl[0]&&!ctl[0].disabled?ctl[0]:ctl[1],ctl[0]&&!ctl[0].disabled?"swapOffer":"swapCancel"); return;
+    }
+    if(ph==="v-swap-respond"){
+      const c=document.querySelector("#loose .card:not(.sel)");
+      if(G.sel.length<G.swapReq.n && c){ click(c,"respondPick"); return; }
+      click(ctl[0]&&!ctl[0].disabled?ctl[0]:ctl[1],ctl[0]&&!ctl[0].disabled?"respondYes":"respondNo"); return;
+    }
+  },4);
+}
+function bootFromHash(){
+
+  const h=decodeURIComponent(location.hash||"");
+  let m=h.match(/^#demo(?:-(I|II|III|IV|V))?(?:-(help|round|exchange))?$/); if(m){ const k=m[1]||"III"; demo(k); if(m[2]==="help") openHelp(k); if(m[2]==="round"){ G.players.forEach(p=>p.last=roundPoints(p)); G.roundOver=true; showRoundOverlay({who:G.players[1],reason:"complete"}); } if(m[2]==="exchange") showExchange(); return; }
+  m=h.match(/^#sim-(I|II|III|IV|V)(?:-(\d+))?$/); if(m){ sim(m[1],+(m[2]||3)); return; }
+  m=h.match(/^#uitest-(I|II|III|IV|V)$/); if(m){ uitest(m[1]); return; }
+}
+</script>
+<script src="cards.js?v=9"></script>
+<script>/* fallback GNBN face if a stale cards.js (without gnbnFaceHTML) is served */
+if(!window.gnbnFaceHTML){ var __baseFace=window.cardFaceHTML; window.cardFaceHTML=function(c,x){ if(c&&c.cat==="gnbn"){ var t=c.target||{}; return '<div class="card gnbn '+(x||"")+'" data-color="gnbn" data-cat="gnbn" data-kind="'+c.kind+'"><div class="idx">'+(c.kind==="ask"?"ASK FOR":"LOSE")+'</div><div class="mid"><b style="font-family:Fraunces,Georgia,serif;font-size:calc(var(--card-h)*.1);text-align:center;color:#2f7f7a">'+(t.short||"")+'</b></div><div class="idx bottom">'+(c.pts!=null?c.pts+" PTS":"GN · BN")+'</div></div>'; } return __baseFace(c,x); }; }
+window.__pmFit = fitBind(fitBoard);
+bootFromHash();
+</script>
+</body>
+</html>

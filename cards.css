@@ -120,3 +120,37 @@
 }
 .face.back{border:none}
 .face.back .bt, .rows{display:none !important}
+
+/* ---- Good News / Bad News (GNBN) card face — ADDITIVE (rendered by
+        gnbnFaceHTML in cards.js). Ivory stock with an airmail-stripe frame;
+        the target reads by words + a shape strip, never by color alone. ---- */
+.card[data-color=gnbn]{--cc:#2f7f7a; background:#fbf8f0; border-color:#e3dcc8; --gk:#b8452f}
+.card[data-color=gnbn][data-kind=ask]{--gk:#2f8a4c}
+.card[data-color=gnbn][data-season=blue]{--cc:#2f6fc0}
+.card[data-color=gnbn][data-season=yellow]{--cc:#c99105}
+.card[data-color=gnbn][data-season=green]{--cc:#2f9e4f}
+.card[data-color=gnbn][data-season=orange]{--cc:#e2701c}
+.card.gnbn::before{
+  content:""; position:absolute; inset:calc(var(--card-w,100px)*0.035); border-radius:8px; pointer-events:none; z-index:0;
+  padding:calc(var(--card-w,100px)*0.028);
+  background:repeating-linear-gradient(135deg,#2f7f7a 0 5px,transparent 5px 10px,#c8a362 10px 15px,transparent 15px 20px);
+  -webkit-mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  mask:linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; opacity:.55;
+}
+.card.gnbn > *{position:relative; z-index:1}
+.card.gnbn .idx{color:var(--gk); font-size:calc(var(--card-h,144px)*0.07); letter-spacing:.08em}
+.card.gnbn .idx.bottom{color:#6b5a35; font-size:calc(var(--card-h,144px)*0.068)}
+.card.gnbn .g-body{display:flex; flex-direction:column; align-items:center; justify-content:center; gap:calc(var(--card-h,144px)*0.03); width:100%}
+.card.gnbn .gwords{display:flex; flex-direction:column; align-items:center; line-height:.95; color:var(--cc);
+  font-family:"Fraunces","Georgia",serif; font-weight:700; font-size:calc(var(--card-h,144px)*0.105); text-align:center}
+.card.gnbn .gwords .gw.sm{font-family:"Archivo",sans-serif; font-weight:600; font-style:italic; font-size:.62em; color:#6e7480; margin:.08em 0}
+.card.gnbn .gwords.season{font-size:calc(var(--card-h,144px)*0.1); letter-spacing:.03em}
+.card.gnbn .g-sic .sic{width:calc(var(--card-w,100px)*0.42); height:auto; color:var(--cc); display:block}
+.card.gnbn .g-strip{display:grid; grid-template-columns:repeat(7,1fr); gap:1px; width:96%}
+.card.gnbn .g-strip i{font-style:normal; font-family:"Archivo",sans-serif; font-weight:700; text-align:center; line-height:1;
+  font-size:calc(var(--card-h,144px)*0.05); padding:calc(var(--card-h,144px)*0.014) 0; border-radius:3px; color:#9aa0a8; background:#efeadd}
+.card.gnbn .g-strip i.on{background:var(--cc); color:#fff}
+.card.gnbn .g-strip.time i{font-size:calc(var(--card-h,144px)*0.044)}
+/* a game can mark the LOSE / ASK FOR word as ignored (Priority Mail) */
+.card.gnbn.kind-ignored .idx:not(.bottom){opacity:.38; text-decoration:line-through; text-decoration-thickness:1px}

@@ -132,13 +132,51 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 .card.setdone{box-shadow:0 0 0 3px var(--ink-green), var(--shadow)}
 .card.noonhit{box-shadow:0 0 0 3px var(--noon), var(--shadow)}
 
-/* legend of season progress */
+/* season legend — shows COMPLETED sets only. No per-season counts and no
+   "missing month" marker: those gave away which month the Noon replaced
+   (feedback from Anne Gyorfi, The Game Lady). */
 .seasons{display:flex; gap:10px; flex-wrap:wrap; justify-content:center; z-index:1}
 .seasons .s{display:flex; align-items:center; gap:7px; padding:6px 11px; border-radius:10px; border:1px solid var(--line); font-size:.8rem; background:rgba(0,0,0,.18)}
 .seasons .s .dot{width:11px; height:11px; border-radius:3px}
-.seasons .s .cnt{font-variant-numeric:tabular-nums; color:var(--muted-2)}
+.seasons .s .tick{color:var(--brass-hi); font-weight:700}
 .seasons .s.complete{border-color:var(--brass); color:var(--brass-hi)}
-.seasons .s.dead{opacity:.45; text-decoration:line-through}
+.turnmeta .gchip{display:inline-flex; align-items:center; gap:5px}
+.turnmeta .gchip i{width:9px; height:9px; border-radius:2px; display:block}
+
+/* guess-the-missing-month picker */
+.gpick{display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:10px; margin:4px 0 18px}
+.gcol{--sc:var(--ink-blue); display:flex; flex-direction:column; gap:6px; padding:8px 7px 9px; border-radius:12px; border:1px solid var(--line); border-top:3px solid var(--sc); background:rgba(0,0,0,.2)}
+.gcol[data-color=yellow]{--sc:var(--ink-gold)} .gcol[data-color=green]{--sc:var(--ink-green)} .gcol[data-color=orange]{--sc:var(--ink-orange)}
+.gcol .ghead{display:flex; align-items:center; justify-content:center; gap:6px; font-size:.7rem; letter-spacing:.12em; text-transform:uppercase; font-weight:700; color:var(--paper)}
+.gcol .ghead i{width:9px; height:9px; border-radius:2px; background:var(--sc); display:block}
+.gm{height:40px; border-radius:9px; border:1px solid #e2ddce; background:#fff; color:var(--sc); cursor:pointer;
+  font-family:"Fraunces",serif; font-weight:700; font-size:.92rem; letter-spacing:.02em; transition:transform .08s, box-shadow .12s}
+.gm:hover{box-shadow:0 0 0 2px var(--sc)}
+.gm.sel{background:var(--sc); color:#fff; border-color:var(--sc); box-shadow:0 0 0 2px var(--brass-hi); transform:translateY(-1px)}
+.gm:focus-visible{outline:3px solid var(--brass-hi); outline-offset:2px}
+@media (max-width:520px){ .gpick{grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px} .gm{height:36px} }
+
+/* end-of-turn popup: High Noon / Times Up / Beat the Clock + missing-month reveal */
+.book.result{position:relative; overflow:hidden; text-align:center; width:min(460px,100%)}
+.result .callout{font-family:"Fraunces",serif; font-weight:700; font-size:clamp(2rem,8vw,2.7rem); line-height:1; color:var(--paper); animation:popIn .5s cubic-bezier(.2,1.3,.4,1) both}
+.result.high .callout{color:#ff9d80} .result.beat .callout{color:var(--brass-hi)}
+@keyframes popIn{from{transform:scale(.6); opacity:0} to{transform:none; opacity:1}}
+.breakdown{list-style:none; padding:0; margin:16px auto 6px; max-width:340px; text-align:left}
+.breakdown li{display:flex; justify-content:space-between; gap:12px; padding:7px 2px; border-bottom:1px solid var(--line); font-size:.9rem; color:var(--muted-2)}
+.breakdown li .v{font-family:"Fraunces",serif; font-weight:600; color:var(--paper); white-space:nowrap}
+.breakdown li.sub{font-size:.76rem; color:var(--muted); border-bottom:0; padding-top:0}
+.breakdown li.total{border-bottom:0; border-top:1px solid var(--brass-deep); color:var(--brass-hi); font-weight:700}
+.breakdown li.total .v{color:var(--brass-hi); font-size:1.3rem}
+.reveal{--card-w:74px; --card-h:calc(var(--card-w) * 1.42); display:flex; align-items:center; justify-content:center; gap:16px; margin:14px 0 4px; text-align:left}
+.reveal .card{animation:revealIn .6s .15s cubic-bezier(.2,1.1,.35,1) both}
+@keyframes revealIn{from{transform:rotateY(90deg) scale(.8); opacity:0} to{transform:none; opacity:1}}
+.reveal .rtxt{font-size:.86rem; line-height:1.45; color:var(--muted-2); max-width:22ch}
+.reveal .rtxt b{color:var(--paper)}
+.reveal .verdict{font-family:"Fraunces",serif; font-size:1.05rem; font-weight:600; margin-top:3px}
+.reveal .verdict.right{color:#9fe3b6} .reveal .verdict.wrong{color:var(--muted)}
+.burst{position:absolute; inset:0; pointer-events:none; overflow:hidden}
+.burst i{position:absolute; top:-12px; width:8px; height:13px; border-radius:2px; opacity:0; animation:confetti 1.7s ease-in forwards}
+@keyframes confetti{0%{opacity:1; transform:translateY(0) rotate(0)} 100%{opacity:0; transform:translateY(420px) rotate(540deg)}}
 
 .controls{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; align-items:center; min-height:44px}
 
@@ -185,7 +223,7 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 @media (max-width:420px){ .grid{gap:6px} .felt{padding:16px 8px} }
 @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} .flip{transition:none} }
 </style>
-<link rel="stylesheet" href="cards.css?v=8">
+<link rel="stylesheet" href="cards.css?v=9">
 </head>
 <body>
 <div id="app">
@@ -233,6 +271,9 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
       <div class="chips" id="roundChips"></div>
     </div>
     <div class="field">
+      <label class="toggle"><input type="checkbox" id="guessToggle" checked> Guess the missing month — before your first flip, guess which month the Noon replaced; right = +1 point</label>
+    </div>
+    <div class="field">
       <label class="toggle"><input type="checkbox" id="bonusToggle"> Bonus Game — your first season set matching your birth-month season scores double</label>
       <div class="bmwrap" id="bmWrap" hidden></div>
     </div>
@@ -240,7 +281,7 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
       <button class="btn" id="btnStart">Start playing</button>
       <button class="btn ghost" id="btnHelp2">How to play</button>
     </div>
-    <p class="note">Setup mirrors the box: twelve month cards with one secretly swapped for Noon, laid in a 3×4 grid. That means one season is always missing a month — it can never be completed.</p>
+    <p class="note">Setup mirrors the box: twelve month cards with one secretly swapped for Noon, laid in a 3×4 grid. That means one season is always missing a month — it can never be completed. Rule updates and the missing-month twist from Anne Gyorfi, The Game Lady.</p>
   </div>
 </div>
 
@@ -253,16 +294,35 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
     <ul>
       <li>Flip face-down cards one at a time by clicking them.</li>
       <li>Reveal all <b>three months of a season</b> to score that set (1 point).</li>
-      <li><b>Noon on your very first flip:</b> 5 points, turn ends.</li>
-      <li><b>Noon after some flips:</b> turn ends — you keep the sets you already scored.</li>
-      <li><b>Flip all eleven months and leave Noon for last:</b> 4 points on top of your sets.</li>
+      <li><b>High Noon</b> — Noon on your very first flip: 5 points, turn ends.</li>
+      <li><b>Times Up</b> — Noon after some flips: turn ends; you keep 1 point for each set you completed.</li>
+      <li><b>Beat the Clock</b> — flip all eleven months and leave Noon for last: <b>4 points total</b>. It replaces your three set points; it does not add to them (4, not 7).</li>
     </ul>
+    <h3>Guess the missing month (optional)</h3>
+    <p>Before your first flip, guess which month card was replaced by the Noon. It is revealed when your turn ends; guess right and earn <b>+1 point</b> on top of whatever you scored.</p>
     <h3>The catch</h3>
-    <p>One month was swapped out for Noon, so one season only has two of its months on the table — that season can never be completed. Push your luck, or play it safe.</p>
+    <p>One month was swapped out for Noon, so one season only has two of its months on the table — that season can never be completed. The table won't count seasons for you, so keep track in your head. Push your luck, or play it safe.</p>
     <h3>Winning</h3>
     <p>Play the chosen number of rounds. Add every round's points; the highest total wins.</p>
+    <p class="note">Beat the Clock scoring, no-giveaway season display, and the Guess the Missing Month twist: feedback from Anne Gyorfi, The Game Lady.</p>
     <div class="row" style="margin-top:16px"><button class="btn" id="btnCloseHelp">Got it</button></div>
   </div>
+</div>
+
+<!-- GUESS THE MISSING MONTH -->
+<div class="overlay" id="guessOverlay" hidden>
+  <div class="book">
+    <div class="eyebrow" id="guessEyebrow">Guess the missing month</div>
+    <h2 id="guessTitle">Which month is missing?</h2>
+    <p class="lede">One month card was secretly swapped for the Noon. Pick the one you think is gone. It's revealed when your turn ends; a right guess earns <b>+1 point</b>.</p>
+    <div class="gpick" id="guessPick"></div>
+    <div class="row"><button class="btn" id="btnLockGuess" disabled>Lock in guess</button></div>
+  </div>
+</div>
+
+<!-- END OF TURN -->
+<div class="overlay" id="turnOverlay" hidden>
+  <div class="book result" id="turnBook"></div>
 </div>
 
 <!-- FINAL -->
@@ -294,11 +354,29 @@ function monthsOfSeason(name){ return seasonOf(name).months; }
 
 let G=null;
 
-function newGame(numPlayers, rounds, bonus, birth){
+let INSTANT=false;   // self-test / demo: land sweeps synchronously, no popup delay
+let resultTimer=0;
+
+/* ---------- scoring (pure — see #selftest) ----------
+   High Noon     : Noon on flip 1              -> 5
+   Beat the Clock: all 11 months, Noon flip 12 -> 4 TOTAL (replaces the set
+                   points; it is NOT 3 sets + 4 = 7 — Anne Gyorfi, Sep 2026)
+   Times Up      : Noon anywhere in between    -> the set points earned
+   Guess bonus   : correct missing-month guess -> +1 on top of any of these */
+function scoreTurn(noonFlip, setPts, guessRight){
+  let kind, base;
+  if(noonFlip===1){ kind="high"; base=5; }
+  else if(noonFlip===12){ kind="beat"; base=4; }
+  else { kind="times"; base=setPts; }
+  const bonus=guessRight?1:0;
+  return {kind, base, setPts, bonus, total:base+bonus};
+}
+
+function newGame(numPlayers, rounds, bonus, birth, guessOn){
   const players=[];
   for(let i=0;i<numPlayers;i++) players.push({name:NAMES[i]||("Player "+(i+1)), total:0, rounds:[], birth: bonus? birth[i] : null});
-  G={players, rounds, bonus, round:1, current:0, board:null, winner:null, log:[]};
-  logMsg(`New game — ${numPlayers} player${numPlayers>1?"s":""}, ${rounds} round${rounds>1?"s":""}${bonus?", Bonus Game on":""}.`);
+  G={players, rounds, bonus, guessOn:!!guessOn, round:1, current:0, board:null, winner:null, log:[]};
+  logMsg(`New game — ${numPlayers} player${numPlayers>1?"s":""}, ${rounds} round${rounds>1?"s":""}${bonus?", Bonus Game on":""}${guessOn?", guessing on":""}.`);
   startTurn();
 }
 
@@ -306,29 +384,36 @@ function buildBoard(){
   const pool=MONTHS.slice();
   const removed=pool.splice(Math.floor(Math.random()*pool.length),1)[0]; // one month swapped out
   const cards=shuffle(pool.concat([NOON])); // 11 months + Noon
-  return {cards:cards.map(c=>({card:c, revealed:false})), removedSeason:removed.season};
+  return {cards, removed};
+}
+
+function resetTurn(cards, removed){
+  G.board=cards.map(c=>({card:c, revealed:false}));
+  G.removed=removed;                       // secret until the turn ends
+  G.guess=null; G.result=null;
+  G.flips=0; G.setPts=0; G.turnScore=0; G.firstSet=null;
+  G.completed=new Set(); G.revealedSeasonCount={Winter:0,Spring:0,Summer:0,Fall:0};
+  G.turnOver=false; G.matches=[]; G.sweeping=false; G.landedCount=0;
 }
 
 function startTurn(){
   const b=buildBoard();
-  G.board=b.cards; G.deadSeason=b.removedSeason;
-  G.flips=0; G.turnScore=0; G.firstSet=null;
-  G.completed=new Set(); G.revealedSeasonCount={Winter:0,Spring:0,Summer:0,Fall:0};
-  G.turnOver=false; G.matches=[]; G.sweeping=false; G.landedCount=0;
+  resetTurn(b.cards, b.removed);
+  hideTurnPopup();
   render();
+  if(G.guessOn && !INSTANT) openGuess();
 }
 
 function flip(i){
-  if(G.turnOver || G.sweeping) return;
+  if(!G || G.turnOver || G.sweeping || G.winner) return;
+  if(G.guessOn && !G.guess){ openGuess(); return; }
   const slot=G.board[i];
-  if(slot.revealed) return;
+  if(!slot || slot.revealed) return;
   slot.revealed=true; G.flips++;
   const p=G.players[G.current];
   if(slot.card.noon){
     slot.noonhit=true;
-    if(G.flips===1){ G.turnScore+=5; logMsg(`<b>${p.name}</b> flipped Noon first — 5 points!`); endTurn("Noon right away — 5 points!"); }
-    else if(G.flips===12){ G.turnScore+=4; logMsg(`<b>${p.name}</b> left Noon for last — 4 bonus points!`); endTurn("Noon last — 4 bonus points!"); }
-    else { logMsg(`<b>${p.name}</b> hit Noon. Time's up!`); endTurn("Time's up! Turn over."); }
+    endTurn(G.flips);
     render(); return;
   }
   // month
@@ -339,7 +424,7 @@ function flip(i){
     let pts=1, dbl=false;
     if(G.bonus && G.firstSet===null && p.birth===sName){ pts=2; dbl=true; }
     if(G.firstSet===null) G.firstSet=sName;
-    G.turnScore+=pts;
+    G.setPts+=pts;
     logMsg(`<b>${p.name}</b> completed ${sName}${dbl?" (birthday double!)":""} — ${pts} point${pts>1?"s":""}.`);
     sweepSet(sName, pts, dbl);
     return;
@@ -351,22 +436,107 @@ function flip(i){
 function sweepSet(sName, pts, dbl){
   const idxs=[];
   G.board.forEach((s,i)=>{ if(!s.card.noon && s.card.season===sName && s.revealed && !s.collected) idxs.push(i); });
-  idxs.forEach(i=>{ G.board[i].sweeping=true; });
-  G.sweeping=true;
-  render(); // cards begin the swipe-off animation
-  setTimeout(()=>{
+  const land=()=>{
     const set={season:sName, color:seasonOf(sName).color, months:idxs.map(i=>G.board[i].card.mAbbr), pts, dbl};
     idxs.forEach(i=>{ G.board[i].sweeping=false; G.board[i].collected=true; });
     G.matches.push(set);
     G.sweeping=false;
     render(); // cards gone from grid, set landed on the right stack
-  }, 540);
+  };
+  if(INSTANT){ land(); return; }
+  idxs.forEach(i=>{ G.board[i].sweeping=true; });
+  G.sweeping=true;
+  render(); // cards begin the swipe-off animation
+  setTimeout(land, 540);
 }
 
-function endTurn(msg){
-  G.turnOver=true; G.turnMsg=msg;
+function endTurn(noonFlip){
   const p=G.players[G.current];
-  p.rounds[G.round-1]=G.turnScore; p.total+=G.turnScore;
+  const guessRight=G.guessOn && !!G.guess && G.guess===G.removed.name;
+  const r=scoreTurn(noonFlip, G.setPts, guessRight);
+  G.result=r; G.turnScore=r.total; G.turnOver=true;
+  G.turnMsg={high:"High Noon! 5 points", beat:"Beat the Clock! 4 points", times:"Time's up! Turn over."}[r.kind];
+  p.rounds[G.round-1]=r.total; p.total+=r.total;
+  logMsg(`<b>${p.name}</b> — ${G.turnMsg} Round total ${r.total}.`);
+  clearTimeout(resultTimer);
+  if(INSTANT) showTurnPopup();
+  else resultTimer=setTimeout(showTurnPopup, 650); // let the Noon flip land first
+}
+
+function nextLabel(){
+  const lastP=G.current===G.players.length-1;
+  return (lastP && G.round===G.rounds) ? "See final scores" : (lastP ? `Start round ${G.round+1}` : `Next: ${G.players[G.current+1].name}`);
+}
+
+/* ---------- guess the missing month ---------- */
+let pendingGuess=null;
+function openGuess(){
+  if(!G || G.turnOver || G.guess) return;
+  const p=G.players[G.current];
+  pendingGuess=null;
+  document.getElementById("guessEyebrow").textContent=`Round ${G.round} · ${p.name}`;
+  document.getElementById("guessTitle").textContent=`${p.name}, which month is missing?`;
+  renderGuessPick();
+  document.getElementById("guessOverlay").hidden=false;
+}
+function renderGuessPick(){
+  const wrap=document.getElementById("guessPick");
+  wrap.innerHTML=SEASONS.map(s=>`<div class="gcol" data-color="${s.color}">
+      <div class="ghead"><i></i>${s.name}</div>
+      ${s.months.map(m=>`<button class="gm ${pendingGuess===m?"sel":""}" data-m="${m}" aria-pressed="${pendingGuess===m}">${m.slice(0,3).toUpperCase()}</button>`).join("")}
+    </div>`).join("");
+  wrap.querySelectorAll(".gm").forEach(b=>b.onclick=()=>{ pendingGuess=b.dataset.m; renderGuessPick(); wrap.querySelector(`.gm[data-m="${pendingGuess}"]`).focus(); });
+  const lock=document.getElementById("btnLockGuess");
+  lock.disabled=!pendingGuess;
+  lock.textContent=pendingGuess?`Lock in ${pendingGuess}`:"Lock in guess";
+}
+function lockGuess(month){
+  if(!G || G.turnOver || !month) return;
+  G.guess=month;
+  document.getElementById("guessOverlay").hidden=true;
+  logMsg(`<b>${G.players[G.current].name}</b> guessed ${month} is missing.`);
+  render();
+}
+document.getElementById("btnLockGuess").onclick=()=>lockGuess(pendingGuess);
+
+/* ---------- end-of-turn popup ---------- */
+function hideTurnPopup(){ clearTimeout(resultTimer); const o=document.getElementById("turnOverlay"); if(o) o.hidden=true; }
+function showTurnPopup(){
+  if(!G || !G.result) return;
+  const r=G.result, p=G.players[G.current], m=G.removed;
+  const title={high:"High Noon!", beat:"Beat the Clock!", times:"Time's Up!"}[r.kind];
+  const rows=[];
+  if(r.kind==="high") rows.push(["Noon on your very first flip", 5]);
+  if(r.kind==="beat"){ rows.push(["All eleven months, Noon last", 4]); rows.push(["sub", `Beat the Clock replaces your ${G.completed.size} set point${G.completed.size!==1?"s":""} — 4 total, not ${4+r.setPts}.`]); }
+  if(r.kind==="times") rows.push([`${G.completed.size} season set${G.completed.size!==1?"s":""} completed`, r.setPts]);
+  if(G.guessOn) rows.push([r.bonus?"Guessed the missing month":"Missing-month guess", r.bonus?"+1":"+0"]);
+  rows.push(["total", r.total]);
+  const list=rows.map(([k,v])=> k==="sub" ? `<li class="sub">${v}</li>`
+    : k==="total" ? `<li class="total"><span>Round ${G.round} total</span><span class="v">${v}</span></li>`
+    : `<li><span>${k}</span><span class="v">${v}</span></li>`).join("");
+  let verdict;
+  if(!G.guessOn) verdict=`<div>The Noon replaced <b>${m.name}</b>.</div>`;
+  else if(!G.guess) verdict=`<div>The Noon replaced <b>${m.name}</b>.</div>`;
+  else if(r.bonus) verdict=`<div>The Noon replaced <b>${m.name}</b>.</div><div class="verdict right">You called it! +1</div>`;
+  else verdict=`<div>The Noon replaced <b>${m.name}</b>. You guessed ${G.guess}.</div><div class="verdict wrong">No bonus this time</div>`;
+  const celebrate = r.bonus || r.kind!=="times";
+  const colors=["#2f6fc0","#e6b23a","#2f9e4f","#e2701c","#e4c883"];
+  const burst = celebrate ? `<div class="burst">${Array.from({length:22},(_,i)=>
+      `<i style="left:${(i*37+11)%100}%; background:${colors[i%5]}; animation-delay:${(i%7)*70}ms"></i>`).join("")}</div>` : "";
+  const book=document.getElementById("turnBook");
+  book.className=`book result ${r.kind}`;
+  book.innerHTML=`${burst}
+    <div class="eyebrow">Round ${G.round} · ${p.name}</div>
+    <div class="callout">${title}</div>
+    <ul class="breakdown">${list}</ul>
+    <div class="reveal">${frontHTML(m)}<div class="rtxt"><div style="font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--brass-hi)">The missing month</div>${verdict}</div></div>
+    <div class="row" style="justify-content:center; margin-top:16px">
+      <button class="btn" id="btnPopNext">${nextLabel()}</button>
+      <button class="btn ghost" id="btnPopBoard">See the board</button>
+    </div>`;
+  document.getElementById("btnPopNext").onclick=()=>{ hideTurnPopup(); nextTurn(); };
+  document.getElementById("btnPopBoard").onclick=hideTurnPopup;
+  document.getElementById("turnOverlay").hidden=false;
 }
 
 function nextTurn(){
@@ -378,7 +548,7 @@ function nextTurn(){
 }
 
 function finish(){
-  G.winner=true;
+  G.winner=true; hideTurnPopup(); render();
   const ranked=G.players.map((p,i)=>({p,i})).sort((a,b)=>b.p.total-a.p.total);
   const top=ranked[0].p.total;
   const winners=ranked.filter(r=>r.p.total===top).map(r=>r.p.name);
@@ -424,7 +594,7 @@ function renderScorebar(){
     <div class="pscore ${i===G.current&&!G.winner?"active":""}">
       <div class="nm">${p.birth?`<span class="bd" style="background:var(--${seasonOf(p.birth).color})"></span>`:""}${p.name}</div>
       <div class="pts">${p.total}</div>
-      <div class="rnds">round ${p.rounds[G.round-1]!=null?"done":"…"}</div>
+      <div class="rnds">round ${G.round}: ${p.rounds[G.round-1]!=null?`+${p.rounds[G.round-1]}`:"…"}</div>
     </div>`).join("");
 }
 function renderGrid(){
@@ -463,43 +633,50 @@ function renderMatchStack(){
     <div class="pile">${pile}<div class="badge">${cards.length}</div></div>
     <div class="pilepips">${pips}</div>`;
 }
+// Completed sets only — never a per-season count or a "missing month" marker,
+// which let players deduce the card the Noon replaced (Anne Gyorfi feedback).
 function renderSeasons(){
   document.getElementById("seasons").innerHTML=SEASONS.map(s=>{
-    const dead = s.name===G.deadSeason;
-    const cnt = G.revealedSeasonCount[s.name];
     const done = G.completed.has(s.name);
-    return `<div class="s ${done?"complete":""} ${dead?"dead":""}" title="${dead?"Missing a month — can't be completed":""}">
-      <span class="dot" style="background:var(--${s.color})"></span>${s.name}
-      <span class="cnt">${done?"✓ set":dead?`${cnt}/2`:`${cnt}/3`}</span></div>`;
+    return `<div class="s ${done?"complete":""}">
+      <span class="dot" style="background:var(--${s.color})"></span>${s.name}${done?' <span class="tick">✓ set</span>':""}</div>`;
   }).join("");
 }
 function renderBanner(){
   const p=G.players[G.current];
   const phase=document.getElementById("phaseText"), hint=document.getElementById("hintText"), meta=document.getElementById("turnMeta");
+  const needGuess=G.guessOn && !G.guess && !G.turnOver;
   if(G.turnOver){
     phase.textContent=G.turnMsg;
-    hint.textContent=`${p.name} scored ${G.turnScore} point${G.turnScore!==1?"s":""} this turn.`;
+    hint.textContent=`${p.name} scored ${G.turnScore} point${G.turnScore!==1?"s":""} this round${G.result&&G.result.bonus?" (incl. +1 guess)":""}. The Noon replaced ${G.removed.name}.`;
+  } else if(needGuess){
+    phase.textContent=`${p.name} — guess the missing month`;
+    hint.textContent="Pick the month you think the Noon replaced, then start flipping.";
   } else {
     phase.textContent=`${p.name} — flip a card`;
     hint.textContent="Complete a season's three months, and don't wake the Noon card.";
   }
-  meta.innerHTML=`<span>Round <b>${G.round}/${G.rounds}</b></span><span>Flipped <b>${G.flips}/12</b></span><span>This turn <b>${G.turnScore}</b></span>`;
+  const gm=G.guess?MONTHS.find(x=>x.name===G.guess):null;
+  const guessChip=G.guessOn?`<span class="gchip">Guess ${gm?`<i style="background:var(--${gm.color})"></i><b>${gm.mAbbr}</b>`:"<b>—</b>"}</span>`:"";
+  meta.innerHTML=`<span>Round <b>${G.round}/${G.rounds}</b></span><span>Flipped <b>${G.flips}/12</b></span><span>This round <b>${G.turnOver?G.turnScore:G.setPts}</b></span>${guessChip}`;
 }
 function renderControls(){
   const el=document.getElementById("controls"); el.innerHTML="";
   if(G.winner) return;
+  const b=document.createElement("button"); b.className="btn";
   if(G.turnOver){
-    const b=document.createElement("button"); b.className="btn";
-    const last = G.current===G.players.length-1 && G.round===G.rounds;
-    b.textContent = last ? "See final scores" : (G.current===G.players.length-1 ? `Start round ${G.round+1}` : `Next: ${G.players[G.current+1].name}`);
-    b.onclick=nextTurn; el.appendChild(b);
+    b.textContent=nextLabel();
+    b.onclick=()=>{ hideTurnPopup(); nextTurn(); }; el.appendChild(b);
+  } else if(G.guessOn && !G.guess){
+    b.textContent="Guess the missing month";
+    b.onclick=openGuess; el.appendChild(b);
   }
 }
 function renderLog(){ document.getElementById("logList").innerHTML=G.log.slice(0,14).map(m=>`<li>${m}</li>`).join(""); }
 function logMsg(m){ G.log.unshift(m); if(G.log.length>60)G.log.pop(); const ul=document.getElementById("logList"); if(ul)renderLog(); }
 
 /* ---------- setup UI ---------- */
-let cfg={players:2, rounds:3, bonus:false};
+let cfg={players:2, rounds:3, bonus:false, guess:true};
 function buildChips(id, min, max, key){
   const wrap=document.getElementById(id); wrap.innerHTML="";
   for(let n=min;n<=max;n++){ const b=document.createElement("button"); b.className="chip"+(cfg[key]===n?" sel":""); b.textContent=n;
@@ -518,19 +695,103 @@ function openHelp(){document.getElementById("helpOverlay").hidden=false;}
 document.getElementById("btnHelp").onclick=openHelp;
 document.getElementById("btnHelp2").onclick=openHelp;
 document.getElementById("btnCloseHelp").onclick=()=>document.getElementById("helpOverlay").hidden=true;
-document.getElementById("btnNew").onclick=()=>document.getElementById("setupOverlay").hidden=false;
+document.getElementById("guessToggle").onchange=(e)=>{ cfg.guess=e.target.checked; };
+document.getElementById("btnNew").onclick=()=>{ hideTurnPopup(); document.getElementById("guessOverlay").hidden=true; document.getElementById("setupOverlay").hidden=false; };
 document.getElementById("btnAgain").onclick=()=>{ document.getElementById("finalOverlay").hidden=true; document.getElementById("setupOverlay").hidden=false; };
 document.getElementById("btnStart").onclick=()=>{
   const birth=[];
   if(cfg.bonus){ document.querySelectorAll("#bmWrap select").forEach(sel=>birth[+sel.dataset.i]=sel.value); }
   document.getElementById("setupOverlay").hidden=true;
-  newGame(cfg.players, cfg.rounds, cfg.bonus, birth);
+  newGame(cfg.players, cfg.rounds, cfg.bonus, birth, cfg.guess);
 };
 document.addEventListener("keydown",e=>{ if(e.key==="Escape") document.getElementById("helpOverlay").hidden=true; });
 buildChips("playerChips",2,8,"players");
 buildChips("roundChips",1,6,"rounds");
+
+/* ---------- #selftest and #demo-* states (dev/QA only; normal play ignores them) ---------- */
+function forceTurn(removedName, noonAt, firstMonths){
+  // 11 months (all but removedName), Noon inserted at 1-based flip position noonAt.
+  // firstMonths (optional) puts those months at the front, in order.
+  const byName=Object.fromEntries(MONTHS.map(m=>[m.name,m]));
+  const pre=(firstMonths||[]).map(n=>byName[n]);
+  const rest=MONTHS.filter(m=>m.name!==removedName && !pre.includes(m));
+  const cards=pre.concat(rest); cards.splice(noonAt-1,0,NOON);
+  resetTurn(cards, byName[removedName]);
+  hideTurnPopup(); render();
+}
+function flipN(n){ for(let i=0;i<n;i++) flip(i); }
+function runSelfTest(){
+  INSTANT=true;
+  const out=[]; let fails=0;
+  const eq=(name,got,want)=>{ const ok=got===want; if(!ok) fails++; out.push(`${ok?"PASS":"FAIL"} ${name}: got ${got}, want ${want}`); };
+  // pure scoring table
+  eq("pure high noon", scoreTurn(1,0,false).total, 5);
+  eq("pure high noon + guess", scoreTurn(1,0,true).total, 6);
+  eq("pure beat the clock (3 sets)", scoreTurn(12,3,false).total, 4);
+  eq("pure beat the clock + guess", scoreTurn(12,3,true).total, 5);
+  eq("pure times up 2 sets", scoreTurn(8,2,false).total, 2);
+  eq("pure times up 2 sets + guess", scoreTurn(8,2,true).total, 3);
+  eq("pure times up 0 sets", scoreTurn(4,0,false).total, 0);
+  // full turns through the real flip() path
+  const WIN=["December","January","February"], SUM=["June","July","August"];
+  newGame(1,6,false,[],true);
+  forceTurn("May",1); G.guess="April"; flipN(1);
+  eq("play: High Noon, wrong guess", G.turnScore, 5); eq("play: kind high", G.result.kind, "high");
+  G.round=2; forceTurn("May",1); G.guess="May"; flipN(1);
+  eq("play: High Noon, right guess", G.turnScore, 6);
+  G.round=3; forceTurn("May",12); G.guess="March"; flipN(12);
+  eq("play: Beat the Clock sets completed", G.completed.size, 3);
+  eq("play: Beat the Clock, wrong guess = 4 total", G.turnScore, 4);
+  eq("play: Beat the Clock banner", G.turnMsg, "Beat the Clock! 4 points");
+  G.round=4; forceTurn("May",12); G.guess="May"; flipN(12);
+  eq("play: Beat the Clock + right guess = 5", G.turnScore, 5);
+  G.round=5; forceTurn("October",7,WIN.concat(SUM)); G.guess="October"; flipN(7);
+  eq("play: Times Up after 2 sets + right guess", G.turnScore, 3);
+  G.round=6; forceTurn("October",4,["December","March","June"]); G.guess="June"; flipN(4);
+  eq("play: Times Up, no sets", G.turnScore, 0);
+  eq("play: running total 5+6+4+5+3+0", G.players[0].total, 23);
+  eq("play: popup total row shows round score", document.querySelector("#turnBook .total .v").textContent, "0");
+  // guessing off: no bonus even if nothing guessed; flips allowed without a guess
+  newGame(1,2,false,[],false);
+  forceTurn("May",12); flipN(12);
+  eq("guess off: Beat the Clock = 4", G.turnScore, 4);
+  G.round=2; forceTurn("May",1); flipN(1);
+  eq("guess off: High Noon = 5", G.turnScore, 5);
+  // guessing on: flips are blocked until a guess is locked
+  newGame(1,1,false,[],true); forceTurn("May",5); flip(0);
+  eq("guess on: flip blocked before guess", G.flips, 0);
+  document.getElementById("guessOverlay").hidden=true;
+  // birthday bonus doesn't inflate Beat the Clock
+  newGame(1,1,true,["Winter"],false); forceTurn("May",12); flipN(12);
+  eq("birthday + Beat the Clock = 4", G.turnScore, 4);
+  // no giveaway: season legend has no counts / missing-month marker mid-turn
+  newGame(1,1,false,[],true); forceTurn("May",12,["March","April","December","June"]); G.guess="May"; flipN(4);
+  const leg=document.getElementById("seasons").innerHTML;
+  eq("legend: no digit counts", /\d/.test(leg), false);
+  eq("legend: no dead/missing marker", /dead|missing|title=/i.test(leg), false);
+  eq("legend: nothing completed yet", document.querySelectorAll("#seasons .s.complete").length, 0);
+  hideTurnPopup();
+  const pre=document.createElement("pre"); pre.id="selftest";
+  pre.textContent=`SELFTEST ${fails?"FAIL ("+fails+")":"PASS"}\n`+out.join("\n");
+  pre.style.cssText="position:fixed;inset:0;z-index:99;margin:0;padding:16px;overflow:auto;background:#0c141c;color:#bfe0cf;font-size:12px";
+  document.body.appendChild(pre);
+  INSTANT=false;
+}
+function runHashMode(){
+  const h=location.hash;
+  if(!/^#(selftest|demo)/.test(h)) return;
+  document.getElementById("setupOverlay").hidden=true;
+  if(h==="#selftest"){ runSelfTest(); return; }
+  INSTANT=true;
+  if(h==="#demo-guess"){ newGame(3,3,false,[],true); forceTurn("May",6); INSTANT=false; openGuess(); pendingGuess="April"; renderGuessPick(); return; }
+  if(h==="#demo-play"){ newGame(3,3,false,[],true); forceTurn("May",9,["December","March","January","February","June"]); G.guess="April"; flipN(5); }
+  if(h==="#demo-beat"){ newGame(3,3,false,[],true); forceTurn("May",12); G.guess="May"; flipN(12); }
+  if(h==="#demo-times"){ newGame(3,3,false,[],true); forceTurn("October",8,["December","January","February","March","June"]); G.guess="July"; flipN(8); }
+  if(h==="#demo-high"){ newGame(3,3,false,[],true); forceTurn("August",1); G.guess="August"; flipN(1); }
+  INSTANT=false;
+}
 </script>
-<script src="cards.js?v=8"></script>
-<script>window.__igaaFit = fitBind(fitBoard);</script>
+<script src="cards.js?v=9"></script>
+<script>window.__igaaFit = fitBind(fitBoard); runHashMode();</script>
 </body>
 </html>

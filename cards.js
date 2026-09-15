@@ -135,7 +135,60 @@
     return schedule;
   }
 
+  /* ---- Good News / Bad News (GNBN) card face — ADDITIVE ----
+     g = {id, cat:"gnbn", kind:"lose"|"ask",
+          target:{cat:"day"|"time"|"season", match, label, short}, pts?}
+     day match = ["Monday",...], time match = "AM"|"PM"|"NOON",
+     season match = "Winter"|"Spring"|"Summer"|"Fall".
+     Face: kind word on top, the target (big words + a shape strip so it
+     reads without color), bottom = point value (if g.pts) or "GN · BN". */
+  var WEEK = [["Sunday","S"],["Monday","M"],["Tuesday","T"],["Wednesday","W"],["Thursday","T"],["Friday","F"],["Saturday","S"]];
+  var HOURS = [["AM","9"],["AM","10"],["AM","11"],["NOON","12"],["PM","1"],["PM","2"],["PM","3"]];
+  var SEASON_COLOR = { Winter: "blue", Spring: "yellow", Summer: "green", Fall: "orange" };
+  function gnbnWords(s) {
+    return esc(s).split(" ").map(function (w) {
+      var small = w === "thru" || w === "or" || w === "&";
+      return '<span class="gw' + (small ? " sm" : "") + '">' + w + "</span>";
+    }).join("");
+  }
+  function gnbnFaceHTML(g, extra) {
+    extra = extra || "";
+    var t = (g && g.target) || {};
+    var id = g && g.id != null ? g.id : "";
+    var kind = g && g.kind === "ask" ? "ask" : "lose";
+    var body, strip = "", sc = "";
+    if (t.cat === "season") {
+      sc = SEASON_COLOR[t.match] || "";
+      body = '<div class="g-sic">' + (ICON[t.match] || "") + '</div><div class="gwords season">' + gnbnWords(esc(t.short || t.match).toUpperCase()) + "</div>";
+    } else if (t.cat === "time") {
+      body = '<div class="gwords">' + gnbnWords(t.short || t.match) + "</div>";
+      strip = '<div class="g-strip time">' + HOURS.map(function (h) {
+        return '<i class="' + (h[0] === t.match ? "on" : "") + '">' + h[1] + "</i>";
+      }).join("") + "</div>";
+    } else {
+      var days = t.match || [];
+      body = '<div class="gwords">' + gnbnWords(t.short || days.join(" or ")) + "</div>";
+      strip = '<div class="g-strip">' + WEEK.map(function (d) {
+        return '<i class="' + (days.indexOf(d[0]) >= 0 ? "on" : "") + '">' + d[1] + "</i>";
+      }).join("") + "</div>";
+    }
+    var foot = g && g.pts != null ? g.pts + " PTS" : "GN · BN";
+    return '<div class="card gnbn ' + extra + '" data-color="gnbn" data-cat="gnbn" data-kind="' + kind + '"' +
+      (sc ? ' data-season="' + sc + '"' : "") + ' data-id="' + id + '">' +
+      '<div class="idx">' + (kind === "ask" ? "ASK FOR" : "LOSE") + "</div>" +
+      '<div class="mid"><div class="g-body">' + body + strip + "</div></div>" +
+      '<div class="idx bottom">' + foot + "</div></div>";
+  }
+
+  // route GNBN objects through the shared face too (existing faces unchanged)
+  var baseFace = cardFaceHTML;
+  cardFaceHTML = function (c, extra) {
+    if (c && c.cat === "gnbn") return gnbnFaceHTML(c, extra);
+    return baseFace(c, extra);
+  };
+
   // expose as globals, overriding each game's inline versions
+  window.gnbnFaceHTML = gnbnFaceHTML;
   window.cardFaceHTML = cardFaceHTML;
   window.clockHTML = clockHTML;
   window.cardBackHTML = cardBackHTML;

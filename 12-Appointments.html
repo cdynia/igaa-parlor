@@ -1,0 +1,821 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a24">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IGAA Parlor">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>if('serviceWorker' in navigator){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<title>12 Appointments</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101a24'/%3E%3Crect x='12' y='12' width='9' height='10' rx='2' fill='%233d78bf'/%3E%3Crect x='22' y='12' width='9' height='10' rx='2' fill='%23e6b23a'/%3E%3Crect x='32' y='12' width='9' height='10' rx='2' fill='%2345a06a'/%3E%3Crect x='42' y='12' width='9' height='10' rx='2' fill='%23cf7620'/%3E%3Ctext x='32' y='52' font-family='Georgia' font-size='26' fill='%23e6d2a0' text-anchor='middle' font-weight='700'%3E12%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --table-1:#16222e; --table-2:#0c141c; --paper:#f4efe3;
+  --brass:#b98a3c; --brass-hi:#e4c883; --brass-deep:#8a6526;
+  --line:rgba(240,235,220,.10); --line-2:rgba(240,235,220,.16);
+  --muted:#9aa6b2; --muted-2:#c7d0d9;
+  --blue:#2f6fc0; --yellow:#f2c94c; --yellow-ink:#c99105; --green:#2f9e4f; --orange:#e2701c; --red:#c0392b;
+  --shadow:0 14px 30px -12px rgba(0,0,0,.6);
+  --cw:70px; --ladw:300px;
+}
+*{box-sizing:border-box}
+html,body{height:100%; margin:0; overflow:hidden}
+html{-webkit-text-size-adjust:100%}
+body{overscroll-behavior:none; color:var(--muted-2); font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:radial-gradient(120% 90% at 50% 6%, #223141 0%, var(--table-1) 42%, var(--table-2) 100%); -webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); font-weight:600}
+button,select{font-family:inherit}
+
+.btn{border:1px solid var(--brass-deep); cursor:pointer; color:#211a0c; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+  background:linear-gradient(180deg,var(--brass-hi),var(--brass)); padding:.62em 1.15em; border-radius:9px; font-weight:700; font-size:.92rem;
+  box-shadow:0 2px 0 var(--brass-deep),0 8px 18px -8px rgba(0,0,0,.7); transition:transform .08s, filter .15s; white-space:nowrap}
+.btn:hover{filter:brightness(1.06)} .btn:active{transform:translateY(2px); box-shadow:0 0 0 var(--brass-deep)}
+.btn.ghost{background:transparent; color:var(--muted-2); border-color:var(--line-2); box-shadow:none; font-weight:500}
+.btn.ghost:hover{border-color:var(--brass); color:var(--brass-hi)}
+.btn.sm{padding:.5em .85em; font-size:.84rem}
+.btn:focus-visible{outline:3px solid var(--brass-hi); outline-offset:2px}
+.btn:disabled{opacity:.4; cursor:not-allowed; filter:none; transform:none}
+
+#app{width:100%; height:100dvh; overflow:hidden; display:flex; flex-direction:column; gap:6px;
+  padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; flex:0 0 auto}
+.brand{display:flex; align-items:center; gap:10px; min-width:0; flex:1 1 auto}
+.brand>div:last-child{min-width:0}
+.brand .tabs{display:flex; gap:3px} .brand .tabs i{width:8px; height:22px; border-radius:2px; display:block}
+.brand h1{font-size:1.12rem; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.brand .sub{font-size:.7rem; color:var(--muted); letter-spacing:.12em; margin-top:3px; white-space:nowrap}
+.tools{display:flex; gap:6px} .tools .s{display:none}
+
+.scorebar{display:flex; gap:6px; flex-wrap:wrap; justify-content:center; flex:0 0 auto}
+.pchip{display:flex; align-items:center; gap:8px; padding:5px 11px 5px 6px; border:1px solid var(--line); border-radius:11px; background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.01));
+  transition:border-color .2s, box-shadow .2s, transform .2s; font-size:.8rem}
+.pchip.active{border-color:var(--brass); box-shadow:0 0 0 1px var(--brass),0 8px 22px -12px rgba(185,138,60,.8); transform:translateY(-1px)}
+.tok{width:22px; height:22px; border-radius:50%; background:var(--pc); color:#1a1408; font-weight:800; font-size:.72rem; display:inline-flex; align-items:center; justify-content:center; box-shadow:inset 0 -2px 0 rgba(0,0,0,.22), 0 2px 6px -2px rgba(0,0,0,.6); flex:0 0 auto}
+.pchip .nm{color:var(--paper); font-weight:600}
+.pchip .pts{font-family:"Fraunces",serif; color:var(--brass-hi); font-size:1.05rem; font-weight:700}
+.pchip .meta{color:var(--muted); font-size:.7rem}
+.roundinfo{align-self:center; font-size:.72rem; color:var(--muted); padding:0 6px} .roundinfo b{color:var(--brass-hi)}
+
+.felt{position:relative; flex:1 1 auto; min-height:0; display:flex; gap:10px; padding:8px 10px; border-radius:18px; overflow:hidden;
+  background:radial-gradient(140% 120% at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,0) 55%), linear-gradient(180deg,#1c3b34,#122a26);
+  border:1px solid rgba(255,255,255,.06); box-shadow:inset 0 2px 30px rgba(0,0,0,.45), var(--shadow)}
+.felt::after{content:""; position:absolute; inset:0; pointer-events:none; background-image:radial-gradient(rgba(255,255,255,.03) 1px, transparent 1px); background-size:6px 6px}
+
+/* ---------- the ladder mat ---------- */
+.ladder{flex:0 0 var(--ladw); min-height:0; display:grid; grid-template-rows:auto repeat(12,1fr); gap:3px; z-index:1;
+  padding:6px; border-radius:14px; background:#f7f3ea; box-shadow:0 18px 40px -20px rgba(0,0,0,.8), inset 0 0 0 1px rgba(0,0,0,.08)}
+.ladhead{display:flex; align-items:center; justify-content:center; gap:8px; padding:2px 0 4px; font-family:"Fraunces",serif; font-weight:700; color:#1f3550; font-size:clamp(.85rem,1.9vh,1.1rem); letter-spacing:.02em}
+.ladhead i{width:6px; height:14px; border-radius:2px; display:block}
+.rung{position:relative; min-height:0; display:grid; grid-template-columns:2.1em 1fr 2.1em; align-items:center; gap:6px; padding:0 6px; border-radius:8px;
+  background:#fff; border:1px solid #e3dccb; color:#24272e; font-size:clamp(.56rem,1.45vh,.82rem); line-height:1.08; transition:background .2s, transform .15s}
+.rung .rn{font-family:"Fraunces",serif; font-weight:700; font-size:1.55em; text-align:center; color:#1f3550}
+.rung .rt{min-width:0; text-align:center}
+.rung .rt b{display:block; font-weight:800; letter-spacing:.02em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.rung .rt small{display:block; font-size:.78em; color:#6a6f78; font-weight:600; letter-spacing:.04em; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.rung .slotdot{width:1.9em; height:1.9em; border-radius:50%; border:2px dashed #cfc6b0; justify-self:center}
+.rung .tok{width:1.9em; height:1.9em; font-size:.9em; justify-self:center; animation:tokIn .5s cubic-bezier(.2,1.4,.3,1)}
+@keyframes tokIn{from{transform:scale(0) rotate(-90deg)}to{transform:none}}
+.rung.orig{border-left:4px solid; border-image:linear-gradient(180deg,var(--blue) 0 25%,var(--yellow) 0 50%,var(--green) 0 75%,var(--orange) 0) 1}
+.rung.claimed{background:#efe9da}
+.rung.claimed .rt b{color:#5b5e66}
+.rung.avail{background:#fff8e3; box-shadow:inset 0 0 0 1px #e4c883}
+.rung.tgt{cursor:pointer; background:#fff3cf}
+.rung.tgt::before{content:""; position:absolute; inset:-3px; border-radius:10px; border:2px solid var(--brass); animation:pulse 1.2s ease-in-out infinite; pointer-events:none}
+.rung.tgt:hover{transform:translateX(3px)}
+.rung.hot{animation:hot .9s ease-out}
+@keyframes hot{0%{background:#ffe7a0}100%{background:#efe9da}}
+.rung .sep{position:absolute; left:6px; right:6px; bottom:-3px; height:2px; background:#1f3550; opacity:.35}
+
+/* ---------- table ---------- */
+.table{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:6px; z-index:1}
+.status{display:flex; align-items:center; gap:10px; flex:0 0 auto}
+.deck{--card-w:calc(var(--cw)*.62); --card-h:calc(var(--card-w)*1.42); display:flex; align-items:center; gap:8px; flex:0 0 auto; position:relative}
+.deck .cnt{font-size:.72rem; color:#a7c6b7; line-height:1.2} .deck .cnt b{display:block; color:var(--paper); font-size:1rem}
+.deck.tgt .ck{cursor:pointer}
+.deck.tgt .ck::before{content:""; position:absolute; inset:-5px; border-radius:15px; border:2px solid var(--brass-hi); animation:pulse 1.2s ease-in-out infinite; pointer-events:none; z-index:3}
+.status .txt{flex:1; min-width:0; text-align:center}
+.status .phase{font-family:"Fraunces",serif; color:var(--paper); font-size:clamp(.98rem,2.2vw,1.3rem); line-height:1.15}
+.status .hint{font-size:.78rem; color:#bfe0cf; margin-top:2px; min-height:1.05em; line-height:1.3}
+.status .today{flex:0 0 auto; text-align:right; font-size:.7rem; color:var(--muted); line-height:1.3}
+.status .today b{color:var(--brass-hi); display:block; font-size:.82rem}
+
+.opps{display:flex; gap:8px; flex:0 0 auto; min-width:0}
+.oppbox{flex:1 1 0; min-width:0; border:1px solid var(--line); border-radius:12px; padding:5px 8px 6px; background:rgba(0,0,0,.16)}
+.oppbox.active{border-color:rgba(228,200,131,.6)}
+.oppbox .oh{display:flex; align-items:center; gap:6px; font-size:.76rem; margin-bottom:4px; white-space:nowrap; overflow:hidden}
+.oppbox .oh .tok{width:17px; height:17px; font-size:.6rem}
+.oppbox .oh b{color:var(--paper)} .oppbox .oh span{color:var(--muted); overflow:hidden; text-overflow:ellipsis}
+.oppbox .badges{display:flex; gap:3px; margin-left:auto}
+.badge,.oppbox .oh .badge{font-family:"Fraunces",serif; font-weight:700; font-size:.72rem; min-width:20px; height:20px; padding:0 5px; border-radius:10px; background:var(--pc); color:#1a1408; display:inline-flex; align-items:center; justify-content:center; overflow:visible}
+.frow.emptyrow .fan{min-height:calc(var(--card-h)*.32); padding-top:0}
+.fan.ocards{--card-w:calc(var(--cw)*.46); --card-h:calc(var(--card-w)*1.42); padding-top:0}
+.fan.ocards .card{border-radius:6px}
+
+.mine{flex:1 1 auto; min-height:0; display:flex; gap:12px; align-items:flex-end; min-width:0}
+.rowsbox{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:4px; justify-content:flex-end}
+.frow{display:flex; align-items:center; gap:6px; min-width:0}
+.frow .rl{writing-mode:vertical-rl; transform:rotate(180deg); font-size:.6rem; letter-spacing:.14em; color:var(--muted); font-weight:700; flex:0 0 auto; text-align:center}
+.fan{display:flex; flex:1 1 auto; min-width:0; min-height:var(--card-h); padding-top:6px; --card-w:var(--cw); --card-h:calc(var(--card-w)*1.42)}
+.fan .empty{align-self:center; font-size:.72rem; color:rgba(240,235,220,.35); font-style:italic}
+.mybox{flex:0 1 auto; min-width:0; max-width:46%}
+.lbl{font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:3px; white-space:nowrap}
+.lbl b{color:var(--brass-hi); letter-spacing:.02em; text-transform:none; font-size:.85rem}
+.apptrow{display:flex; gap:8px; align-items:flex-end; min-width:0; min-height:calc(var(--cw)*.56*1.42*1.52 + 18px)}
+.apptrow .none{font-size:.72rem; color:rgba(240,235,220,.4); align-self:center; font-style:italic; white-space:nowrap}
+.appt{--card-w:calc(var(--cw)*.56); --card-h:calc(var(--card-w)*1.42); position:relative; flex:0 0 auto; display:flex; flex-direction:column; align-items:center; gap:2px}
+.casc{position:relative; width:var(--card-w); height:calc(var(--card-h)*1.52)}
+.casc .ck{position:absolute; left:0; top:calc(var(--card-h)*.26*var(--i))}
+.casc .card{border-radius:7px; box-shadow:0 4px 10px -6px rgba(0,0,0,.7)}
+.appt .ap{display:flex; align-items:center; gap:4px; font-size:.64rem; color:var(--muted-2); line-height:1; white-space:nowrap}
+.appt .ap .badge{height:17px; min-width:17px; font-size:.66rem}
+.appt.fresh .casc{animation:pop .6s cubic-bezier(.2,1.3,.3,1)}
+@keyframes pop{0%{transform:scale(.85)}60%{transform:scale(1.08)}100%{transform:none}}
+.ctrl{display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap; flex:0 0 auto; min-height:38px}
+
+.ck{position:relative; border-radius:12px; perspective:700px; flex:0 0 auto}
+.ck.fresh>.card{animation:flipIn .55s cubic-bezier(.2,.7,.3,1) both}
+@keyframes flipIn{0%{transform:rotateY(90deg) scale(.9)}100%{transform:none}}
+[data-sel]{cursor:pointer}
+.ck[data-sel]>.card{transition:transform .15s ease, box-shadow .15s ease}
+.fan .ck[data-sel]:hover{z-index:20}
+.fan .ck[data-sel]:hover>.card{transform:translateY(-6px)}
+.ck.can>.card{box-shadow:0 0 0 2px rgba(228,200,131,.55), 0 10px 22px -12px rgba(0,0,0,.6)}
+.ck.sel{z-index:25}
+.ck.sel>.card{transform:translateY(-9px); box-shadow:0 0 0 3px var(--brass-hi), 0 18px 30px -12px rgba(0,0,0,.8)}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+.flash{animation:flashy .45s ease-in-out 4}
+@keyframes flashy{50%{filter:brightness(1.2); transform:translateX(4px)}}
+
+.toast{position:fixed; left:50%; top:16%; transform:translate(-50%,-10px); z-index:40; max-width:min(520px,92vw); padding:12px 18px; border-radius:14px; text-align:center;
+  background:linear-gradient(180deg,#1f2e3d,#131c26); border:1px solid rgba(228,200,131,.45); color:var(--paper); box-shadow:0 30px 60px -20px rgba(0,0,0,.9);
+  opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; font-size:.92rem; line-height:1.4}
+.toast.on{opacity:1; transform:translate(-50%,0)} .toast b{color:var(--brass-hi)}
+.toast .big{font-family:"Fraunces",serif; font-size:1.25rem; display:block; margin-bottom:2px}
+
+.overlay{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:16px;
+  background:radial-gradient(120% 120% at 50% 0%, rgba(20,30,40,.8), rgba(6,10,14,.94)); backdrop-filter:blur(3px)}
+.overlay[hidden]{display:none}
+.book{width:min(600px,100%); max-height:calc(100dvh - 32px); overflow:auto; background:linear-gradient(180deg,#1b2836,#111a24);
+  border:1px solid rgba(228,200,131,.25); border-radius:18px; padding:24px 24px 20px; box-shadow:0 40px 90px -30px rgba(0,0,0,.85)}
+.book .cover{display:flex; gap:5px; margin-bottom:14px} .book .cover i{height:28px; flex:1; border-radius:4px}
+.book .eyebrow{color:var(--brass-hi); font-size:.74rem; letter-spacing:.2em; text-transform:uppercase; margin-bottom:6px}
+.book h2{font-size:clamp(1.6rem,5vw,2.3rem); line-height:1.03}
+.book p,.book li{color:var(--muted-2); line-height:1.55; font-size:.9rem}
+.book p.lede{margin:12px 0 18px}
+.book h3{color:var(--brass-hi); font-family:"Archivo",sans-serif; font-weight:700; font-size:.76rem; letter-spacing:.1em; text-transform:uppercase; margin:16px 0 6px}
+.book ul{padding-left:18px; margin:6px 0}
+.book b{color:var(--paper)}
+.credit{margin-top:16px; padding-top:12px; border-top:1px solid var(--line); font-size:.78rem; color:var(--muted); line-height:1.5} .credit b{color:var(--brass-hi)}
+.field{margin:0 0 16px} .field .flabel{font-size:.8rem; color:var(--muted); margin-bottom:7px}
+.chips{display:flex; gap:8px; flex-wrap:wrap}
+.chip{border:1px solid var(--line-2); background:transparent; color:var(--muted-2); min-width:44px; height:44px; padding:0 12px; border-radius:10px; cursor:pointer; font-size:.95rem; font-weight:600}
+.chip:hover{border-color:var(--brass)} .chip.sel{background:linear-gradient(180deg,var(--brass-hi),var(--brass)); color:#211a0c; border-color:var(--brass-deep)}
+select.pick{background:#0f1720; color:var(--paper); border:1px solid var(--line-2); border-radius:10px; padding:10px 12px; font-size:.95rem; min-width:180px}
+.row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.note{font-size:.76rem; color:var(--muted); margin-top:12px; line-height:1.5}
+.types{width:100%; border-collapse:collapse; margin:6px 0; font-size:.82rem}
+.types td{padding:5px 8px; border-bottom:1px solid var(--line); color:var(--muted-2); vertical-align:top}
+.types td.p{font-family:"Fraunces",serif; color:var(--brass-hi); font-size:1.05rem; width:36px; text-align:center}
+.types td small{color:var(--muted)}
+.sheet{width:100%; border-collapse:collapse; font-size:.85rem; margin:10px 0}
+.sheet th,.sheet td{padding:6px; border:1px solid var(--line); text-align:center; color:var(--muted-2)}
+.sheet th{color:var(--brass-hi); font-weight:700; font-size:.74rem; letter-spacing:.06em}
+.sheet td.run{color:var(--paper); font-weight:700}
+.sheet tr.win td{background:rgba(228,200,131,.08)}
+.stamp{display:inline-block; padding:10px 22px; border:3px solid var(--brass); border-radius:10px; color:var(--brass-hi); font-family:"Fraunces",serif; font-weight:700; font-size:clamp(1.3rem,4.5vw,2rem); transform:rotate(-3deg); animation:slam .5s cubic-bezier(.2,1.2,.3,1)}
+@keyframes slam{0%{transform:rotate(-3deg) scale(2.2); opacity:0}60%{opacity:1}100%{transform:rotate(-3deg) scale(1)}}
+.peekgrid{--card-w:58px; --card-h:calc(var(--card-w)*1.42); display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 12px}
+.peekgrid .appt{--card-w:52px}
+
+/* ---------- phone ---------- */
+body.narrow .felt{flex-direction:column; gap:6px}
+body.narrow .table{display:contents}
+body.narrow .status{order:1}
+body.narrow .ladder{order:2; flex:0 0 auto; grid-template-columns:repeat(4,1fr); grid-template-rows:auto repeat(3,auto); padding:4px}
+body.narrow .ladhead{grid-column:1/-1; padding:0 0 2px; font-size:.8rem}
+body.narrow .rung{grid-template-columns:1fr; grid-template-rows:auto auto; justify-items:center; padding:3px 2px 4px; font-size:.54rem; gap:1px}
+body.narrow .rung .rn{font-size:1.5em; line-height:1}
+body.narrow .rung .rt small{display:none}
+body.narrow .rung .rt b{white-space:normal; line-height:1.05; font-size:.95em}
+body.narrow .rung .slotdot,body.narrow .rung .tok{position:absolute; right:3px; top:3px; width:13px; height:13px; font-size:.5rem; border-width:1.5px}
+body.narrow .rung.orig{border-left-width:3px}
+body.narrow .opps{display:none}
+body.narrow .mine{order:3; flex-direction:column; align-items:stretch; gap:4px; flex:1 1 auto; justify-content:flex-end}
+body.narrow .mybox{max-width:none}
+body.narrow .ctrl{order:4; justify-content:center; min-height:0}
+body.narrow .status .today{display:none}
+body.narrow .pchip{cursor:pointer}
+@media (max-width:560px){
+  .brand .sub,.brand .tabs{display:none} .tools .l{display:none} .tools .s{display:inline}
+  .tools{gap:4px} .tools .btn.sm{padding:.45em .6em}
+  .brand h1{font-size:1rem}
+  .pchip{padding:3px 8px 3px 4px; gap:6px} .pchip .meta{display:none}
+  .roundinfo{display:none}
+}
+/* short landscape screens (phones on their side): compact chrome, opponents via chips */
+body.short #app{position:relative}
+body.short .topbar{position:absolute; top:max(4px,env(safe-area-inset-top)); right:max(8px,env(safe-area-inset-right)); z-index:5}
+body.short .brand{display:none}
+body.short .tools{gap:4px} body.short .tools .l{display:none} body.short .tools .s{display:inline} body.short .tools .btn.sm{padding:.4em .6em}
+body.short .scorebar{justify-content:flex-start; flex-wrap:nowrap; overflow:hidden; padding-right:var(--toolsw,220px); min-height:34px}
+body.short .pchip{padding:3px 8px 3px 4px; cursor:pointer} body.short .pchip .meta,body.short .roundinfo{display:none}
+body.short .opps,body.short .ladhead{display:none}
+body.short .ladder{grid-template-rows:repeat(12,1fr); padding:4px; gap:2px}
+body.short .rung{font-size:.56rem; border-radius:6px}
+body.short .rung .rt small{font-size:.72em}
+body.short .rung .tok,body.short .rung .slotdot{width:1.7em; height:1.7em}
+@media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} }
+</style>
+<link rel="stylesheet" href="cards.css?v=9">
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="tabs"><i style="background:var(--blue)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i></div>
+      <div><h1>12 Appointments</h1><div class="sub">GAME #114 · PLAYFUL</div></div>
+    </div>
+    <div class="tools">
+      <a class="btn ghost sm" href="index.html">← Parlor</a>
+      <button class="btn ghost sm" id="btnSheet"><span class="l">Scores</span><span class="s">Pts</span></button>
+      <button class="btn ghost sm" id="btnHelp"><span class="l">How to play</span><span class="s">?</span></button>
+      <button class="btn ghost sm" id="btnNew"><span class="l">New game</span><span class="s">New</span></button>
+    </div>
+  </div>
+  <div class="scorebar" id="scorebar"></div>
+  <div class="felt">
+    <div class="ladder" id="ladder"></div>
+    <div class="table">
+      <div class="status">
+        <div class="deck" id="deck"></div>
+        <div class="txt"><div class="phase" id="phase">—</div><div class="hint" id="hint"></div></div>
+        <div class="today" id="today"></div>
+      </div>
+      <div class="opps" id="opps"></div>
+      <div class="mine">
+        <div class="rowsbox" id="rows"></div>
+        <div class="mybox"><div class="lbl">Your appointments <b id="myPts"></b></div><div class="apptrow" id="myAppts"></div></div>
+      </div>
+      <div class="ctrl" id="ctrl"></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<!-- SETUP -->
+<div class="overlay" id="setupOv">
+  <div class="book">
+    <div class="cover"><i style="background:var(--blue)"></i><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i></div>
+    <div class="eyebrow">Game #114 · Playful · 2–4 players</div>
+    <h2>12 Appointments</h2>
+    <p class="lede">Twelve appointment types, from <b>WHATEVER</b> (1) up to <b>TODAY</b> (12), and only one player can make each one. Keep your cards face up, draw one each turn, and claim the rungs before anyone else.</p>
+    <div class="field"><div class="flabel">Computer opponents</div><div class="chips" id="oppChips"></div></div>
+    <div class="field"><div class="flabel">Your birth month (for the BIRTHDAY appointments)</div><select class="pick" id="birthPick"></select></div>
+    <div class="field"><div class="flabel">Play to</div><div class="chips" id="targetChips"></div></div>
+    <div class="row"><button class="btn" id="btnStart">Deal 7 cards</button><button class="btn ghost" id="btnHelp2">How to play</button></div>
+    <p class="note">Created by Anne Gyorfi, Author · 3/17/2022</p>
+  </div>
+</div>
+
+<!-- HELP -->
+<div class="overlay" id="helpOv" hidden>
+  <div class="book">
+    <div class="eyebrow">How to play · Game #114</div>
+    <h2>Be first to each appointment</h2>
+    <h3>The goal</h3>
+    <p>An appointment is a set of one <b>Season/Month</b>, one <b>Day</b> and one <b>Time</b> card. There are 12 appointment types on the mat, and <b>only one player can make each type</b>. Hold the most points when the round ends.</p>
+    <h3>Setup</h3>
+    <p>Deal 7 cards to each player. Everyone lays their cards <b>face up</b> in three rows by type (Season/Month, Day, Time) for all to see. The player left of the dealer goes first.</p>
+    <h3>Your turn</h3>
+    <ul>
+      <li><b>Draw</b> the top card of the deck into your rows.</li>
+      <li>If you can make an open appointment type, select its three cards and tap the glowing rung. The cards move in front of you and your token goes on that number.</li>
+      <li><b>Upgrade</b>: only you can upgrade your own appointment. Swap cards from your rows into it to make a higher, open type. Your token moves up, the old type is released for anyone, and the swapped-out cards return to your rows.</li>
+      <li>One appointment or upgrade per turn, then play passes left.</li>
+    </ul>
+    <h3>The 12 types</h3>
+    <table class="types">
+      <tr><td class="p">12</td><td><b>TODAY</b> <small>· today's month + today's day of the week</small></td></tr>
+      <tr><td class="p">11</td><td><b>BIRTHDAY</b> <small>· your birth month, all the same color (ORIGINAL)</small></td></tr>
+      <tr><td class="p">10</td><td><b>BIRTHDAY</b> <small>· your birth month, NON-ORIGINAL</small></td></tr>
+      <tr><td class="p">9</td><td><b>HUMP DAY &amp; HIGH NOON</b> <small>· Wednesday + 12:00 Noon, ORIGINAL</small></td></tr>
+      <tr><td class="p">8</td><td><b>HUMP DAY &amp; HIGH NOON</b> <small>· NON-ORIGINAL</small></td></tr>
+      <tr><td class="p">7</td><td><b>WEEKEND &amp; HIGH NOON</b> <small>· Saturday/Sunday + Noon, ORIGINAL</small></td></tr>
+      <tr><td class="p">6</td><td><b>WEEKEND &amp; HIGH NOON</b> <small>· NON-ORIGINAL</small></td></tr>
+      <tr><td class="p">5</td><td><b>WEEKEND</b> <small>· Saturday/Sunday, ORIGINAL</small></td></tr>
+      <tr><td class="p">4</td><td><b>WEEKEND</b> <small>· NON-ORIGINAL</small></td></tr>
+      <tr><td class="p">3</td><td><b>ORIGINAL</b> <small>· all three the same season</small></td></tr>
+      <tr><td class="p">2</td><td><b>RAINBOW</b> <small>· three different seasons</small></td></tr>
+      <tr><td class="p">1</td><td><b>WHATEVER</b> <small>· two of the same season</small></td></tr>
+    </table>
+    <h3>End of the round</h3>
+    <p>The round ends when all 12 appointments are made or the deck runs out. Score the numbers your tokens sit on. <b>If all 12 are made, points are doubled</b> (very rare!). The most points wins the round; keep dealing rounds until someone reaches the target.</p>
+    <div class="credit">⭐ <b>12 Appointments</b> · Game #114 · Level: Playful · Players 2–4 · Ages 9+<br>Created by <b>Anne Gyorfi, Author</b> (3/17/2022) · Digital edition for the IGAA Parlor</div>
+    <div class="row" style="margin-top:14px"><button class="btn" id="btnCloseHelp">Got it</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="peekOv" hidden>
+  <div class="book">
+    <div class="eyebrow" id="peekEyebrow">Cards</div>
+    <h2 id="peekTitle">—</h2>
+    <div class="lbl" style="margin-top:12px">Face-up cards</div>
+    <div class="peekgrid" id="peekCards"></div>
+    <div class="lbl">Appointments</div>
+    <div class="peekgrid" id="peekAppts"></div>
+    <div class="row"><button class="btn ghost" id="btnClosePeek">Close</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="sheetOv" hidden>
+  <div class="book">
+    <div class="eyebrow">Score sheet</div>
+    <h2 id="sheetTitle">Scores</h2>
+    <div style="overflow-x:auto"><table class="sheet" id="sheetTable"></table></div>
+    <div class="row"><button class="btn" id="btnCloseSheet">Close</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="roundOv" hidden>
+  <div class="book" style="text-align:center">
+    <div class="stamp" id="roundStamp">Round over</div>
+    <h2 id="roundTitle" style="margin-top:14px">—</h2>
+    <p id="roundSub" style="margin:6px 0 4px"></p>
+    <div style="overflow-x:auto"><table class="sheet" id="roundTable"></table></div>
+    <div class="row" style="justify-content:center"><button class="btn" id="btnNextRound">Next round</button></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* =====================================================================
+   12 APPOINTMENTS · Game #114 by Anne Gyorfi, digital edition.
+   Cards render ONLY through the shared cards.js; rendering starts after it loads.
+   ===================================================================== */
+const SEASONS=[
+  {name:"Spring", color:"yellow", months:["March","April","May"]},
+  {name:"Summer", color:"green",  months:["June","July","August"]},
+  {name:"Fall",   color:"orange", months:["September","October","November"]},
+  {name:"Winter", color:"blue",   months:["December","January","February"]},
+];
+const MONTHS=["January","February","March","April","May","June","July","August","September","October","November","December"];
+const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const TIMES=[{v:"9:00 AM",hr:9},{v:"10:00 AM",hr:10},{v:"11:00 AM",hr:11},{v:"12:00 NOON",hr:12},{v:"1:00 PM",hr:1},{v:"2:00 PM",hr:2},{v:"3:00 PM",hr:3}];
+const NOW=new Date();
+const TODAY={month:MONTHS[NOW.getMonth()], day:DAYS[NOW.getDay()]};
+const AI=[{name:"Robin",pc:"#b48ce8"},{name:"Sam",pc:"#e8736a"},{name:"Alex",pc:"#5fc9c1"}];
+const SORDER={Spring:0,Summer:1,Fall:2,Winter:3};
+const $=s=>document.querySelector(s);
+const DEMO=/demo/.test(location.hash);
+let FAST=false;
+const wait=ms=>new Promise(r=>setTimeout(r,FAST?0:ms));
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+let CID=0, AID=0;
+function buildDeck(){
+  const d=[];
+  for(const s of SEASONS){
+    s.months.forEach(m=>d.push({id:"c"+(++CID),cat:"season",color:s.color,season:s.name,value:m}));
+    DAYS.forEach(v=>d.push({id:"c"+(++CID),cat:"day",color:s.color,season:s.name,value:v,kind:(v==="Saturday"||v==="Sunday")?"WEEKEND":"WEEKDAY"}));
+    TIMES.forEach(t=>d.push({id:"c"+(++CID),cat:"time",color:s.color,season:s.name,value:t.v,hr:t.hr}));
+  }
+  return d;
+}
+
+/* ============================ TYPES ============================ */
+const isWk=d=>d.value==="Saturday"||d.value==="Sunday";
+const isWed=d=>d.value==="Wednesday";
+const isNoon=t=>t.hr===12;
+const colors=s=>new Set([s.m.color,s.d.color,s.t.color]).size;
+const orig=s=>colors(s)===1;
+const TYPES=[
+  {n:12, name:"TODAY", sub:()=>`${TODAY.month} · ${TODAY.day}`, short:"TODAY", test:(s,p)=>s.m.value===TODAY.month&&s.d.value===TODAY.day},
+  {n:11, name:"BIRTHDAY", sub:()=>"ORIGINAL", short:"BIRTHDAY", o:1, test:(s,p)=>s.m.value===p.birth&&orig(s)},
+  {n:10, name:"BIRTHDAY", sub:()=>"NON-ORIGINAL", short:"BIRTHDAY", test:(s,p)=>s.m.value===p.birth&&!orig(s)},
+  {n:9,  name:"HUMP DAY & HIGH NOON", sub:()=>"ORIGINAL", short:"HUMP & NOON", o:1, test:s=>isWed(s.d)&&isNoon(s.t)&&orig(s)},
+  {n:8,  name:"HUMP DAY & HIGH NOON", sub:()=>"NON-ORIGINAL", short:"HUMP & NOON", test:s=>isWed(s.d)&&isNoon(s.t)&&!orig(s)},
+  {n:7,  name:"WEEKEND & HIGH NOON", sub:()=>"ORIGINAL", short:"WKND & NOON", o:1, test:s=>isWk(s.d)&&isNoon(s.t)&&orig(s)},
+  {n:6,  name:"WEEKEND & HIGH NOON", sub:()=>"NON-ORIGINAL", short:"WKND & NOON", test:s=>isWk(s.d)&&isNoon(s.t)&&!orig(s)},
+  {n:5,  name:"WEEKEND", sub:()=>"ORIGINAL", short:"WEEKEND", o:1, test:s=>isWk(s.d)&&orig(s)},
+  {n:4,  name:"WEEKEND", sub:()=>"NON-ORIGINAL", short:"WEEKEND", test:s=>isWk(s.d)&&!orig(s)},
+  {n:3,  name:"ORIGINAL", sub:()=>"SAME SEASON", short:"ORIGINAL", o:1, test:s=>orig(s)},
+  {n:2,  name:"RAINBOW", sub:()=>"3 DIFFERENT SEASONS", short:"RAINBOW", test:s=>colors(s)===3},
+  {n:1,  name:"WHATEVER", sub:()=>"2 SAME SEASON", short:"WHATEVER", test:s=>colors(s)===2},
+];
+const TYPE=n=>TYPES.find(t=>t.n===n);
+
+/* ============================ STATE ============================ */
+let G=null, CFG={opps:2, target:50, birth:MONTHS[(NOW.getMonth()+6)%12]};
+const me=()=>G.players[0], cur=()=>G.players[G.current];
+function newMatch(){
+  const players=[{name:"You",human:true,pc:"#e4c883",birth:CFG.birth,total:0,hist:[]}];
+  for(let i=0;i<CFG.opps;i++) players.push({name:AI[i].name,human:false,pc:AI[i].pc,birth:MONTHS[Math.floor(Math.random()*12)],total:0,hist:[]});
+  G={players, round:0, target:CFG.target, dealer:Math.floor(Math.random()*players.length)-1, over:false, token:{}};
+  startRound();
+}
+function startRound(){
+  const n=G.players.length;
+  G.round++; G.dealer=(G.dealer+1+n)%n; G.token={};
+  G.deck=shuffle(buildDeck());
+  G.players.forEach(p=>{p.cards=[]; p.appts=[];});
+  for(let r=0;r<7;r++) for(let k=1;k<=n;k++) G.players[(G.dealer+k)%n].cards.push(G.deck.pop());
+  G.current=(G.dealer+1)%n; G.sel=[]; G.fresh=new Set(); G.lastMsg=""; G.dealing=true;
+  beginTurn();
+}
+function ownerOf(n){ for(let i=0;i<G.players.length;i++) if(G.players[i].appts.some(a=>a.n===n)) return i; return -1; }
+const allClaimed=()=>TYPES.every(t=>ownerOf(t.n)>=0);
+
+/* ============================ RULES ============================ */
+// refs: {src:"r"(row) | "a"(inside own appointment), id, card, apptId}
+function qualify(pi, m, d, t){
+  const p=G.players[pi], refs=[m,d,t];
+  const aIds=[...new Set(refs.filter(r=>r.src==="a").map(r=>r.apptId))];
+  if(aIds.length>1) return [];
+  const A=aIds.length?p.appts.find(a=>a.id===aIds[0]):null;
+  if(A && refs.every(r=>r.src==="a")) return [];
+  const s={m:m.card,d:d.card,t:t.card};
+  return TYPES.filter(T=>(!A||T.n>A.n) && ownerOf(T.n)<0 && T.test(s,p)).map(T=>T.n);
+}
+function allOptions(pi){
+  const p=G.players[pi], out=[];
+  const R=cat=>p.cards.filter(c=>c.cat===cat).map(c=>({src:"r",id:c.id,card:c}));
+  const M=R("season"), D=R("day"), T=R("time");
+  for(const m of M) for(const d of D) for(const t of T){ const ns=qualify(pi,m,d,t); if(ns.length) out.push({refs:[m,d,t],ns,old:0}); }
+  for(const A of p.appts){
+    const a={m:{src:"a",id:A.m.id,card:A.m,apptId:A.id}, d:{src:"a",id:A.d.id,card:A.d,apptId:A.id}, t:{src:"a",id:A.t.id,card:A.t,apptId:A.id}};
+    for(const m of [a.m].concat(M)) for(const d of [a.d].concat(D)) for(const t of [a.t].concat(T)){
+      const ns=qualify(pi,m,d,t); if(ns.length) out.push({refs:[m,d,t],ns,old:A.n,A:A.id});
+    }
+  }
+  return out;
+}
+function applyClaim(pi, refs, n){
+  const p=G.players[pi];
+  const aId=(refs.find(r=>r.src==="a")||{}).apptId;
+  let old=null;
+  if(aId){ old=p.appts.find(a=>a.id===aId); p.appts.splice(p.appts.indexOf(old),1);
+    const keep=new Set(refs.map(r=>r.id)); [old.m,old.d,old.t].forEach(c=>{ if(!keep.has(c.id)) p.cards.push(c); }); }
+  refs.filter(r=>r.src==="r").forEach(r=>{ p.cards.splice(p.cards.findIndex(c=>c.id===r.id),1); });
+  const get=cat=>refs.find(r=>r.card.cat===cat).card;
+  const a={id:"a"+(++AID), n, m:get("season"), d:get("day"), t:get("time")};
+  p.appts.push(a); G.freshAppt=a.id; G.hotRung=n; G.sel=[];
+  const who=p.human?"You":p.name, T=TYPE(n);
+  G.lastMsg=old?`${who} upgraded #${old.n} ${TYPE(old.n).name} → <b>#${n} ${T.name}</b>. #${old.n} is open again.`
+               :`${who} made <b>#${n} ${T.name}</b> (${T.sub()}): ${a.m.value} · ${a.d.value} · ${a.t.value}.`;
+  return {old, a};
+}
+
+/* ============================ AI ============================ */
+function waste(pi, refs, n){
+  const p=G.players[pi], open=k=>ownerOf(k)<0; let w=0;
+  for(const r of refs){ if(r.src!=="r") continue; const c=r.card;
+    if(c.cat==="season"){ if(c.value===p.birth && n!==11&&n!==10 && (open(11)||open(10))) w+=3; if(c.value===TODAY.month && n!==12 && open(12)) w+=2.5; }
+    if(c.cat==="day"){ if(c.value===TODAY.day && n!==12 && open(12)) w+=.5; if(isWed(c) && n!==9&&n!==8 && (open(9)||open(8))) w+=1; if(isWk(c) && ![7,6,5,4].includes(n) && [7,6,5,4].some(open)) w+=.7; }
+    if(c.cat==="time"){ if(isNoon(c) && ![9,8,7,6].includes(n) && [9,8,7,6].some(open)) w+=1.2; }
+  }
+  return w*(0.25+G.deck.length/68);
+}
+function bestOption(pi){
+  let best=null, bs=0.3;
+  for(const o of allOptions(pi)) for(const n of o.ns){
+    const s=(n-o.old)-waste(pi,o.refs,n)+Math.random()*0.01;
+    if(s>bs){ bs=s; best={refs:o.refs,n,old:o.old}; }
+  }
+  return best;
+}
+
+/* ============================ TURN FLOW ============================ */
+function beginTurn(){
+  G.sel=[]; G.acted=false;
+  if(!G.deck.length){ render(); roundOver(); return; }
+  G.phase=cur().human?"draw":"ai";
+  render({from:G.dealing?"#deck":null}); G.dealing=false;
+  if(!cur().human) runAI(G.token);
+}
+function drawCard(pi){ const c=G.deck.pop(); G.players[pi].cards.push(c); G.fresh=new Set([c.id]); return c; }
+function humanDraw(){
+  if(!G||G.phase!=="draw"||!cur().human||!$("#setupOv").hidden) return;
+  const c=drawCard(0); G.phase="act"; G.lastMsg=`You drew ${c.value} (${c.season}).`;
+  render({from:"#deck"});
+  if(allOptions(0).length===0) G.lastMsg+=" No open appointment yet.";
+}
+async function runAI(token){
+  const pi=G.current, p=cur();
+  await wait(650); if(token!==G.token) return;
+  const c=drawCard(pi); G.lastMsg=`${p.name} drew ${c.value} (${c.season}).`;
+  render({from:"#deck"});
+  await wait(800); if(token!==G.token) return;
+  const o=bestOption(pi);
+  if(o){
+    const r=applyClaim(pi,o.refs,o.n);
+    render({from:`[data-pfrom="${pi}"]`});
+    if(r.old) toast(`${p.name} upgrades to #${o.n}`, `${TYPE(o.n).name}. #${r.old.n} ${TYPE(r.old.n).name} is open again.`);
+    else if(o.n>=9) toast(`${p.name} claims #${o.n}`, `${TYPE(o.n).name} · ${TYPE(o.n).sub()}`);
+    await wait(950); if(token!==G.token) return;
+    if(allClaimed()){ roundOver(); return; }
+  } else await wait(250);
+  if(token!==G.token) return;
+  nextTurn();
+}
+function nextTurn(){ G.current=(G.current+1)%G.players.length; G.fresh=new Set(); beginTurn(); }
+function humanClaim(n){
+  const refs=selRefs(); const m=refs.find(r=>r.card.cat==="season"), d=refs.find(r=>r.card.cat==="day"), t=refs.find(r=>r.card.cat==="time");
+  if(!m||!d||!t||!qualify(0,m,d,t).includes(n)) return;
+  const r=applyClaim(0,refs,n); G.phase="done"; G.fresh=new Set();
+  render({});
+  toast(r.old?`Upgraded to #${n}!`:`You claimed #${n}!`, `${TYPE(n).name} · ${TYPE(n).sub()}${r.old?`<br>#${r.old.n} is released.`:""}`);
+  const tk=G.token;
+  setTimeout(()=>{ if(tk!==G.token) return; if(allClaimed()) roundOver(); else nextTurn(); }, FAST?0:1100);
+}
+function roundOver(){
+  const dbl=allClaimed();
+  G.players.forEach(p=>{ let pts=p.appts.reduce((s,a)=>s+a.n,0); if(dbl) pts*=2; p.total+=pts; p.hist.push({pts,total:p.total,rungs:p.appts.map(a=>a.n).sort((a,b)=>b-a)}); });
+  const best=Math.max(...G.players.map(p=>p.hist[p.hist.length-1].pts));
+  const rw=G.players.filter(p=>p.hist[p.hist.length-1].pts===best).map(p=>p.name);
+  const top=Math.max(...G.players.map(p=>p.total));
+  const gameOver=G.target===1 || top>=G.target;
+  G.token={}; G.over=gameOver; G.phase="over";
+  $("#roundStamp").textContent=dbl?"All 12 made · double points!":(gameOver?"Game over":`Round ${G.round} over`);
+  if(gameOver){
+    const w=G.players.filter(p=>p.total===top).map(p=>p.name);
+    $("#roundTitle").textContent=w.length>1?`Tie: ${w.join(" & ")}`:(w[0]==="You"?"You win!":`${w[0]} wins`);
+    $("#roundSub").textContent=G.target===1?`One-round game, ${top} points.`:`First to ${G.target} points, with ${top}.`;
+    $("#btnNextRound").textContent="Play again";
+  } else {
+    $("#roundTitle").textContent=rw.length>1?`Round tie: ${rw.join(" & ")}`:(rw[0]==="You"?"You win the round!":`${rw[0]} wins the round`);
+    $("#roundSub").textContent=(G.deck.length?"":"The deck ran out. ")+`Playing to ${G.target}.`;
+    $("#btnNextRound").textContent=`Deal round ${G.round+1}`;
+  }
+  $("#roundTable").innerHTML=`<tr><th>Player</th><th>Appointments</th><th>Round</th><th>Running</th></tr>`+
+    G.players.map(p=>{ const h=p.hist[p.hist.length-1]; return `<tr class="${h.pts===best?"win":""}"><td>${p.name}</td><td>${h.rungs.map(n=>"#"+n).join(" ")||"none"}</td><td>${h.pts}${dbl?" (×2)":""}</td><td class="run">${p.total}</td></tr>`; }).join("");
+  setTimeout(()=>{ $("#roundOv").hidden=false; }, FAST?0:1000);
+}
+
+/* ============================ HUMAN INPUT ============================ */
+const humanAct=()=>G && G.phase==="act" && cur().human && $("#setupOv").hidden;
+function selRefs(){
+  return G.sel.map(k=>{
+    const id=k.slice(2);
+    if(k[0]==="r"){ const c=me().cards.find(x=>x.id===id); return c&&{src:"r",id,card:c}; }
+    for(const a of me().appts) for(const c of [a.m,a.d,a.t]) if(c.id===id) return {src:"a",id,card:c,apptId:a.id};
+    return null;
+  }).filter(Boolean);
+}
+function selTypes(){
+  if(!humanAct()) return [];
+  const refs=selRefs(); const m=refs.find(r=>r.card.cat==="season"), d=refs.find(r=>r.card.cat==="day"), t=refs.find(r=>r.card.cat==="time");
+  return (m&&d&&t)?qualify(0,m,d,t):[];
+}
+function toggleSel(key){
+  if(G.sel.includes(key)){ G.sel=G.sel.filter(k=>k!==key); render({noAnim:true}); return; }
+  const save=G.sel; G.sel=[key]; const r=selRefs()[0]; G.sel=save; if(!r) return;
+  G.sel=selRefs().filter(x=>x.card.cat!==r.card.cat).map(x=>x.src+":"+x.id).concat([key]);
+  render({noAnim:true});
+}
+function doHint(){
+  if(!humanAct()) return;
+  const o=bestOption(0)||(()=>{ let b=null; for(const x of allOptions(0)) for(const n of x.ns) if(!b||n-x.old>b.n-b.old) b={refs:x.refs,n,old:x.old}; return b; })();
+  if(!o){ toast("Nothing to claim yet","Keep your cards and end your turn."); return; }
+  G.sel=o.refs.map(r=>r.src+":"+r.id); render({noAnim:true});
+  const el=document.querySelector(`[data-rung="${o.n}"]`); if(el){ el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+}
+document.addEventListener("click",e=>{
+  if(!G) return;
+  const t=e.target;
+  if(t.closest("#deck.tgt")){ humanDraw(); return; }
+  const rung=t.closest(".rung.tgt"); if(rung && humanAct()){ humanClaim(+rung.dataset.rung); return; }
+  const s=t.closest("[data-sel]"); if(s && humanAct()){ toggleSel(s.dataset.sel); return; }
+  const pc=t.closest("[data-peek]"); if(pc && /narrow|short/.test(document.body.className)){ const i=+pc.dataset.peek; if(i>0) openPeek(i); }
+});
+
+/* ============================ RENDER ============================ */
+function ck(c, key, extra){
+  return `<div class="ck${extra?" "+extra:""}${G.fresh.has(c.id)?" fresh":""}" data-k="${c.id}"${key?` data-sel="${key}"`:""}>${cardFaceHTML(c)}</div>`;
+}
+function sortCards(list){ return list.slice().sort((a,b)=>SORDER[a.season]-SORDER[b.season] || (a.cat==="season"?SEASONS[SORDER[a.season]].months.indexOf(a.value)-SEASONS[SORDER[b.season]].months.indexOf(b.value):a.cat==="day"?DAYS.indexOf(a.value)-DAYS.indexOf(b.value):((a.hr+12)%24)-((b.hr+12)%24))); }
+function render(opts){
+  opts=opts||{};
+  const before=opts.noAnim?null:snap();
+  const st=selTypes();
+  const avail=new Set(); let canCards=new Set();
+  if(humanAct()){ const ops=allOptions(0); ops.forEach(o=>{ o.ns.forEach(n=>avail.add(n)); }); if(!G.sel.length) ops.forEach(o=>o.refs.forEach(r=>canCards.add(r.src+":"+r.id))); }
+  G._st=new Set(st); G._avail=avail; G._can=canCards;
+  renderScore(); renderLadder(); renderStatus(); renderOpps(); renderMine(); renderCtrl();
+  fitBoard();
+  if(before) playFlip(before, opts.from);
+  G.freshAppt=null; G.hotRung=null;
+}
+function renderScore(){
+  $("#scorebar").innerHTML=G.players.map((p,i)=>{
+    const rp=p.appts.reduce((s,a)=>s+a.n,0);
+    return `<div class="pchip ${i===G.current&&!G.over&&G.phase!=="over"?"active":""}" data-peek="${i}" style="--pc:${p.pc}">
+      <span class="tok">${p.name[0]}</span><span class="nm">${p.name}</span><span class="pts">${p.total}</span>
+      <span class="meta">+${rp} · born ${p.birth.slice(0,3)}${i===G.dealer?" · dealer":""}</span></div>`;
+  }).join("")+`<div class="roundinfo">Round <b>${G.round}</b> · ${G.target===1?"<b>1</b> round":`to <b>${G.target}</b>`}</div>`;
+}
+function renderLadder(){
+  const narrow=document.body.classList.contains("narrow");
+  $("#ladder").innerHTML=`<div class="ladhead"><i style="background:var(--blue)"></i><i style="background:var(--yellow)"></i>12 APPOINTMENTS<i style="background:var(--green)"></i><i style="background:var(--orange)"></i></div>`+
+    TYPES.map(T=>{
+      const o=ownerOf(T.n), P=o>=0?G.players[o]:null;
+      const cls=["rung"]; if(T.o) cls.push("orig"); if(P) cls.push("claimed");
+      if(G._st.has(T.n)) cls.push("tgt"); else if(G._avail.has(T.n) && !G.sel.length) cls.push("avail");
+      if(G.hotRung===T.n) cls.push("hot");
+      const sub=T.n===10||T.n===11?(P?`${P.name} · ${P.birth}`:(humanAct()||cur().human?`Yours: ${me().birth}`:T.sub())):T.sub();
+      return `<div class="${cls.join(" ")}" data-rung="${T.n}" title="${T.name} · ${T.sub()}">
+        <div class="rn">${T.n}</div>
+        <div class="rt"><b>${narrow?(T.n===12?`TODAY ${TODAY.month.slice(0,3).toUpperCase()} ${TODAY.day.slice(0,3).toUpperCase()}`:T.short):T.name}</b><small>${T.n===10||T.n===11?T.sub()+" · "+sub:sub}</small></div>
+        ${P?`<span class="tok" style="--pc:${P.pc}">${P.name[0]}</span>`:`<span class="slotdot"></span>`}</div>`;
+    }).join("");
+}
+function renderStatus(){
+  const drawable=G.phase==="draw"&&cur().human;
+  $("#deck").className="deck"+(drawable?" tgt":"");
+  $("#deck").innerHTML=`<div class="ck">${G.deck.length?cardBackHTML():`<div class="cardback" style="opacity:.25"></div>`}</div><div class="cnt"><b>${G.deck.length}</b>deck</div>`;
+  $("#today").innerHTML=`Today<b>${TODAY.month.slice(0,3)} · ${TODAY.day.slice(0,3)}</b>`;
+  const p=cur(); let ph="", hi="";
+  if(G.phase==="over"){ ph="Round over"; }
+  else if(!p.human){ ph=`${p.name}'s turn`; hi=G.lastMsg||""; }
+  else if(G.phase==="draw"){ ph="Your turn: draw a card"; hi=G.lastMsg?G.lastMsg:"Tap the deck."; }
+  else if(G.phase==="act"){
+    if(G.sel.length){ const n=G._st.size; ph=n?"Tap a glowing rung to claim it":"Pick one Season/Month, one Day and one Time";
+      hi=n?`These cards make ${[...G._st].map(k=>"#"+k).join(", ")}.`:(selRefs().length===3?"That set doesn't match an open appointment.":"Selected cards lift up. Tap a card again to drop it."); }
+    else if(G._avail.size){ const b=Math.max(...G._avail); ph="You can make an appointment!"; hi=`Open rungs you can reach glow gold (best: #${b}). Tap Hint, or pick your cards.`; }
+    else { ph="No appointment this turn"; hi="Keep your cards and end your turn."; }
+  } else if(G.phase==="done"){ ph="Nice!"; hi=G.lastMsg; }
+  $("#phase").innerHTML=ph; $("#hint").innerHTML=hi;
+}
+function fanHTML(cards, keyPrefix, extraFor){
+  return cards.map(c=>ck(c, keyPrefix?keyPrefix+c.id:"", extraFor?extraFor(c):"")).join("");
+}
+function renderOpps(){
+  $("#opps").innerHTML=G.players.map((p,i)=>{
+    if(p.human) return "";
+    return `<div class="oppbox ${i===G.current?"active":""}" data-pfrom="${i}" style="--pc:${p.pc}">
+      <div class="oh"><span class="tok">${p.name[0]}</span><b>${p.name}</b><span>${p.cards.length} cards · born ${p.birth}</span>
+        <span class="badges">${p.appts.slice().sort((a,b)=>b.n-a.n).map(a=>`<span class="badge" title="${TYPE(a.n).name}">${a.n}</span>`).join("")}</span></div>
+      <div class="fan ocards">${fanHTML(sortCards(p.cards.filter(c=>c.cat==="season")).concat(sortCards(p.cards.filter(c=>c.cat==="day")),sortCards(p.cards.filter(c=>c.cat==="time"))))}</div></div>`;
+  }).join("");
+}
+function apptHTML(a, own){
+  const T=TYPE(a.n);
+  return `<div class="appt ${G.freshAppt===a.id?"fresh":""}" title="#${a.n} ${T.name} · ${T.sub()}">
+    <div class="casc">${[a.m,a.d,a.t].map((c,i)=>`<div class="ck${own&&G.sel.includes("a:"+c.id)?" sel":""}" data-k="${c.id}" style="--i:${i}"${own&&humanAct()?` data-sel="a:${c.id}"`:""}>${cardFaceHTML(c)}</div>`).join("")}</div>
+    <div class="ap"><span class="badge" style="--pc:${own?me().pc:"#ccc"}">${a.n}</span>${T.short}</div></div>`;
+}
+function renderMine(){
+  const p=me(), act=humanAct();
+  const rows=[["season","MONTHS"],["day","DAYS"],["time","TIMES"]];
+  $("#rows").innerHTML=rows.map(([cat,label])=>{
+    const cards=sortCards(p.cards.filter(c=>c.cat===cat));
+    return `<div class="frow${cards.length?"":" emptyrow"}"><div class="rl">${label}</div><div class="fan">${cards.length?fanHTML(cards, act?"r:":"", c=>(G.sel.includes("r:"+c.id)?"sel":"")+(G._can.has("r:"+c.id)?" can":"")):`<span class="empty">no ${label.toLowerCase()}</span>`}</div></div>`;
+  }).join("");
+  const rp=p.appts.reduce((s,a)=>s+a.n,0);
+  $("#myPts").textContent=rp?`${rp} pts`:"";
+  $("#myAppts").innerHTML=p.appts.length?p.appts.slice().sort((a,b)=>b.n-a.n).map(a=>apptHTML(a,true)).join(""):`<span class="none">Claim a rung to start</span>`;
+}
+function renderCtrl(){
+  const el=$("#ctrl"); el.innerHTML="";
+  if(!G||!cur().human||G.phase==="over") return;
+  const mk=(txt,cls,fn,dis)=>{ const b=document.createElement("button"); b.className="btn "+cls; b.textContent=txt; b.onclick=fn; b.disabled=!!dis; el.appendChild(b); };
+  if(G.phase==="draw") mk("Draw a card","",humanDraw);
+  if(G.phase==="act"){
+    if(G.sel.length) mk("Clear","ghost sm",()=>{G.sel=[]; render({noAnim:true});});
+    if(G._avail.size) mk("Hint","ghost sm",doHint);
+    mk(G._avail.size?"Pass · end turn":"End turn", G._avail.size?"ghost":"", ()=>{ if(humanAct()) nextTurn(); });
+  }
+}
+function openPeek(i){
+  const p=G.players[i];
+  $("#peekEyebrow").textContent=`${p.name} · ${p.total} points · born ${p.birth}`;
+  $("#peekTitle").textContent=`${p.name}'s table`;
+  $("#peekCards").innerHTML=sortCards(p.cards).map(c=>cardFaceHTML(c)).join("")||"<p>No cards</p>";
+  $("#peekAppts").innerHTML=p.appts.map(a=>apptHTML(a,false)).join("")||"<p>None yet</p>";
+  $("#peekOv").hidden=false;
+}
+
+/* ---------- FLIP animation ---------- */
+function snap(){ const m=new Map(); document.querySelectorAll("#app [data-k]").forEach(el=>{ const r=el.getBoundingClientRect(); if(r.width) m.set(el.dataset.k,r); }); return m; }
+function rectOf(sel){ if(!sel) return null; for(const el of [...document.querySelectorAll(sel)].reverse()){ const r=el.getBoundingClientRect(); if(r.width) return r; } return null; }
+function playFlip(before, fromSel){
+  if(FAST || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const from=rectOf(fromSel); let k=0;
+  document.querySelectorAll("#app [data-k]").forEach(el=>{
+    const b=el.getBoundingClientRect(); if(!b.width) return;
+    const a=before.get(el.dataset.k)||from; if(!a) return;
+    const isNew=!before.has(el.dataset.k);
+    const dx=(a.left+a.width/2)-(b.left+b.width/2), dy=(a.top+a.height/2)-(b.top+b.height/2), s=a.width/b.width;
+    if(Math.abs(dx)<1&&Math.abs(dy)<1&&Math.abs(s-1)<.02) return;
+    el.style.zIndex=30;
+    const an=el.animate([{transform:`translate(${dx}px,${dy}px) scale(${s})`,opacity:isNew?.4:1},{transform:"none",opacity:1}],
+      {duration:isNew?520:460, delay:isNew?Math.min(k++,20)*45:0, easing:"cubic-bezier(.2,.75,.25,1)", fill:"backwards"});
+    an.onfinish=()=>{ el.style.zIndex=""; };
+  });
+}
+
+/* ---------- fit ---------- */
+function fanOut(){
+  document.querySelectorAll(".fan").forEach(row=>{
+    const items=[...row.querySelectorAll(":scope > .ck")]; if(!items.length) return;
+    const W=row.clientWidth, w=items[0].offsetWidth, gap=Math.max(3,w*.06), n=items.length;
+    const step=n>1?Math.min(w+gap,(W-w)/(n-1)):0;
+    items.forEach((x,i)=>x.style.marginLeft=i?(step-w)+"px":"0px");
+  });
+  document.querySelectorAll(".apptrow").forEach(row=>{
+    const items=[...row.querySelectorAll(".appt")]; items.forEach(x=>x.style.marginLeft="");
+    if(items.length<2) return; const need=row.scrollWidth-row.clientWidth;
+    if(need>0){ const ov=Math.ceil(need/(items.length-1))+1; items.slice(1).forEach(x=>x.style.marginLeft=(-ov)+"px"); }
+  });
+}
+function fitBoard(){
+  if(!G) return;
+  const de=document.documentElement, vw=de.clientWidth, vh=de.clientHeight;
+  const land=vw>vh*1.25, narrow=vw<760&&!land, short=!narrow&&vh<560;
+  if(document.body.classList.contains("narrow")!==narrow){ document.body.classList.toggle("narrow",narrow); renderLadder(); }
+  document.body.classList.toggle("short",short);
+  if(short) de.style.setProperty("--toolsw",($(".tools").offsetWidth+16)+"px");
+  de.style.setProperty("--ladw", Math.round(Math.min(360,Math.max(250,vw*.26)))+"px");
+  const R=el=>el.getBoundingClientRect();
+  const felt=$(".felt");
+  const over=()=>{
+    const fb=R(felt);
+    if(R($("#ctrl")).bottom>fb.bottom-2) return true;
+    if(R($("#rows")).bottom>fb.bottom-2) return true;
+    const rt=R($("#rows")).top;
+    if(narrow ? rt < R($("#ladder")).bottom+2 : rt < Math.max(R($("#opps")).bottom, R($(".status")).bottom)+2) return true;
+    if(!narrow && R($(".status")).top<fb.top) return true;
+    if($("#app").scrollWidth>vw+1) return true;
+    // rows must fan with at least ~30% of each card showing
+    for(const row of document.querySelectorAll("#rows .fan")){
+      const n=row.querySelectorAll(":scope > .ck").length; if(n<2) continue;
+      const w=parseFloat(getComputedStyle(row).getPropertyValue("--card-w"))||0; // resolved below
+      const cw=row.firstElementChild.offsetWidth;
+      if((row.clientWidth-cw)/(n-1) < cw*.3) return true;
+    }
+    return false;
+  };
+  let lo=30, hi=Math.min(125, narrow?vw/4.2:vw/7);
+  for(let i=0;i<9;i++){ const mid=(lo+hi)/2; de.style.setProperty("--cw",mid+"px"); if(over()) hi=mid; else lo=mid; }
+  de.style.setProperty("--cw",Math.floor(lo)+"px");
+  de.style.setProperty("--card-w",Math.floor(lo)+"px");
+  fanOut();
+}
+
+let toastT=null;
+function toast(title,body){ if(FAST) return; const t=$("#toast"); t.innerHTML=`<span class="big">${title}</span>${body}`; t.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"),3000); }
+
+function openSheet(){
+  if(!G) return;
+  const rounds=Math.max(...G.players.map(p=>p.hist.length));
+  let h=`<tr><th>Round</th>${G.players.map(p=>`<th colspan="2">${p.name}</th>`).join("")}</tr><tr><th></th>${G.players.map(()=>`<th>Round</th><th>Running</th>`).join("")}</tr>`;
+  for(let r=0;r<rounds;r++) h+=`<tr><td>${r+1}</td>${G.players.map(p=>p.hist[r]?`<td>${p.hist[r].pts}</td><td class="run">${p.hist[r].total}</td>`:`<td></td><td></td>`).join("")}</tr>`;
+  if(G.phase!=="over") h+=`<tr><td>${G.round}<br><small>now</small></td>${G.players.map(p=>{const rp=p.appts.reduce((s,a)=>s+a.n,0); return `<td>${rp}</td><td class="run">${p.total+rp}</td>`;}).join("")}</tr>`;
+  $("#sheetTable").innerHTML=h; $("#sheetTitle").textContent=G.target===1?"One round":`Playing to ${G.target}`; $("#sheetOv").hidden=false;
+}
+
+function chips(id, vals, key){
+  const w=$(id); w.innerHTML="";
+  vals.forEach(([label,v])=>{ const b=document.createElement("button"); b.className="chip"+(CFG[key]===v?" sel":""); b.textContent=label; b.onclick=()=>{CFG[key]=v; chips(id,vals,key);}; w.appendChild(b); });
+}
+function boot(){
+  chips("#oppChips",[["1",1],["2",2],["3",3]],"opps");
+  chips("#targetChips",[["1 round",1],["50 pts",50],["100 pts",100]],"target");
+  $("#birthPick").innerHTML=MONTHS.map(m=>`<option ${m===CFG.birth?"selected":""}>${m}</option>`).join("");
+  $("#birthPick").onchange=e=>CFG.birth=e.target.value;
+  $("#btnStart").onclick=()=>{ $("#setupOv").hidden=true; newMatch(); };
+  $("#btnHelp").onclick=$("#btnHelp2").onclick=()=>$("#helpOv").hidden=false;
+  $("#btnCloseHelp").onclick=()=>$("#helpOv").hidden=true;
+  $("#btnClosePeek").onclick=()=>$("#peekOv").hidden=true;
+  $("#btnSheet").onclick=openSheet; $("#btnCloseSheet").onclick=()=>$("#sheetOv").hidden=true;
+  $("#btnNew").onclick=()=>{ if(G) G.token={}; $("#roundOv").hidden=true; $("#setupOv").hidden=false; };
+  $("#btnNextRound").onclick=()=>{ $("#roundOv").hidden=true; if(G.over) $("#setupOv").hidden=false; else startRound(); };
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape") ["#helpOv","#peekOv","#sheetOv"].forEach(s=>$(s).hidden=true); });
+  if(DEMO) runDemo(); else if(/help/.test(location.hash)) $("#helpOv").hidden=false;
+}
+/* #demo: fast-plays some turns so a screenshot shows a mid-game table */
+function runDemo(){
+  FAST=true; $("#setupOv").hidden=true;
+  CFG.opps=/demo1/.test(location.hash)?1:(/demo3/.test(location.hash)?3:2);
+  newMatch(); G.token={};
+  const turns=/late/.test(location.hash)?30:12;
+  for(let k=0;k<turns && G.deck.length && !allClaimed();k++){
+    const pi=G.current; drawCard(pi); const o=bestOption(pi); if(o) applyClaim(pi,o.refs,o.n);
+    G.current=(pi+1)%G.players.length;
+  }
+  G.current=0; drawCard(0); G.phase="act"; G.fresh=new Set(); G.lastMsg="";
+  if(/sel/.test(location.hash)){ const o=bestOption(0)||allOptions(0).map(x=>({refs:x.refs,n:x.ns[0]}))[0]; if(o) G.sel=o.refs.map(r=>r.src+":"+r.id); }
+  render({noAnim:true});
+  FAST=false;
+}
+</script>
+<script src="cards.js?v=9"></script>
+<script>window.__igaaFit = fitBind(fitBoard); boot();</script>
+</body>
+</html>

@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a24">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IGAA Parlor">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>if('serviceWorker' in navigator){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<title>Finish the Appointment</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101a24'/%3E%3Crect x='25' y='8' width='14' height='14' rx='2' fill='%2345a06a'/%3E%3Crect x='8' y='25' width='14' height='14' rx='2' fill='%23e6b23a'/%3E%3Crect x='42' y='25' width='14' height='14' rx='2' fill='%23cf7620'/%3E%3Crect x='25' y='42' width='14' height='14' rx='2' fill='%233d78bf'/%3E%3Crect x='25' y='25' width='14' height='14' rx='2' fill='%23e6d2a0'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --table-1:#16222e; --table-2:#0c141c; --paper:#f4efe3;
+  --brass:#b98a3c; --brass-hi:#e4c883; --brass-deep:#8a6526;
+  --line:rgba(240,235,220,.10); --line-2:rgba(240,235,220,.16);
+  --muted:#9aa6b2; --muted-2:#c7d0d9;
+  --blue:#2f6fc0; --yellow:#f2c94c; --yellow-ink:#c99105; --green:#2f9e4f; --orange:#e2701c; --red:#c0392b;
+  --shadow:0 14px 30px -12px rgba(0,0,0,.6);
+  --cw:80px; --oppw:280px;
+}
+*{box-sizing:border-box}
+html,body{height:100%; margin:0; overflow:hidden}
+html{-webkit-text-size-adjust:100%}
+body{overscroll-behavior:none; color:var(--muted-2); font-family:"Archivo",system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:radial-gradient(120% 90% at 50% 6%, #223141 0%, var(--table-1) 42%, var(--table-2) 100%); -webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); font-weight:600}
+button{font-family:inherit}
+
+.btn{border:1px solid var(--brass-deep); cursor:pointer; color:#211a0c; text-decoration:none; display:inline-flex; align-items:center; gap:6px;
+  background:linear-gradient(180deg,var(--brass-hi),var(--brass)); padding:.62em 1.15em; border-radius:9px; font-weight:700; font-size:.92rem;
+  box-shadow:0 2px 0 var(--brass-deep),0 8px 18px -8px rgba(0,0,0,.7); transition:transform .08s, filter .15s; white-space:nowrap}
+.btn:hover{filter:brightness(1.06)} .btn:active{transform:translateY(2px); box-shadow:0 0 0 var(--brass-deep)}
+.btn.ghost{background:transparent; color:var(--muted-2); border-color:var(--line-2); box-shadow:none; font-weight:500}
+.btn.ghost:hover{border-color:var(--brass); color:var(--brass-hi)}
+.btn.sm{padding:.5em .85em; font-size:.84rem}
+.btn:focus-visible{outline:3px solid var(--brass-hi); outline-offset:2px}
+.btn:disabled{opacity:.4; cursor:not-allowed; filter:none; transform:none}
+
+#app{width:100%; height:100dvh; overflow:hidden; display:flex; flex-direction:column; gap:6px;
+  padding:max(6px,env(safe-area-inset-top)) max(8px,env(safe-area-inset-right)) max(8px,env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; flex:0 0 auto}
+.brand{display:flex; align-items:center; gap:10px; min-width:0; flex:1 1 auto}
+.brand>div:last-child{min-width:0}
+.brand .tabs{display:flex; gap:3px} .brand .tabs i{width:8px; height:22px; border-radius:2px; display:block}
+.brand h1{font-size:1.12rem; line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.brand .sub{font-size:.7rem; color:var(--muted); letter-spacing:.12em; margin-top:3px; white-space:nowrap}
+.tools{display:flex; gap:6px} .tools .s{display:none}
+
+.scorebar{display:flex; gap:6px; flex-wrap:wrap; justify-content:center; flex:0 0 auto}
+.pchip{display:flex; align-items:center; gap:7px; padding:5px 11px 5px 6px; border:1px solid var(--line); border-radius:11px; background:linear-gradient(180deg,rgba(255,255,255,.05),rgba(255,255,255,.01));
+  transition:border-color .2s, box-shadow .2s, transform .2s; font-size:.8rem}
+.pchip.active{border-color:var(--brass); box-shadow:0 0 0 1px var(--brass),0 8px 22px -12px rgba(185,138,60,.8); transform:translateY(-1px)}
+.tok{width:22px; height:22px; border-radius:50%; background:var(--pc); color:#1a1408; font-weight:800; font-size:.72rem; display:inline-flex; align-items:center; justify-content:center; box-shadow:inset 0 -2px 0 rgba(0,0,0,.22); flex:0 0 auto}
+.pchip .nm{color:var(--paper); font-weight:600}
+.pchip .pts{font-family:"Fraunces",serif; color:var(--brass-hi); font-size:1.05rem; font-weight:700; display:flex; align-items:center; gap:3px}
+.pchip .pts svg{width:12px; height:12px}
+.pchip .meta{color:var(--muted); font-size:.7rem}
+
+.felt{position:relative; flex:1 1 auto; min-height:0; display:flex; gap:10px; padding:8px 10px; border-radius:18px; overflow:hidden;
+  background:radial-gradient(140% 120% at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,0) 55%), linear-gradient(180deg,#1c3b34,#122a26);
+  border:1px solid rgba(255,255,255,.06); box-shadow:inset 0 2px 30px rgba(0,0,0,.45), var(--shadow)}
+.felt::after{content:""; position:absolute; inset:0; pointer-events:none; background-image:radial-gradient(rgba(255,255,255,.03) 1px, transparent 1px); background-size:6px 6px}
+.center{flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:6px; z-index:1}
+.status{text-align:center; flex:0 0 auto}
+.status .phase{font-family:"Fraunces",serif; color:var(--paper); font-size:clamp(.98rem,2.2vw,1.3rem); line-height:1.15}
+.status .hint{font-size:.78rem; color:#bfe0cf; margin-top:2px; min-height:1.05em; line-height:1.3}
+.matwrap{flex:1 1 auto; min-height:0; display:flex; align-items:safe center; justify-content:safe center}
+
+/* ---------- the cross mat ---------- */
+.mat{display:grid; grid-template-areas:"c1 su c2" "sp dk fa" "c3 wi c4"; gap:calc(var(--cw)*.12); align-items:center; justify-items:center}
+.space{--card-w:var(--cw); --card-h:calc(var(--card-w)*1.42); position:relative; padding:calc(var(--cw)*.07) calc(var(--cw)*.08) calc(var(--cw)*.08); border-radius:14px;
+  border:1px solid color-mix(in srgb, var(--sc) 60%, transparent);
+  background:linear-gradient(180deg, color-mix(in srgb, var(--sc) 18%, transparent), color-mix(in srgb, var(--sc) 6%, transparent)); transition:box-shadow .3s}
+.space.hot{box-shadow:0 0 0 2px var(--brass-hi), 0 0 30px 4px rgba(228,200,131,.35)}
+.shead{display:flex; align-items:center; gap:5px; font-weight:800; font-size:calc(var(--cw)*.13); letter-spacing:.06em; color:var(--sct); white-space:nowrap; line-height:1; margin-bottom:calc(var(--cw)*.06)}
+.shead svg{width:calc(var(--cw)*.17); height:calc(var(--cw)*.17); color:var(--sc); flex:0 0 auto}
+.shead small{font-size:.78em; color:var(--paper); opacity:.75}
+.pips{margin-left:auto; display:flex; gap:3px}
+.pips i{width:calc(var(--cw)*.1); height:calc(var(--cw)*.1); border-radius:50%; border:1.5px solid var(--sc); display:block}
+.pips i.on{background:var(--sc)}
+.slots{display:flex; gap:calc(var(--cw)*.07)}
+.slot{position:relative; width:var(--card-w); height:var(--card-h); border-radius:12px}
+.slot.tgt::before{content:""; position:absolute; inset:-4px; border-radius:14px; border:2px solid var(--brass-hi); animation:pulse 1.2s ease-in-out infinite; pointer-events:none; z-index:8}
+.sghost{position:absolute; inset:0; border-radius:12px; border:2px dashed color-mix(in srgb, var(--sc) 55%, rgba(255,255,255,.25)); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+  color:rgba(240,235,220,.55); font-size:calc(var(--cw)*.12); font-weight:700; letter-spacing:.1em; text-align:center; line-height:1.1}
+.closed{position:absolute; inset:calc(var(--cw)*.3) calc(var(--cw)*.08) calc(var(--cw)*.08); display:flex; align-items:center; justify-content:center; gap:calc(var(--cw)*.2); z-index:5;
+  background:rgba(10,20,18,.55); border-radius:10px; backdrop-filter:blur(1px)}
+.closed .cstack{--card-w:calc(var(--cw)*.62); --card-h:calc(var(--card-w)*1.42); position:relative}
+.closed .cstack .cardback{box-shadow:3px 3px 0 -1px #0b131c, 6px 6px 0 -2px #0b131c}
+.closed b{font-family:"Fraunces",serif; color:var(--brass-hi); font-size:calc(var(--cw)*.2); transform:rotate(-6deg); border:2px solid var(--brass); padding:4px 10px; border-radius:8px}
+.deckzone{grid-area:dk; --card-w:calc(var(--cw)*1.02); --card-h:calc(var(--card-w)*1.42); display:flex; flex-direction:column; align-items:center; gap:4px; position:relative}
+.deckzone .dkstack{position:relative}
+.deckzone .dkstack .ck{box-shadow:2px 3px 0 -1px #0b131c, 4px 6px 0 -2px #0b131c; border-radius:12px}
+.deckzone .cnt{font-size:.74rem; color:#a7c6b7; text-align:center; line-height:1.2} .deckzone .cnt b{color:var(--paper); font-size:.95rem}
+.deckzone.tgt .dkstack{cursor:pointer}
+.deckzone.tgt .dkstack::before{content:""; position:absolute; inset:-6px; border-radius:15px; border:2px solid var(--brass-hi); animation:pulse 1.2s ease-in-out infinite; z-index:3; pointer-events:none}
+.corner{font-family:"Fraunces",serif; font-weight:700; font-size:calc(var(--cw)*.36); line-height:1; letter-spacing:.01em; transform:rotate(-4deg); text-shadow:0 3px 12px rgba(0,0,0,.4); user-select:none}
+
+/* ---------- opponents ---------- */
+.opps{flex:0 0 var(--oppw); min-width:0; display:flex; flex-direction:column; gap:6px; justify-content:safe center; overflow:hidden; z-index:1; padding:2px}
+.oppbox{border:1px solid var(--line); border-radius:12px; padding:6px 8px; background:rgba(0,0,0,.16)}
+.oppbox.active{border-color:rgba(228,200,131,.6)}
+.oppbox .oh{display:flex; align-items:center; gap:6px; font-size:.78rem; white-space:nowrap}
+.oppbox .oh .tok{width:18px; height:18px; font-size:.6rem}
+.oppbox .oh b{color:var(--paper)}
+.oppbox .oh .star{margin-left:auto; font-family:"Fraunces",serif; color:var(--brass-hi); font-weight:700; display:flex; align-items:center; gap:3px}
+.oppbox .oh .star svg{width:12px; height:12px}
+.scnts{display:flex; gap:4px; margin-top:5px; flex-wrap:wrap}
+.scnt{display:inline-flex; align-items:center; gap:3px; padding:2px 6px 2px 4px; border-radius:7px; font-size:.68rem; font-weight:700; color:var(--paper);
+  background:color-mix(in srgb, var(--sc) 22%, transparent); border:1px solid color-mix(in srgb, var(--sc) 60%, transparent)}
+.scnt svg{width:11px; height:11px; color:var(--sc)}
+.scnt.zero{opacity:.35}
+.ostack{--card-w:calc(var(--cw)*.34); --card-h:calc(var(--card-w)*1.42); display:flex; margin-top:5px; min-height:var(--card-h)}
+.ostack .dst{margin-right:calc(var(--card-w)*-.55)}
+.ostack .card{border-radius:4px}
+.ostack .ck:not(:last-child){display:none}
+
+/* ---------- me ---------- */
+.me{flex:0 0 auto; display:flex; gap:12px; align-items:flex-end; min-width:0}
+.lbl{font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin-bottom:3px; white-space:nowrap}
+.lbl b{color:var(--brass-hi); letter-spacing:.02em; text-transform:none; font-size:.85rem}
+.piles{display:grid; grid-template-columns:repeat(4,auto); gap:calc(var(--cw)*.14); flex:0 0 auto}
+.pile{--card-w:calc(var(--cw)*.74); --card-h:calc(var(--card-w)*1.42); display:flex; flex-direction:column; align-items:center; gap:3px}
+.pile .ph{display:flex; align-items:center; gap:3px; font-size:calc(var(--cw)*.11); font-weight:800; letter-spacing:.05em; color:var(--sct); white-space:nowrap}
+.pile .ph svg{width:calc(var(--cw)*.14); height:calc(var(--cw)*.14); color:var(--sc)}
+.pile .col{position:relative; width:var(--card-w); height:calc(var(--card-h)*1.66); border-radius:12px}
+.pile .col .none{position:absolute; left:0; right:0; top:0; height:var(--card-h); border-radius:12px; border:1.5px dashed color-mix(in srgb, var(--sc) 45%, rgba(255,255,255,.2)); opacity:.6}
+.pile .col .ck{position:absolute; left:0; top:calc(var(--card-h)*var(--off)*var(--i))}
+.pile .more{font-size:.66rem; color:var(--muted); min-height:1em}
+.donebox{flex:1 1 auto; min-width:0}
+.dstack{--card-w:calc(var(--cw)*.62); --card-h:calc(var(--card-w)*1.42); position:relative; height:calc(var(--card-h) + 10px); min-width:var(--card-w)}
+.dstack .dst{position:absolute; top:4px; left:calc(var(--step,30px)*var(--n))}
+.dstack .dst .ck{position:absolute; left:calc(var(--j)*2px); top:calc(var(--j)*-2px)}
+.dstack .dst .card{border-radius:8px}
+.dstack .none{font-size:.74rem; color:rgba(240,235,220,.4); font-style:italic; position:absolute; top:40%; white-space:nowrap}
+.ctrl{display:flex; gap:8px; justify-content:flex-end; align-items:center; flex-wrap:wrap; flex:0 0 auto; min-height:40px}
+
+.ck{position:relative; border-radius:12px; perspective:700px}
+.ck.fresh>.card{animation:flipIn .55s cubic-bezier(.2,.7,.3,1) both}
+@keyframes flipIn{0%{transform:rotateY(90deg) scale(.9)}100%{transform:none}}
+.ck.can{cursor:pointer}
+.ck.can>.card{box-shadow:0 0 0 3px var(--brass-hi), 0 12px 26px -12px rgba(0,0,0,.8); transition:transform .15s}
+.ck.can:hover>.card{transform:translateY(-8px)}
+.ck.can:hover{z-index:20}
+.ck.flash>.card{animation:nudge .5s ease-in-out 3}
+@keyframes nudge{50%{transform:translateY(-12px)}}
+@keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+
+.toast{position:fixed; left:50%; top:16%; transform:translate(-50%,-10px); z-index:40; max-width:min(520px,92vw); padding:12px 18px; border-radius:14px; text-align:center;
+  background:linear-gradient(180deg,#1f2e3d,#131c26); border:1px solid rgba(228,200,131,.45); color:var(--paper); box-shadow:0 30px 60px -20px rgba(0,0,0,.9);
+  opacity:0; pointer-events:none; transition:opacity .25s, transform .25s; font-size:.92rem; line-height:1.4}
+.toast.on{opacity:1; transform:translate(-50%,0)} .toast b{color:var(--brass-hi)}
+.toast .big{font-family:"Fraunces",serif; font-size:1.25rem; display:block; margin-bottom:2px}
+
+.overlay{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:16px;
+  background:radial-gradient(120% 120% at 50% 0%, rgba(20,30,40,.8), rgba(6,10,14,.94)); backdrop-filter:blur(3px)}
+.overlay[hidden]{display:none}
+.book{width:min(600px,100%); max-height:calc(100dvh - 32px); overflow:auto; background:linear-gradient(180deg,#1b2836,#111a24);
+  border:1px solid rgba(228,200,131,.25); border-radius:18px; padding:24px 24px 20px; box-shadow:0 40px 90px -30px rgba(0,0,0,.85)}
+.book .cover{display:flex; gap:5px; margin-bottom:14px} .book .cover i{height:28px; flex:1; border-radius:4px}
+.book .eyebrow{color:var(--brass-hi); font-size:.74rem; letter-spacing:.2em; text-transform:uppercase; margin-bottom:6px}
+.book h2{font-size:clamp(1.6rem,5vw,2.3rem); line-height:1.03}
+.book p,.book li{color:var(--muted-2); line-height:1.55; font-size:.9rem}
+.book p.lede{margin:12px 0 18px}
+.book h3{color:var(--brass-hi); font-family:"Archivo",sans-serif; font-weight:700; font-size:.76rem; letter-spacing:.1em; text-transform:uppercase; margin:16px 0 6px}
+.book ul{padding-left:18px; margin:6px 0}
+.book b{color:var(--paper)}
+.credit{margin-top:16px; padding-top:12px; border-top:1px solid var(--line); font-size:.78rem; color:var(--muted); line-height:1.5} .credit b{color:var(--brass-hi)}
+.field{margin:0 0 16px} .field .flabel{font-size:.8rem; color:var(--muted); margin-bottom:7px}
+.chips{display:flex; gap:8px; flex-wrap:wrap}
+.chip{border:1px solid var(--line-2); background:transparent; color:var(--muted-2); min-width:44px; height:44px; padding:0 12px; border-radius:10px; cursor:pointer; font-size:.95rem; font-weight:600}
+.chip:hover{border-color:var(--brass)} .chip.sel{background:linear-gradient(180deg,var(--brass-hi),var(--brass)); color:#211a0c; border-color:var(--brass-deep)}
+.row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.note{font-size:.76rem; color:var(--muted); margin-top:12px; line-height:1.5}
+.legend{display:flex; gap:10px; flex-wrap:wrap; margin:8px 0}
+.legend span{display:flex; align-items:center; gap:5px; font-size:.82rem}
+.legend i{width:14px; height:14px; border-radius:3px; display:block}
+.standings{list-style:none; padding:0; margin:14px 0}
+.standings li{display:flex; align-items:center; gap:10px; padding:9px 12px; border-bottom:1px solid var(--line); color:var(--muted-2)}
+.standings li.win{color:var(--brass-hi); font-weight:700}
+.standings li .p{margin-left:auto; font-family:"Fraunces",serif; font-size:1.1rem}
+.stamp{display:inline-block; padding:10px 22px; border:3px solid var(--brass); border-radius:10px; color:var(--brass-hi); font-family:"Fraunces",serif; font-weight:700; font-size:clamp(1.3rem,4.5vw,2rem); transform:rotate(-3deg); animation:slam .5s cubic-bezier(.2,1.2,.3,1)}
+@keyframes slam{0%{transform:rotate(-3deg) scale(2.2); opacity:0}60%{opacity:1}100%{transform:rotate(-3deg) scale(1)}}
+.peekgrid{--card-w:56px; --card-h:calc(var(--card-w)*1.42); display:flex; flex-wrap:wrap; gap:6px; margin:8px 0 12px}
+
+/* ---------- phone ---------- */
+body.narrow .felt{flex-direction:column; padding:6px}
+body.narrow .opps{display:none}
+body.narrow .mat{grid-template-areas:"sp su" "dk dk" "fa wi"; gap:calc(var(--cw)*.1) calc(var(--cw)*.12)}
+body.narrow .corner{display:none}
+body.narrow .deckzone{flex-direction:row; gap:12px; --card-w:calc(var(--cw)*.8)}
+body.narrow .space{padding:4px 5px 5px}
+body.narrow .me{flex-direction:column; align-items:stretch; gap:4px}
+body.narrow .piles{justify-content:center}
+body.narrow .dockrow{display:flex; align-items:flex-end; gap:8px}
+body.narrow .pchip{cursor:pointer}
+.dockrow{display:contents}
+@media (max-width:560px){
+  .brand .sub,.brand .tabs{display:none} .tools .l{display:none} .tools .s{display:inline}
+  .tools{gap:4px} .tools .btn.sm{padding:.45em .6em}
+  .brand h1{font-size:1rem}
+  .pchip{padding:3px 8px 3px 4px; gap:5px} .pchip .meta{display:none}
+}
+/* short landscape screens (phones on their side): mat left, your piles right, compact chrome */
+body.short #app{position:relative; display:grid; grid-template-columns:minmax(0,1fr) auto; grid-template-rows:auto minmax(0,1fr); gap:6px}
+body.short .topbar{position:absolute; top:max(4px,env(safe-area-inset-top)); right:max(8px,env(safe-area-inset-right)); z-index:5}
+body.short .brand{display:none}
+body.short .tools{gap:4px} body.short .tools .l{display:none} body.short .tools .s{display:inline} body.short .tools .btn.sm{padding:.4em .6em}
+body.short .scorebar{grid-column:1/-1; justify-content:flex-start; flex-wrap:nowrap; overflow:hidden; padding-right:var(--toolsw,220px); min-height:34px}
+body.short .pchip{padding:3px 8px 3px 4px; cursor:pointer} body.short .pchip .meta{display:none}
+body.short .felt{grid-column:1; grid-row:2}
+body.short .opps,body.short .corner{display:none}
+body.short .me{grid-column:2; grid-row:2; flex-direction:column; align-items:stretch; justify-content:flex-end; gap:4px}
+body.short .dockrow{display:flex; align-items:flex-end; gap:8px}
+@media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} }
+</style>
+<link rel="stylesheet" href="cards.css?v=9">
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="tabs"><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i><i style="background:var(--blue)"></i></div>
+      <div><h1>Finish the Appointment</h1><div class="sub">GAME #261 · PLAYFUL</div></div>
+    </div>
+    <div class="tools">
+      <a class="btn ghost sm" href="index.html">← Parlor</a>
+      <button class="btn ghost sm" id="btnHelp"><span class="l">How to play</span><span class="s">?</span></button>
+      <button class="btn ghost sm" id="btnNew"><span class="l">New game</span><span class="s">New</span></button>
+    </div>
+  </div>
+  <div class="scorebar" id="scorebar"></div>
+  <div class="felt">
+    <div class="center">
+      <div class="status"><div class="phase" id="phase">—</div><div class="hint" id="hint"></div></div>
+      <div class="matwrap"><div class="mat" id="mat"></div></div>
+    </div>
+    <div class="opps" id="opps"></div>
+  </div>
+  <div class="me">
+    <div><div class="lbl">Your season piles</div><div class="piles" id="piles"></div></div>
+    <div class="dockrow">
+      <div class="donebox"><div class="lbl">Finished appointments <b id="myCount"></b></div><div class="dstack" id="myDone"></div></div>
+      <div class="ctrl" id="ctrl"></div>
+    </div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<div class="overlay" id="setupOv">
+  <div class="book">
+    <div class="cover"><i style="background:var(--yellow)"></i><i style="background:var(--green)"></i><i style="background:var(--orange)"></i><i style="background:var(--blue)"></i></div>
+    <div class="eyebrow">Game #261 · Playful · 2–6 players</div>
+    <h2>Finish the Appointment</h2>
+    <p class="lede">Cards are drawn and played around the deck to build each season one type at a time: Season/Month, Day and Time. Race to be the player who puts down the <b>third</b> type and finishes the appointment.</p>
+    <div class="field"><div class="flabel">Computer opponents</div><div class="chips" id="oppChips"></div></div>
+    <div class="field"><div class="flabel">Opponent speed</div><div class="chips" id="speedChips"></div></div>
+    <div class="row"><button class="btn" id="btnStart">Shuffle &amp; play</button><button class="btn ghost" id="btnHelp2">How to play</button></div>
+    <p class="note">Created by Anne Gyorfi, Author · 3/13/2026</p>
+  </div>
+</div>
+
+<div class="overlay" id="helpOv" hidden>
+  <div class="book">
+    <div class="eyebrow">How to play · Game #261</div>
+    <h2>Place the third type</h2>
+    <div class="legend">
+      <span><i style="background:var(--yellow)"></i>Spring · YELLOW</span><span><i style="background:var(--green)"></i>Summer · GREEN</span>
+      <span><i style="background:var(--orange)"></i>Fall · ORANGE</span><span><i style="background:var(--blue)"></i>Winter · BLUE</span>
+    </div>
+    <h3>The goal</h3>
+    <p>Finish the most appointments. An appointment is three matching cards of the <b>same season color</b>: one Season/Month, one Day and one Time.</p>
+    <h3>Setup</h3>
+    <p>Shuffle all the cards and place the deck face down in the center of the mat, with a space for each season around it. The player left of the dealer goes first.</p>
+    <h3>Your turn</h3>
+    <ul>
+      <li>A card is <b>playable</b> if its season space holds no card of that type yet (Season/Month, Day or Time). Each space holds one of each type, in any order.</li>
+      <li>If any card in your four season piles is playable, you <b>must</b> play one (tap it). You don't draw that turn.</li>
+      <li>With no playable cards, <b>draw one card</b>. If it's playable, it's played immediately. If not, it goes into your matching season pile.</li>
+      <li>When a season shows two types and you place the third, you <b>finish the appointment</b>. You take all three cards, and that season starts over for the next player.</li>
+    </ul>
+    <h3>Strategy</h3>
+    <p>Hold out on your Season/Month cards when you have a choice. They're the most important and hardest to get, and only three exist per season. Try not to leave two types showing for the next player to finish!</p>
+    <h3>End of the game</h3>
+    <p>Once all 3 months of a season are finished, that season is complete: any leftover cards of that season are stacked face down. When all 12 appointments are made, the player with the most wins. Tied players share the win.</p>
+    <div class="credit">⭐ <b>Finish the Appointment</b> · Game #261 · Level: Playful · Players 2–6 · Ages 7+<br>Created by <b>Anne Gyorfi, Author</b> (3/13/2026) · Digital edition for the IGAA Parlor</div>
+    <div class="row" style="margin-top:14px"><button class="btn" id="btnCloseHelp">Got it</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="peekOv" hidden>
+  <div class="book">
+    <div class="eyebrow" id="peekEyebrow">Piles</div>
+    <h2 id="peekTitle">—</h2>
+    <div class="lbl" style="margin-top:12px">Season piles</div>
+    <div class="peekgrid" id="peekCards"></div>
+    <div class="lbl">Finished appointments</div>
+    <div class="peekgrid" id="peekAppts"></div>
+    <div class="row"><button class="btn ghost" id="btnClosePeek">Close</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="endOv" hidden>
+  <div class="book" style="text-align:center">
+    <div class="stamp">All 12 finished!</div>
+    <h2 id="endTitle" style="margin-top:14px">—</h2>
+    <ul class="standings" id="standings"></ul>
+    <div class="row" style="justify-content:center"><button class="btn" id="btnAgain">Play again</button></div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* =====================================================================
+   FINISH THE APPOINTMENT · Game #261 by Anne Gyorfi, digital edition.
+   Cards render ONLY through the shared cards.js; rendering starts after it loads.
+   ===================================================================== */
+const SEASONS=[
+  {name:"Spring", color:"yellow", word:"YELLOW", c:"#f2c94c", t:"#f2c94c", area:"sp", months:["March","April","May"]},
+  {name:"Summer", color:"green",  word:"GREEN",  c:"#2f9e4f", t:"#6fd08f", area:"su", months:["June","July","August"]},
+  {name:"Fall",   color:"orange", word:"ORANGE", c:"#e2701c", t:"#f39a55", area:"fa", months:["September","October","November"]},
+  {name:"Winter", color:"blue",   word:"BLUE",   c:"#2f6fc0", t:"#79aee8", area:"wi", months:["December","January","February"]},
+];
+const SEASON=n=>SEASONS.find(s=>s.name===n);
+const ICONS={
+  Winter:'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 2v20M3.3 7l17.4 10M20.7 7L3.3 17"/></svg>',
+  Spring:'<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="currentColor"><ellipse cx="12" cy="6" rx="2.4" ry="4"/><ellipse cx="12" cy="6" rx="2.4" ry="4" transform="rotate(72 12 11)"/><ellipse cx="12" cy="6" rx="2.4" ry="4" transform="rotate(144 12 11)"/><ellipse cx="12" cy="6" rx="2.4" ry="4" transform="rotate(216 12 11)"/><ellipse cx="12" cy="6" rx="2.4" ry="4" transform="rotate(288 12 11)"/></g><circle cx="12" cy="11" r="2.6" fill="#e0a400"/></svg>',
+  Summer:'<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="11" y="15" width="2" height="7" rx="1" fill="#8a5a2b"/><g fill="currentColor"><circle cx="8" cy="10.5" r="3.7"/><circle cx="16" cy="10.5" r="3.7"/><circle cx="12" cy="7.5" r="4.6"/><circle cx="12" cy="12" r="4.3"/></g></svg>',
+  Fall:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21.5v-3.1l3 .7-1-2.5 3.3.4-1.9-2.2 3.1-.9-2.6-1.6 2.3-1.9-3 .2 1-3-2.5 1.8L12 2.6l-1.5 3.5-2.5-1.8 1 3-3-.2 2.3 1.9-2.6 1.6 3.1.9-1.9 2.2 3.3-.4-1 2.5 3-.7v3.1z" fill="currentColor"/></svg>'
+};
+const STAR='<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2.9 6.9 7.1.6-5.4 4.7 1.7 7-6.3-3.9-6.3 3.9 1.7-7L2 9.5l7.1-.6z"/></svg>';
+const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const TIMES=[{v:"9:00 AM",hr:9},{v:"10:00 AM",hr:10},{v:"11:00 AM",hr:11},{v:"12:00 NOON",hr:12},{v:"1:00 PM",hr:1},{v:"2:00 PM",hr:2},{v:"3:00 PM",hr:3}];
+const CATS=["season","day","time"], CATLBL={season:"MONTH",day:"DAY",time:"TIME"};
+const AI=[{name:"Robin",pc:"#b48ce8"},{name:"Sam",pc:"#e8736a"},{name:"Alex",pc:"#5fc9c1"},{name:"Jordan",pc:"#f59ac8"},{name:"Casey",pc:"#9fd36a"}];
+const $=s=>document.querySelector(s);
+const DEMO=/demo/.test(location.hash);
+let FAST=false;
+const wait=ms=>new Promise(r=>setTimeout(r,FAST?0:ms*CFG.speed));
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;};
+let CID=0, AID=0;
+function buildDeck(){
+  const d=[];
+  for(const s of SEASONS){
+    s.months.forEach(m=>d.push({id:"c"+(++CID),cat:"season",color:s.color,season:s.name,value:m}));
+    DAYS.forEach(v=>d.push({id:"c"+(++CID),cat:"day",color:s.color,season:s.name,value:v,kind:(v==="Saturday"||v==="Sunday")?"WEEKEND":"WEEKDAY"}));
+    TIMES.forEach(t=>d.push({id:"c"+(++CID),cat:"time",color:s.color,season:s.name,value:t.v,hr:t.hr}));
+  }
+  return d;
+}
+
+/* ============================ STATE ============================ */
+let G=null, CFG={opps:2, speed:1};
+const me=()=>G.players[0], cur=()=>G.players[G.current];
+function newGame(){
+  const players=[{name:"You",human:true,pc:"#e4c883"}];
+  for(let i=0;i<CFG.opps;i++) players.push({name:AI[i].name,human:false,pc:AI[i].pc});
+  players.forEach(p=>{ p.piles={Spring:[],Summer:[],Fall:[],Winter:[]}; p.appts=[]; });
+  const spaces={}; SEASONS.forEach(s=>spaces[s.name]={season:null,day:null,time:null,done:0,closed:false});
+  const dealer=Math.floor(Math.random()*players.length);
+  G={players, deck:shuffle(buildDeck()), spaces, dead:[], dealer, current:(dealer+1)%players.length, made:0, token:{}, fresh:new Set(), idle:0, lastMsg:"", over:false};
+  G.lastMsg=`${players[dealer].name==="You"?"You deal":players[dealer].name+" deals"}. ${players[G.current].name==="You"?"You go":players[G.current].name+" goes"} first.`;
+  beginTurn();
+}
+
+/* ============================ RULES ============================ */
+const isPlayable=c=>{ const sp=G.spaces[c.season]; return !sp.closed && !sp[c.cat]; };
+const pileCards=p=>SEASONS.flatMap(s=>p.piles[s.name]);
+const playableOf=p=>pileCards(p).filter(isPlayable);
+function playCard(pi, c, fromDeck){
+  const p=G.players[pi], sp=G.spaces[c.season], who=p.human?"You":p.name;
+  if(!fromDeck){ const pile=p.piles[c.season]; pile.splice(pile.indexOf(c),1); }
+  sp[c.cat]=c; G.hotSpace=c.season;
+  let res={completed:false, closed:false};
+  if(sp.season&&sp.day&&sp.time){
+    const a={id:"a"+(++AID), cards:[sp.time,sp.day,sp.season], season:c.season};
+    p.appts.push(a); sp.season=sp.day=sp.time=null; sp.done++; G.made++; res.completed=a;
+    G.lastMsg=`${who} finished the <b>${c.season}</b> appointment: ${a.cards[2].value} · ${a.cards[1].value} · ${a.cards[0].value}!`;
+    if(sp.done>=3){
+      sp.closed=true; res.closed=true;
+      G.players.forEach(q=>{ G.dead.push(...q.piles[c.season]); q.piles[c.season]=[]; });
+      G.lastMsg+=` All three ${c.season} months are done, so ${c.season} is complete.`;
+    }
+  } else {
+    G.lastMsg=`${who} ${fromDeck?"drew and played":"played"} ${c.value} on ${c.season}.`;
+  }
+  return res;
+}
+function drawFor(pi){
+  const p=G.players[pi], c=G.deck.pop(), who=p.human?"You":p.name;
+  G.fresh=new Set([c.id]);
+  if(G.spaces[c.season].closed){ G.dead.push(c); G.lastMsg=`${who} drew ${c.value}, but ${c.season} is complete, so it's set aside.`; return {card:c, dead:true}; }
+  if(isPlayable(c)) return Object.assign({card:c, played:true}, playCard(pi,c,true));
+  p.piles[c.season].push(c);
+  G.lastMsg=`${who} drew ${c.value} (${c.season}). ${c.season} already has a ${CATLBL[c.cat].toLowerCase()}, so it goes to ${p.human?"your":"their"} pile.`;
+  return {card:c, piled:true};
+}
+
+/* ============================ AI ============================ */
+function playScore(pi, c){
+  const sp=G.spaces[c.season], filled=CATS.filter(k=>sp[k]).length, p=G.players[pi];
+  if(filled===2) return 100;                                   // finishes an appointment
+  let s=0;
+  if(filled===1){                                              // would leave two types showing
+    const missing=CATS.find(k=>k!==c.cat && !sp[k]);
+    s+=p.piles[c.season].some(x=>x!==c && x.cat===missing)?1.5:-6;
+  }
+  if(c.cat==="season") s-=4;                                   // hold out on Season/Month cards
+  return s+Math.random()*0.1;
+}
+function bestPlay(pi){
+  let best=null, bs=-Infinity;
+  for(const c of playableOf(G.players[pi])){ const s=playScore(pi,c); if(s>bs){bs=s; best=c;} }
+  return best;
+}
+
+/* ============================ TURN FLOW ============================ */
+function beginTurn(){
+  if(G.made>=12){ render(); gameOver(); return; }
+  const p=cur(), pl=playableOf(p);
+  G.phase=pl.length?"play":(G.deck.length?"draw":"pass");
+  if(G.phase==="pass"){ G.idle++; if(G.idle>G.players.length){ render(); gameOver(); return; } } else G.idle=0;
+  render();
+  if(!p.human) runAI(G.token);
+  else if(G.phase==="pass"){ const tk=G.token; setTimeout(()=>{ if(tk===G.token) nextTurn(); }, FAST?0:1400); }
+}
+async function runAI(token){
+  const pi=G.current, p=cur();
+  await wait(750); if(token!==G.token) return;
+  let res=null;
+  if(G.phase==="play"){ const c=bestPlay(pi); res=playCard(pi,c,false); render({from:`[data-pfrom="${pi}"]`}); }
+  else if(G.phase==="draw"){ res=drawFor(pi); render({from:"#deckStack"}); }
+  if(res&&res.completed) celebrate(pi,res);
+  await wait(res&&res.completed?1300:850); if(token!==G.token) return;
+  nextTurn();
+}
+function nextTurn(){ G.current=(G.current+1)%G.players.length; G.fresh=new Set(); beginTurn(); }
+function celebrate(pi,res){
+  const p=G.players[pi];
+  toast(p.human?`You finished ${res.completed.season}!`:`${p.name} finished ${res.completed.season}`,
+    `${res.completed.cards[2].value} · ${res.completed.cards[1].value} · ${res.completed.cards[0].value}${res.closed?`<br><b>${res.completed.season} is complete</b>, with all 3 months finished.`:""}`);
+}
+function humanPlay(id){
+  if(!G||G.phase!=="play"||!cur().human) return;
+  const c=pileCards(me()).find(x=>x.id===id); if(!c||!isPlayable(c)) return;
+  G.phase="busy"; const res=playCard(0,c,false); render({});
+  if(res.completed) celebrate(0,res);
+  const tk=G.token; setTimeout(()=>{ if(tk===G.token) nextTurn(); }, FAST?0:(res.completed?1300:750));
+}
+function humanDraw(){
+  if(!G||G.phase!=="draw"||!cur().human||!$("#setupOv").hidden) return;
+  G.phase="busy"; const res=drawFor(0); render({from:"#deckStack"});
+  if(res.completed) celebrate(0,res);
+  else if(res.dead) toast("Set aside",`${res.card.season} is already complete.`);
+  const tk=G.token; setTimeout(()=>{ if(tk===G.token) nextTurn(); }, FAST?0:(res.completed?1400:1000));
+}
+function doHint(){
+  if(!G||G.phase!=="play"||!cur().human) return;
+  const c=bestPlay(0); if(!c) return;
+  const el=document.querySelector(`#piles [data-k="${c.id}"]`); if(el){ el.classList.remove("flash"); void el.offsetWidth; el.classList.add("flash"); }
+  const sp=G.spaces[c.season], filled=CATS.filter(k=>sp[k]).length;
+  toast("Suggested play", filled===2?`${c.value} finishes ${c.season}!`:(c.cat==="season"?"Only Season/Month cards are playable, so play one.":`Play ${c.value} and keep your Season/Month cards back.`));
+}
+function gameOver(){
+  G.over=true; G.token={};
+  const ranked=G.players.map(p=>p).sort((a,b)=>b.appts.length-a.appts.length);
+  const top=ranked[0].appts.length, w=ranked.filter(p=>p.appts.length===top).map(p=>p.name);
+  $("#endTitle").textContent=w.length>1?`Shared win: ${w.join(" & ")}`:(w[0]==="You"?"You win!":`${w[0]} wins`);
+  $("#standings").innerHTML=ranked.map(p=>`<li class="${p.appts.length===top?"win":""}"><span class="tok" style="--pc:${p.pc}">${p.name[0]}</span>${p.name}<span class="p">${p.appts.length} appointment${p.appts.length!==1?"s":""}</span></li>`).join("");
+  setTimeout(()=>{ $("#endOv").hidden=false; }, FAST?0:1400);
+}
+
+/* ============================ RENDER ============================ */
+function ck(c, extra){ return `<div class="ck${extra?" "+extra:""}${G.fresh.has(c.id)?" fresh":""}" data-k="${c.id}">${cardFaceHTML(c)}</div>`; }
+function render(opts){
+  opts=opts||{};
+  const before=opts.noAnim?null:snap();
+  renderScore(); renderStatus(); renderMat(); renderOpps(); renderMe(); renderCtrl();
+  fitBoard();
+  if(before) playFlip(before, opts.from);
+  G.hotSpace=null;
+}
+function renderScore(){
+  $("#scorebar").innerHTML=G.players.map((p,i)=>`<div class="pchip ${i===G.current&&!G.over?"active":""}" data-peek="${i}" style="--pc:${p.pc}">
+    <span class="tok">${p.name[0]}</span><span class="nm">${p.name}</span><span class="pts">${STAR}${p.appts.length}</span>
+    <span class="meta">${pileCards(p).length} in piles${i===G.dealer?" · dealer":""}</span></div>`).join("");
+}
+function renderStatus(){
+  const p=cur(); let ph="", hi=G.lastMsg||"";
+  if(G.over) ph="Game over";
+  else if(!p.human) ph=`${p.name}'s turn`;
+  else if(G.phase==="play"){ const n=playableOf(p).length; ph=n>1?"Play one of your glowing cards":"You must play your glowing card"; hi="A card is playable when its season space doesn't have that type yet."; }
+  else if(G.phase==="draw"){ ph="Your turn: draw a card"; hi=hi||"Tap the deck. A playable card is played right away."; }
+  else if(G.phase==="pass"){ ph="Nothing to play"; hi="The deck is empty and none of your cards fit. Passing."; }
+  else ph=p.human?"…":"";
+  $("#phase").innerHTML=ph; $("#hint").innerHTML=hi;
+}
+function renderMat(){
+  const human=G.phase==="play"&&cur().human;
+  const want=new Set(human?playableOf(me()).map(c=>c.season+":"+c.cat):[]);
+  const words=[["Finish","#f2c94c"],["the","#2f9e4f"],["Appt.","#e2701c"],["Mat","#79aee8"]];
+  const drawable=G.phase==="draw"&&cur().human;
+  $("#mat").innerHTML=words.map((w,i)=>`<div class="corner" style="grid-area:c${i+1}; color:${w[1]}">${w[0]}</div>`).join("")+
+    `<div class="deckzone ${drawable?"tgt":""}" id="deckZone"><div class="dkstack" id="deckStack"><div class="ck">${G.deck.length?cardBackHTML():`<div class="cardback" style="opacity:.2"></div>`}</div></div><div class="cnt"><b>${G.deck.length}</b><br>deck</div></div>`+
+    SEASONS.map(s=>{
+      const sp=G.spaces[s.name];
+      const slots=CATS.map(cat=>sp[cat]?`<div class="slot">${ck(sp[cat])}</div>`
+        :`<div class="slot ${want.has(s.name+":"+cat)?"tgt":""}"><div class="sghost">${CATLBL[cat]}</div></div>`).join("");
+      return `<div class="space ${G.hotSpace===s.name?"hot":""}" style="grid-area:${s.area}; --sc:${s.c}; --sct:${s.t}">
+        <div class="shead">${ICONS[s.name]}${s.name.toUpperCase()} <small>${s.word}</small><span class="pips" title="${sp.done} of 3 months finished">${[0,1,2].map(i=>`<i class="${i<sp.done?"on":""}"></i>`).join("")}</span></div>
+        <div class="slots">${slots}</div>
+        ${sp.closed?`<div class="closed"><div class="cstack">${cardBackHTML()}</div><b>Complete</b></div>`:""}</div>`;
+    }).join("");
+}
+function renderOpps(){
+  $("#opps").innerHTML=G.players.map((p,i)=>{
+    if(p.human) return "";
+    return `<div class="oppbox ${i===G.current&&!G.over?"active":""}" data-pfrom="${i}" style="--pc:${p.pc}">
+      <div class="oh"><span class="tok">${p.name[0]}</span><b>${p.name}</b><span class="star">${STAR}${p.appts.length}</span></div>
+      <div class="scnts">${SEASONS.map(s=>{ const n=p.piles[s.name].length; return `<span class="scnt ${n?"":"zero"}" style="--sc:${s.c}" title="${s.name} (${s.word}) pile">${ICONS[s.name]}${s.word.slice(0,3)} ${n}</span>`; }).join("")}</div>
+      ${p.appts.length?`<div class="ostack">${p.appts.map(a=>`<div class="dst">${a.cards.map(c=>`<div class="ck" data-k="${c.id}">${cardFaceHTML(c)}</div>`).join("")}</div>`).join("")}</div>`:""}</div>`;
+  }).join("");
+}
+function renderMe(){
+  const p=me(), human=G.phase==="play"&&cur().human;
+  const can=new Set(human?playableOf(p).map(c=>c.id):[]);
+  $("#piles").innerHTML=SEASONS.map(s=>{
+    const cards=p.piles[s.name].slice().sort((a,b)=>CATS.indexOf(a.cat)-CATS.indexOf(b.cat));
+    const shown=cards.slice(-6), hidden=cards.length-shown.length;
+    const off=shown.length>1?Math.min(.22,.66/(shown.length-1)):0;
+    return `<div class="pile" style="--sc:${s.c}; --sct:${s.t}">
+      <div class="ph">${ICONS[s.name]}${s.name.toUpperCase()}</div>
+      <div class="col" style="--off:${off}">${shown.length?shown.map((c,i)=>`<div class="ck${can.has(c.id)?" can":""}${G.fresh.has(c.id)?" fresh":""}" data-k="${c.id}" style="--i:${i}; z-index:${i+1}">${cardFaceHTML(c)}</div>`).join(""):`<div class="none"></div>`}</div>
+      <div class="more">${hidden?`+${hidden} more`:(cards.length?cards.length+" card"+(cards.length>1?"s":""):"empty")}</div></div>`;
+  }).join("");
+  $("#myCount").textContent=p.appts.length?`${p.appts.length}`:"";
+  $("#myDone").innerHTML=p.appts.length?p.appts.map((a,n)=>`<div class="dst" style="--n:${n}; z-index:${n+1}">${a.cards.map((c,j)=>`<div class="ck" data-k="${c.id}" style="--j:${j}">${cardFaceHTML(c)}</div>`).join("")}</div>`).join(""):`<span class="none">Finish an appointment to stack it here</span>`;
+}
+function renderCtrl(){
+  const el=$("#ctrl"); el.innerHTML="";
+  if(!G||G.over||!cur().human) return;
+  const mk=(t,cls,fn)=>{ const b=document.createElement("button"); b.className="btn "+cls; b.textContent=t; b.onclick=fn; el.appendChild(b); };
+  if(G.phase==="play"){ mk("Hint","ghost sm",doHint); }
+  if(G.phase==="draw") mk("Draw a card","",humanDraw);
+}
+document.addEventListener("click",e=>{
+  if(!G) return;
+  const t=e.target;
+  if(t.closest("#deckZone.tgt .dkstack")){ humanDraw(); return; }
+  const c=t.closest("#piles .ck.can"); if(c){ humanPlay(c.dataset.k); return; }
+  const pc=t.closest("[data-peek]"); if(pc && /narrow|short/.test(document.body.className)){ const i=+pc.dataset.peek; if(i>0) openPeek(i); }
+});
+function openPeek(i){
+  const p=G.players[i];
+  $("#peekEyebrow").textContent=`${p.name} · ${p.appts.length} finished`;
+  $("#peekTitle").textContent=`${p.name}'s piles`;
+  $("#peekCards").innerHTML=pileCards(p).map(c=>cardFaceHTML(c)).join("")||"<p>No cards</p>";
+  $("#peekAppts").innerHTML=p.appts.map(a=>cardFaceHTML(a.cards[2])).join("")||"<p>None yet</p>";
+  $("#peekOv").hidden=false;
+}
+
+/* ---------- FLIP animation ---------- */
+function snap(){ const m=new Map(); document.querySelectorAll("#app [data-k]").forEach(el=>{ const r=el.getBoundingClientRect(); if(r.width) m.set(el.dataset.k,r); }); return m; }
+function rectOf(sel){ if(!sel) return null; for(const el of [...document.querySelectorAll(sel)].reverse()){ const r=el.getBoundingClientRect(); if(r.width) return r; } return null; }
+function playFlip(before, fromSel){
+  if(FAST || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const from=rectOf(fromSel);
+  document.querySelectorAll("#app [data-k]").forEach(el=>{
+    const b=el.getBoundingClientRect(); if(!b.width) return;
+    const a=before.get(el.dataset.k)||from; if(!a) return;
+    const isNew=!before.has(el.dataset.k);
+    const dx=(a.left+a.width/2)-(b.left+b.width/2), dy=(a.top+a.height/2)-(b.top+b.height/2), s=a.width/b.width;
+    if(Math.abs(dx)<1&&Math.abs(dy)<1&&Math.abs(s-1)<.02) return;
+    const z=el.style.zIndex; el.style.zIndex=60;
+    const an=el.animate([{transform:`translate(${dx}px,${dy}px) scale(${s})`,opacity:isNew?.5:1},{transform:"none",opacity:1}],
+      {duration:isNew?560:500, easing:"cubic-bezier(.2,.75,.25,1)", fill:"backwards"});
+    an.onfinish=()=>{ el.style.zIndex=z; };
+  });
+}
+
+/* ---------- fit ---------- */
+function fitBoard(){
+  if(!G) return;
+  const de=document.documentElement, vw=de.clientWidth, vh=de.clientHeight;
+  const land=vw>vh*1.25, narrow=vw<760&&!land, short=!narrow&&vh<560;
+  document.body.classList.toggle("narrow",narrow); document.body.classList.toggle("short",short);
+  if(short) de.style.setProperty("--toolsw",($(".tools").offsetWidth+16)+"px");
+  de.style.setProperty("--oppw", Math.round(Math.min(320,Math.max(210,vw*.22)))+"px");
+  const R=el=>el.getBoundingClientRect();
+  const out=(el,box,t)=>{ if(!el||!box||el.offsetParent===null) return false; const r=R(el),b=R(box); t=t||1; return r.left<b.left-t||r.right>b.right+t||r.top<b.top-t||r.bottom>b.bottom+t; };
+  const over=()=> out($("#mat"),$(".matwrap")) || out($(".status"),$(".felt")) || out($(".me"),$("#app")) || out($("#piles"),$("#app")) ||
+    [...document.querySelectorAll(".oppbox")].some(o=>out(o,$(".opps"))) || $("#app").scrollWidth>vw+1;
+  let lo=26, hi=Math.min(140, narrow?vw/6.4:vw/8);
+  for(let i=0;i<9;i++){ const mid=(lo+hi)/2; de.style.setProperty("--cw",mid+"px"); if(over()) hi=mid; else lo=mid; }
+  de.style.setProperty("--cw",Math.floor(lo)+"px");
+  de.style.setProperty("--card-w",Math.floor(lo)+"px");
+  // stagger finished stacks to fit their box
+  const ds=$("#myDone"), n=me().appts.length;
+  if(ds && n){ const w=ds.querySelector(".card").offsetWidth, W=Math.max(w, ds.parentElement.clientWidth-4);
+    ds.style.setProperty("--step", Math.max(6, Math.min(w*.45, (W-w)/Math.max(1,n-1)))+"px"); }
+}
+
+let toastT=null;
+function toast(title,body){ if(FAST) return; const t=$("#toast"); t.innerHTML=`<span class="big">${title}</span>${body}`; t.classList.add("on"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("on"),2800); }
+
+function chips(id, vals, key){
+  const w=$(id); w.innerHTML="";
+  vals.forEach(([label,v])=>{ const b=document.createElement("button"); b.className="chip"+(CFG[key]===v?" sel":""); b.textContent=label; b.onclick=()=>{CFG[key]=v; chips(id,vals,key);}; w.appendChild(b); });
+}
+function boot(){
+  chips("#oppChips",[1,2,3,4,5].map(n=>[String(n),n]),"opps");
+  chips("#speedChips",[["Relaxed",1.4],["Normal",1],["Fast",.5]],"speed");
+  $("#btnStart").onclick=()=>{ $("#setupOv").hidden=true; newGame(); };
+  $("#btnHelp").onclick=$("#btnHelp2").onclick=()=>$("#helpOv").hidden=false;
+  $("#btnCloseHelp").onclick=()=>$("#helpOv").hidden=true;
+  $("#btnClosePeek").onclick=()=>$("#peekOv").hidden=true;
+  $("#btnNew").onclick=()=>{ if(G) G.token={}; $("#endOv").hidden=true; $("#setupOv").hidden=false; };
+  $("#btnAgain").onclick=()=>{ $("#endOv").hidden=true; $("#setupOv").hidden=false; };
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape") ["#helpOv","#peekOv"].forEach(s=>$(s).hidden=true); });
+  if(DEMO) runDemo(); else if(/help/.test(location.hash)) $("#helpOv").hidden=false;
+}
+/* #demo: fast-plays turns (every seat on AI logic) for a mid-game screenshot */
+function runDemo(){
+  FAST=true; $("#setupOv").hidden=true;
+  const m=location.hash.match(/demo(\d)/); CFG.opps=m?+m[1]:2;
+  newGame(); G.token={};
+  const turns=/late/.test(location.hash)?150:40;
+  for(let k=0;k<turns && G.made<12;k++){
+    const pi=G.current, p=cur();
+    if(playableOf(p).length) playCard(pi,bestPlay(pi),false); else if(G.deck.length) drawFor(pi);
+    G.current=(pi+1)%G.players.length;
+  }
+  // hand the turn to the human in a state that has something to do
+  G.current=0; G.fresh=new Set();
+  G.phase=playableOf(me()).length?"play":(G.deck.length?"draw":"pass");
+  if(/end/.test(location.hash)){ while(G.made<12){ const pi=G.current,p=cur(); if(playableOf(p).length) playCard(pi,bestPlay(pi),false); else if(G.deck.length) drawFor(pi); G.current=(pi+1)%G.players.length; } render({noAnim:true}); gameOver(); FAST=false; return; }
+  render({noAnim:true});
+  FAST=false;
+}
+</script>
+<script src="cards.js?v=9"></script>
+<script>window.__igaaFit = fitBind(fitBoard); boot();</script>
+</body>
+</html>

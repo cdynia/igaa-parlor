@@ -1,0 +1,998 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a24">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IGAA Parlor">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>if('serviceWorker' in navigator){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<title>It's Time to Travel</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101a24'/%3E%3Ccircle cx='32' cy='32' r='20' fill='%23fdfbf5' stroke='%23e4c883' stroke-width='4'/%3E%3Cline x1='32' y1='32' x2='32' y2='18' stroke='%231b2836' stroke-width='3.5' stroke-linecap='round'/%3E%3Cline x1='32' y1='32' x2='22' y2='38' stroke='%23c0392b' stroke-width='3.5' stroke-linecap='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --table-1:#16222e; --table-2:#0c141c;
+  --brass:#b98a3c; --brass-hi:#e4c883; --brass-deep:#8a6526;
+  --line:rgba(240,235,220,.10); --line-2:rgba(240,235,220,.16);
+  --muted:#9aa6b2; --muted-2:#c7d0d9; --paper:#f4efe3;
+  --blue:#2f6fc0; --yellow:#f2c94c; --yellow-ink:#c99105; --green:#2f9e4f; --orange:#e2701c; --noon:#c0392b;
+  --navy:#1b2836;
+  --shadow:0 14px 30px -12px rgba(0,0,0,.6);
+  --card-w:80px; --card-h:114px; --wheel:140px; --board-w:600px;
+}
+*{box-sizing:border-box}
+html,body{height:100%; margin:0; overflow:hidden}
+html{-webkit-text-size-adjust:100%}
+body{overscroll-behavior:none; color:var(--muted-2); font-family:"Archivo",system-ui,"Segoe UI",sans-serif;
+  background:radial-gradient(120% 90% at 50% 6%, #223141 0%, var(--table-1) 42%, var(--table-2) 100%); -webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); font-weight:600}
+button,input,select{font-family:inherit}
+.btn{border:1px solid var(--brass-deep); cursor:pointer; color:#211a0c; text-decoration:none; display:inline-flex; align-items:center; justify-content:center; gap:6px;
+  background:linear-gradient(180deg,var(--brass-hi),var(--brass)); padding:.62em 1.2em; border-radius:9px; font-weight:700; font-size:.92rem;
+  box-shadow:0 2px 0 var(--brass-deep),0 8px 18px -8px rgba(0,0,0,.7); transition:transform .08s, filter .15s; white-space:nowrap}
+.btn:hover{filter:brightness(1.06)} .btn:active{transform:translateY(2px); box-shadow:0 0 0 var(--brass-deep)}
+.btn.ghost{background:transparent; color:var(--muted-2); border-color:var(--line-2); box-shadow:none; font-weight:500}
+.btn.ghost:hover{border-color:var(--brass); color:var(--brass-hi)}
+.btn:focus-visible{outline:3px solid var(--brass-hi); outline-offset:2px}
+.btn:disabled{opacity:.4; cursor:not-allowed; filter:none; transform:none}
+.btn.big{font-size:1rem; padding:.68em 1.4em}
+.btn.pulse{animation:btnPulse 1.5s ease-in-out infinite}
+@keyframes btnPulse{0%,100%{box-shadow:0 2px 0 var(--brass-deep),0 0 0 0 rgba(228,200,131,.55)}50%{box-shadow:0 2px 0 var(--brass-deep),0 0 0 8px rgba(228,200,131,0)}}
+
+#app{width:100%; height:100dvh; overflow:hidden; display:flex; flex-direction:column; gap:7px; padding:8px clamp(8px,2vw,18px) 10px}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.brand{display:flex; align-items:center; gap:11px}
+.brand .mark{width:38px; height:38px; border-radius:50%; background:#fdfbf5; border:3px solid var(--brass-hi); position:relative; flex:0 0 auto}
+.brand .mark::before{content:""; position:absolute; left:50%; top:50%; width:3px; height:12px; background:var(--navy); transform:translate(-50%,-100%); border-radius:2px}
+.brand .mark::after{content:""; position:absolute; left:50%; top:50%; width:3px; height:10px; background:var(--noon); transform:translate(-50%,0) rotate(-60deg); transform-origin:50% 0; border-radius:2px}
+.brand h1{font-size:1.18rem; line-height:1}
+.brand .sub{font-size:.72rem; color:var(--muted); letter-spacing:.12em; margin-top:3px}
+.tools{display:flex; gap:7px; flex-wrap:wrap}
+
+.scorebar{display:flex; gap:8px; flex-wrap:wrap; justify-content:center}
+.pchip{display:flex; align-items:center; gap:9px; padding:6px 12px 6px 8px; border:1px solid var(--line); border-radius:12px; min-width:140px;
+  background:linear-gradient(180deg,rgba(255,255,255,.04),rgba(255,255,255,.01)); transition:border-color .2s, box-shadow .2s, transform .2s}
+.pchip.active{border-color:var(--brass); box-shadow:0 0 0 1px var(--brass); transform:translateY(-1px)}
+.pdot{width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.78rem; border:2px solid #fff; flex:0 0 auto; box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.pchip .who{display:flex; flex-direction:column; min-width:0}
+.pchip .nm{color:var(--paper); font-weight:600; font-size:.86rem; white-space:nowrap}
+.pchip .meta{font-size:.64rem; color:var(--muted); white-space:nowrap; letter-spacing:.04em}
+.pchip .eta{margin-left:auto; text-align:right; line-height:1}
+.pchip .eta b{font-family:"Fraunces",serif; color:var(--brass-hi); font-size:1.3rem}
+.pchip .eta small{display:block; font-size:.6rem; color:var(--muted); letter-spacing:.08em}
+.marks{display:inline-flex; gap:3px; margin-top:3px}
+.marks i{width:8px; height:8px; border-radius:2px; border:1px solid rgba(228,200,131,.6); display:block}
+.marks i.on{background:var(--brass-hi); border-color:var(--brass-hi)}
+
+.felt{position:relative; flex:1 1 auto; min-height:0; display:flex; flex-direction:column; gap:6px; padding:10px 12px; border-radius:20px; overflow:hidden;
+  background:radial-gradient(140% 120% at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,0) 55%), linear-gradient(180deg,#1c3b34,#122a26);
+  border:1px solid rgba(255,255,255,.06); box-shadow:inset 0 2px 30px rgba(0,0,0,.45), var(--shadow)}
+.felt::after{content:""; position:absolute; inset:0; border-radius:20px; pointer-events:none; background-image:radial-gradient(rgba(255,255,255,.035) 1px, transparent 1px); background-size:6px 6px; opacity:.5; mix-blend-mode:overlay}
+.tablezone{position:relative; z-index:1; flex:1 1 auto; min-height:0; display:flex; gap:12px}
+.boardwrap{flex:1 1 auto; min-width:0; min-height:0; display:flex; align-items:center; justify-content:center}
+#board{width:var(--board-w); height:calc(var(--board-w) * 0.7317); display:block; filter:drop-shadow(0 18px 26px rgba(0,0,0,.5))}
+#board .pawn{transition:transform .75s cubic-bezier(.34,1.3,.5,1)}
+#board .pawn.active .halo{animation:halo 1.4s ease-in-out infinite}
+@keyframes halo{0%,100%{opacity:.25; r:24}50%{opacity:.9; r:29}}
+#board .hands{transition:transform 1.1s cubic-bezier(.3,1.25,.5,1)}
+#board .space.hot circle.sp{stroke:#b98a3c; stroke-width:6}
+#board .boxv{font-family:"Fraunces",Georgia,serif; font-weight:700}
+#board .boxr.fresh{animation:boxFlash 1.2s ease}
+@keyframes boxFlash{0%{fill:#f6e6b0}100%{fill:#fff}}
+
+.panel{flex:0 0 clamp(290px,29vw,370px); display:flex; flex-direction:column; gap:10px; min-height:0}
+.pbox{background:rgba(6,14,12,.4); border:1px solid rgba(255,255,255,.08); border-radius:14px; padding:10px 12px; display:flex; flex-direction:column; gap:8px; min-height:0}
+.ptitle{display:flex; justify-content:space-between; align-items:center; gap:8px; font-weight:700; font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--brass-hi)}
+.turnhead{display:flex; align-items:center; gap:9px}
+.turnhead .nm{font-family:"Fraunces",serif; color:var(--paper); font-size:1.12rem; line-height:1.1}
+.turnhead .dest{font-size:.74rem; color:#9fbcae}
+.deckrow{display:flex; align-items:center; justify-content:space-between; gap:8px}
+.cardcol{display:flex; flex-direction:column; align-items:center; gap:4px}
+.cardcol small{font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:#8fb0a0; white-space:nowrap}
+.slot{width:var(--card-w); height:var(--card-h); position:relative}
+.slot.deck{cursor:pointer}
+.slot.deck.ready .cardback{outline:2px dashed var(--brass-hi); outline-offset:3px; animation:dpulse 1.5s ease-in-out infinite}
+@keyframes dpulse{0%,100%{outline-color:rgba(228,200,131,.4)}50%{outline-color:rgba(228,200,131,1)}}
+.emptyslot{width:100%; height:100%; border-radius:12px; border:2px dashed rgba(255,255,255,.18)}
+.slot .card.flipin{animation:flipIn .5s cubic-bezier(.2,.8,.3,1)}
+@keyframes flipIn{from{transform:rotateY(90deg) scale(.9)} to{transform:none}}
+.wheelwrap{position:relative; width:var(--wheel); height:var(--wheel); flex:0 0 auto}
+.wrotor{position:absolute; inset:0; transition-property:transform; transition-timing-function:cubic-bezier(.13,.72,.1,1)}
+.wrotor svg{width:100%; height:100%; display:block; filter:drop-shadow(0 10px 16px rgba(0,0,0,.55))}
+.wpointer{position:absolute; left:50%; top:-7px; width:calc(var(--wheel)*.15); height:calc(var(--wheel)*.2); transform:translateX(-50%); transform-origin:50% 25%; z-index:3; filter:drop-shadow(0 3px 4px rgba(0,0,0,.5))}
+.wpointer.tick{animation:tick .11s ease-in-out infinite alternate}
+@keyframes tick{from{transform:translateX(-50%) rotate(-9deg)} to{transform:translateX(-50%) rotate(7deg)}}
+.spinres{font-size:.72rem; color:#bfe0cf; text-align:center; min-height:1.1em; white-space:nowrap}
+.spinres b{color:var(--brass-hi)}
+.msg{font-size:.86rem; color:var(--paper); line-height:1.4; min-height:2.8em}
+.msg .code{display:inline-block; font-weight:800; font-size:.72rem; padding:1px 6px; border-radius:5px; background:#0f1822; color:var(--brass-hi); border:1px solid rgba(228,200,131,.4); margin-right:3px}
+.actions{display:flex; gap:8px; flex-wrap:wrap; min-height:42px; align-items:center}
+.actions .wait{font-size:.8rem; color:#9fbcae}
+.etas{flex:1 1 auto; overflow:auto; gap:8px}
+.etacard{border-radius:10px; background:rgba(255,255,255,.035); border:1px solid rgba(255,255,255,.07); padding:7px 9px}
+.etacard.active{border-color:rgba(228,200,131,.55)}
+.etacard .eh{display:flex; align-items:center; gap:7px; font-size:.8rem; color:var(--paper)}
+.etacard .eh .pdot{width:18px; height:18px; font-size:.6rem; border-width:1.5px}
+.etacard .eh b{margin-left:auto; font-family:"Fraunces",serif; color:var(--brass-hi); font-size:1rem}
+.etarows{display:grid; grid-template-columns:auto 1fr auto auto; gap:1px 10px; margin-top:5px; font-size:.72rem; font-variant-numeric:tabular-nums}
+.etarows span{color:#b9c9c0}
+.etarows .c{font-weight:800; color:var(--brass-hi)}
+.etarows .d.plus{color:#f0a8a0} .etarows .d.minus{color:#9be3b7}
+
+/* overlays */
+.overlay{position:fixed; inset:0; z-index:50; display:flex; align-items:center; justify-content:center; padding:16px;
+  background:radial-gradient(120% 120% at 50% 0%, rgba(20,30,40,.8), rgba(6,10,14,.94)); backdrop-filter:blur(3px)}
+.overlay[hidden]{display:none}
+.book{width:min(600px,100%); max-height:92dvh; overflow:auto; background:linear-gradient(180deg,#1b2836,#111a24);
+  border:1px solid rgba(228,200,131,.25); border-radius:18px; padding:24px 26px; box-shadow:0 40px 90px -30px rgba(0,0,0,.85)}
+.book .eyebrow{color:var(--brass-hi); font-size:.74rem; letter-spacing:.2em; text-transform:uppercase; margin-bottom:6px}
+.book h2{font-size:clamp(1.55rem,5vw,2.2rem); line-height:1.03; color:var(--paper)}
+.book p.lede{color:var(--muted-2); line-height:1.5; margin:10px 0 16px; font-size:.93rem}
+.book h3{color:var(--brass-hi); font-family:"Archivo",sans-serif; font-weight:700; font-size:.76rem; letter-spacing:.1em; text-transform:uppercase; margin:16px 0 6px}
+.book p,.book li{color:var(--muted-2); line-height:1.55; font-size:.9rem}
+.book ul{padding-left:18px; margin:6px 0}
+.book .note{font-size:.76rem; color:var(--muted); margin-top:12px; line-height:1.5}
+.field{margin:0 0 14px}
+.field .flabel{font-size:.8rem; color:var(--muted); margin-bottom:7px}
+.chips{display:flex; gap:7px; flex-wrap:wrap}
+.chip{border:1px solid var(--line-2); background:transparent; color:var(--muted-2); min-width:44px; height:40px; padding:0 12px; border-radius:10px; cursor:pointer; font-size:.9rem; font-weight:600}
+.chip:hover{border-color:var(--brass)} .chip.sel{background:linear-gradient(180deg,var(--brass-hi),var(--brass)); color:#211a0c; border-color:var(--brass-deep)}
+.seats{display:flex; flex-direction:column; gap:7px}
+.seat{display:grid; grid-template-columns:auto 1fr auto 1.2fr; gap:7px; align-items:center}
+.seat .pdot{width:30px; height:30px}
+.seat input{width:100%; min-width:0; background:#0f1720; color:var(--paper); border:1px solid var(--line-2); border-radius:8px; padding:8px 9px; font-size:.88rem}
+.seg{display:inline-flex; border:1px solid var(--line-2); border-radius:8px; overflow:hidden}
+.seg button{border:0; background:transparent; color:var(--muted-2); padding:8px 10px; cursor:pointer; font-size:.8rem; font-weight:600}
+.seg button.on{background:linear-gradient(180deg,var(--brass-hi),var(--brass)); color:#211a0c}
+.toggle{display:flex; align-items:flex-start; gap:10px; font-size:.88rem; color:var(--muted-2); cursor:pointer; line-height:1.4}
+.toggle input{width:18px; height:18px; accent-color:var(--brass); margin-top:1px; flex:0 0 auto}
+.row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+.codes{display:grid; grid-template-columns:auto 1fr; gap:4px 10px; margin:6px 0}
+.codes > b{font-weight:800; color:var(--brass-hi); background:#0f1822; border:1px solid rgba(228,200,131,.35); border-radius:6px; padding:1px 7px; text-align:center; align-self:start}
+.codes span b{color:var(--paper)}
+.codes span{color:var(--muted-2); font-size:.88rem}
+.credit{margin-top:16px; padding:10px 12px; border-radius:10px; background:rgba(228,200,131,.07); border:1px solid rgba(228,200,131,.22); font-size:.8rem; color:var(--muted-2); line-height:1.5}
+.spinkey{display:flex; gap:8px; flex-wrap:wrap; margin:6px 0}
+.spinkey span{padding:4px 9px; border-radius:8px; background:rgba(255,255,255,.05); border:1px solid var(--line-2); font-size:.84rem}
+.spinkey b{color:var(--brass-hi)}
+
+/* quiz */
+.quizbook{width:min(620px,100%)}
+.qtop{display:flex; gap:16px; align-items:center; justify-content:center; flex-wrap:wrap; margin:12px 0 6px}
+.qtop .slot{--card-w:86px; --card-h:122px}
+.qplus{font-family:"Fraunces",serif; font-size:1.6rem; color:var(--brass-hi)}
+.qspin{display:flex; flex-direction:column; align-items:center; justify-content:center; width:86px; height:86px; border-radius:50%; background:#fdfbf5; color:var(--navy); border:3px solid var(--brass-hi); line-height:1}
+.qspin b{font-family:"Fraunces",serif; font-size:1.7rem}
+.qspin small{font-size:.66rem; font-weight:700; letter-spacing:.06em}
+.qclock{width:128px; height:128px}
+.qexplain{text-align:center; font-size:.88rem; color:var(--muted-2); margin:4px 0 12px}
+.qexplain b{color:var(--paper)}
+.qform{display:flex; flex-direction:column; gap:10px; background:#fdfbf5; border-radius:14px; padding:14px 16px; color:var(--navy)}
+.qline{display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:.95rem; font-weight:600}
+.qline .lab{min-width:118px; font-size:.72rem; letter-spacing:.1em; text-transform:uppercase; color:#6b5a2e; font-weight:800}
+.qline input{width:58px; height:42px; text-align:center; font-family:"Fraunces",serif; font-size:1.3rem; font-weight:700; color:var(--navy);
+  border:2px solid #cdbf9c; border-radius:8px; background:#fff}
+.qline input:focus{outline:none; border-color:var(--brass)}
+.qline input.bad{border-color:var(--noon); background:#fdecea}
+.qline input.good{border-color:var(--green); background:#e9f6ee}
+.qline input.reveal{border-color:#b98a3c; background:#fbf1d6; color:#8a6526}
+.standings li > span:first-child{display:flex; align-items:center; gap:8px}
+.qline .word{font-weight:800; letter-spacing:.06em}
+.qfeedback{min-height:1.4em; margin-top:10px; font-weight:600; font-size:.92rem}
+.qfeedback.ok{color:#9be3b7} .qfeedback.no{color:#f0b0a8}
+
+/* ETA cards overlay */
+.etabook{width:min(1060px,100%)}
+.etagrid{display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; margin-top:12px}
+.paper{background:#fdfbf5; color:var(--navy); border-radius:12px; padding:12px; border-top:6px solid var(--pc,#b98a3c)}
+.paper h4{margin:0; font-family:"Fraunces",serif; font-size:1.05rem}
+.paper .pd{font-size:.76rem; color:#5b6472; margin:2px 0 8px}
+.paper table{width:100%; border-collapse:collapse; font-size:.8rem; font-variant-numeric:tabular-nums}
+.paper th{font-size:.62rem; letter-spacing:.08em; text-transform:uppercase; background:#f1ead8; padding:4px; border:1px solid #ddd3bb}
+.paper td{padding:4px; border:1px solid #e6dcc4; text-align:center}
+.paper td.cd{font-weight:800}
+.paper .sum{display:flex; justify-content:space-between; margin-top:8px; font-size:.8rem; font-weight:700}
+
+.stamp-big{display:inline-block; padding:14px 26px; border:4px solid var(--brass); border-radius:12px; color:var(--brass-hi); font-family:"Fraunces",serif; font-weight:700;
+  font-size:clamp(1.3rem,4.5vw,2rem); transform:rotate(-4deg); margin:6px 0 10px; animation:slam .5s cubic-bezier(.2,1.2,.3,1)}
+@keyframes slam{0%{transform:rotate(-4deg) scale(2.4); opacity:0}60%{opacity:1}100%{transform:rotate(-4deg) scale(1)}}
+.standings{list-style:none; padding:0; margin:12px 0}
+.standings li{display:flex; justify-content:space-between; align-items:center; gap:10px; padding:9px 12px; border-bottom:1px solid var(--line); color:var(--muted-2)}
+.standings li.win{color:var(--brass-hi); font-weight:700}
+#errbox{position:fixed; left:8px; bottom:8px; z-index:999; background:#7a1f1f; color:#fff; font:12px monospace; padding:6px 8px; border-radius:6px; max-width:90vw}
+
+@media (max-width:899px), (max-aspect-ratio:1/1){
+  .tablezone{flex-direction:column; gap:8px}
+  .boardwrap{flex:0 0 auto}
+  .panel{flex:1 1 auto; min-height:0; gap:8px}
+  .turnbox{flex:0 0 auto; padding:8px 10px; gap:6px}
+  .turnbox .ptitle{display:none}
+  .deckrow{justify-content:space-around}
+  .msg{font-size:.8rem; min-height:2.3em}
+  .actions{min-height:0}
+  .actions .btn{flex:1 1 auto}
+  .etas{flex:1 1 auto; min-height:0; padding:8px 10px; gap:6px}
+  .etas .ptitle{display:none}
+  .etacard{padding:5px 8px}
+}
+@media (max-width:640px){
+  .tools .btn{padding:.45em .7em; font-size:.78rem}
+  .brand .sub{display:none}
+  .brand h1{font-size:1.02rem}
+  .brand .mark{width:30px; height:30px}
+  .pchip{min-width:0; padding:4px 8px 4px 5px; gap:6px}
+  .pchip .meta{display:none}
+  .pchip .eta b{font-size:1.05rem}
+  .pdot{width:22px; height:22px; font-size:.66rem}
+  .felt{padding:8px 7px}
+  .turnhead .nm{font-size:.98rem}
+  .actions .btn{padding:.5em .9em; font-size:.86rem}
+  .seat{grid-template-columns:auto 1fr; }
+  .seat .seg,.seat .destin{grid-column:1/-1}
+  .qline .lab{min-width:100%}
+}
+/* short landscape phones: board left, compact turn panel right */
+@media (max-height:520px) and (min-aspect-ratio:4/3){
+  #app{gap:5px; padding-top:6px; padding-bottom:6px}
+  .brand .sub{display:none} .brand h1{font-size:1rem} .brand .mark{width:28px; height:28px}
+  .tools .btn{padding:.4em .7em; font-size:.78rem}
+  .pchip{padding:3px 8px 3px 5px; min-width:0; gap:6px} .pchip .meta{display:none} .pchip .eta b{font-size:1.02rem} .pdot{width:22px; height:22px}
+  .felt{padding:6px 8px}
+  .tablezone{flex-direction:row; gap:8px}
+  .boardwrap{flex:1 1 auto}
+  .panel{flex:0 0 clamp(240px,36vw,320px)}
+  .etas{display:none}
+  .turnbox{padding:6px 10px; gap:4px}
+  .turnhead .dest{display:none}
+  .cardcol small{display:none}
+  .msg{font-size:.74rem; min-height:0}
+  .actions .btn{padding:.45em .8em; font-size:.82rem}
+}
+@media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} }
+</style>
+<link rel="stylesheet" href="cards.css?v=9">
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="mark" aria-hidden="true"></div>
+      <div><h1>It's Time to Travel</h1><div class="sub">ETA · Where are you going?</div></div>
+    </div>
+    <div class="tools">
+      <a class="btn ghost" href="index.html">← Parlor</a>
+      <button class="btn ghost" id="btnEta">ETA cards</button>
+      <button class="btn ghost" id="btnHelp">How to play</button>
+      <button class="btn ghost" id="btnNew">New game</button>
+    </div>
+  </div>
+
+  <div class="scorebar" id="scorebar"></div>
+
+  <div class="felt">
+    <div class="tablezone" id="tablezone">
+      <div class="boardwrap"><svg id="board" viewBox="0 0 820 600" role="img" aria-label="Clock game board"></svg></div>
+      <div class="panel" id="panel">
+        <div class="pbox turnbox">
+          <div class="ptitle">This turn <span id="deckCount"></span></div>
+          <div class="turnhead"><span class="pdot" id="turnDot"></span><div><div class="nm" id="turnName">—</div><div class="dest" id="turnDest"></div></div></div>
+          <div class="deckrow">
+            <div class="cardcol"><div class="slot deck" id="deckSlot"></div><small>Time cards</small></div>
+            <div class="cardcol"><div class="slot" id="drawnSlot"><div class="emptyslot"></div></div><small>Drawn</small></div>
+            <div class="cardcol">
+              <div class="wheelwrap">
+                <svg class="wpointer" id="wPointer" viewBox="0 0 34 46" aria-hidden="true"><path d="M17 44 L4 13 A13 13 0 1 1 30 13 Z" fill="#e4c883" stroke="#8a6526" stroke-width="2"/><circle cx="17" cy="13" r="5" fill="#101a24" stroke="#8a6526" stroke-width="1.5"/></svg>
+                <div class="wrotor" id="wRotor"></div>
+              </div>
+              <div class="spinres" id="spinRes">1=5 · 2=10 · 3=15 · 0=30</div>
+            </div>
+          </div>
+          <div class="msg" id="msg"></div>
+          <div class="actions" id="actions"></div>
+        </div>
+        <div class="pbox etas" id="etas"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- SETUP -->
+<div class="overlay" id="setupOverlay">
+  <div class="book">
+    <div class="eyebrow">Time cards + spinner · 2–4 players</div>
+    <h2>It's Time to Travel · ETA</h2>
+    <p class="lede">Draw a time card, move your pawn onto the clock, and spin to count down your ETA. Write the time the card and spinner make, in digital and analog, to keep the card. Reach your destination with <b>4 cards marked</b> and <b>ETA 0</b>.</p>
+    <div class="field">
+      <div class="flabel">Players</div>
+      <div class="chips" id="countChips"></div>
+    </div>
+    <div class="field">
+      <div class="flabel">Pawn · name · who plays · where are you going?</div>
+      <div class="seats" id="seats"></div>
+    </div>
+    <div class="field">
+      <div class="flabel">Trip ETA (the same starting minutes for everyone)</div>
+      <div class="chips" id="etaChips"></div>
+    </div>
+    <div class="field">
+      <label class="toggle"><input type="checkbox" id="quizToggle" checked> <span><b>Tell-the-time challenge.</b> Human players write the digital and analog time to keep each card, just like the paper game.</span></label>
+    </div>
+    <div class="row">
+      <button class="btn big" id="btnStart">Start the trip</button>
+      <button class="btn ghost" id="btnHelp2">How to play</button>
+    </div>
+  </div>
+</div>
+
+<!-- HELP -->
+<div class="overlay" id="helpOverlay" hidden>
+  <div class="book">
+    <div class="eyebrow">How to play</div>
+    <h2>So, where are you going?</h2>
+    <h3>Start</h3>
+    <p>Everyone starts in the <b>START / REST AREA</b> with the same trip ETA in minutes, written on their Player's ETA Card.</p>
+    <h3>Your turn</h3>
+    <ul>
+      <li><b>Draw</b> a time card and move your pawn to that time on the clock.</li>
+      <li><b>Spin</b> for minutes to take off your ETA:</li>
+    </ul>
+    <div class="spinkey"><span><b>1</b> = 5 min</span><span><b>2</b> = 10 min</span><span><b>3</b> = 15 min</span><span><b>0</b> = 30 min</span></div>
+    <ul>
+      <li><b>Write the time.</b> For <b>9–11 AM</b> cards the minutes count <b>TO</b> the next hour. A 9 AM card and a spin of 1 is <b>9:55</b>, "5 min to 10". Also write it as <b>PAST</b>: "55 min past 9". For <b>1–3 PM</b> cards the minutes count <b>PAST</b> the hour. A 1 PM card and a spin of 1 is <b>1:05</b>, "5 min past 1".</li>
+      <li>Write it correctly and you <b>keep the card</b>: mark <b>C</b> and take the minutes off your ETA.</li>
+    </ul>
+    <h3>Player's ETA Card codes</h3>
+    <div class="codes">
+      <b>C</b><span><b>Card.</b> Your pawn goes on the matching hour; subtract the spin.</span>
+      <b>R</b><span><b>Rest Area.</b> Another player landed on your hour. Go to the Rest Area and spin to <b>add</b> minutes. The player who landed then takes their normal turn. If you've already been sent there 3 times, anyone landing on your hour goes to the Rest Area instead.</span>
+      <b>L</b><span><b>Lunch.</b> You drew a 12 NOON card: write "12" and spin to <b>add</b> lunch minutes. Draw another 12 NOON later and you just lose a turn, with no mark.</span>
+      <b>S</b><span><b>Speeding.</b> A 0 on this turn's travel spin after a 0 last turn: you're caught speeding and <b>add</b> 30 minutes.</span>
+      <b>T</b><span><b>Traffic.</b> The same time card as your last turn: spin to <b>add</b> minutes. The card still counts toward your 4. If you were sent to the Rest Area since your last turn, this rule is skipped.</span>
+    </div>
+    <h3>Winning</h3>
+    <p>When the time cards run out, reshuffle them. The first player with <b>4 cards marked</b> (C or T) and <b>ETA = 0</b> reaches their destination and wins.</p>
+    <h3>Digital edition notes</h3>
+    <ul>
+      <li>The ETA never goes below 0. Spins after that still earn marked cards.</li>
+      <li>"Same card" means the same hour (any color).</li>
+      <li>A speeding turn and a missed time answer don't mark the card.</li>
+      <li>The time challenge gives two tries. Computer players always write the time correctly.</li>
+    </ul>
+    <div class="credit"><b>It's Time to Travel – ETA</b>: an original game by <b>Anne Gyorfi, "The Game Lady"</b> (2/4/26). Part of the <b>I've Got an Appointment</b> family. Digital edition for the IGAA Parlor.</div>
+    <div class="row" style="margin-top:14px"><button class="btn" id="btnCloseHelp">Got it</button></div>
+  </div>
+</div>
+
+<!-- QUIZ -->
+<div class="overlay" id="quizOverlay" hidden>
+  <div class="book quizbook">
+    <div class="eyebrow">Tell the time · keep your card</div>
+    <h2 id="qTitle">Write the time</h2>
+    <div class="qtop">
+      <div class="slot" id="qCard"></div>
+      <div class="qplus">+</div>
+      <div class="qspin" id="qSpin"></div>
+      <div class="qplus">=</div>
+      <svg class="qclock" id="qClock" viewBox="0 0 120 120" aria-label="Analog clock"></svg>
+    </div>
+    <div class="qexplain" id="qExplain"></div>
+    <div class="qform" id="qForm"></div>
+    <div class="qfeedback" id="qFeedback"></div>
+    <div class="row" style="margin-top:10px" id="qBtns"></div>
+  </div>
+</div>
+
+<!-- ETA CARDS -->
+<div class="overlay" id="etaOverlay" hidden>
+  <div class="book etabook">
+    <div class="row" style="justify-content:space-between">
+      <div><div class="eyebrow">Enter each turn, keep a running ETA balance</div><h2>Player's ETA Cards</h2></div>
+      <button class="btn" id="btnCloseEta">Close</button>
+    </div>
+    <div class="etagrid" id="etaGrid"></div>
+    <p class="note">Codes: C card · R rest area · L lunch · S speeding · T traffic. Cards marked = C + T rows.</p>
+  </div>
+</div>
+
+<!-- WIN -->
+<div class="overlay" id="winOverlay" hidden>
+  <div class="book" style="text-align:center">
+    <div class="eyebrow">Destination reached</div>
+    <div class="stamp-big">Arrived!</div>
+    <h2 id="winTitle">—</h2>
+    <ul class="standings" id="winStandings"></ul>
+    <div class="row" style="justify-content:center">
+      <button class="btn" id="btnAgain">Play again</button>
+      <button class="btn ghost" id="btnWinEta">View ETA cards</button>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+/* ============================ DATA ============================ */
+const SEASON_COLORS=["blue","yellow","green","orange"];
+const TIMES=[
+  {label:"9:00 AM",ap:"AM",hr:9},{label:"10:00 AM",ap:"AM",hr:10},{label:"11:00 AM",ap:"AM",hr:11},
+  {label:"12:00 NOON",ap:"NOON",hr:12},{label:"1:00 PM",ap:"PM",hr:1},{label:"2:00 PM",ap:"PM",hr:2},{label:"3:00 PM",ap:"PM",hr:3},
+];
+const PAWNS=[
+  {color:"yellow", word:"YELLOW", fill:"#f2c94c", ink:"#c99105", text:"#3d2c05", letter:"Y"},
+  {color:"green",  word:"GREEN",  fill:"#2f9e4f", ink:"#2f9e4f", text:"#ffffff", letter:"G"},
+  {color:"orange", word:"ORANGE", fill:"#e2701c", ink:"#e2701c", text:"#ffffff", letter:"O"},
+  {color:"blue",   word:"BLUE",   fill:"#2f6fc0", ink:"#2f6fc0", text:"#ffffff", letter:"B"},
+];
+const SPIN_MIN={0:30,1:5,2:10,3:15};
+const HOURS=[9,10,11,12,1,2,3];
+const CX=410, CY=322;
+const NAVY="#1b2836", NOON="#c0392b";
+const $=id=>document.getElementById(id);
+function esc(s){ return String(s==null?"":s).replace(/[&<>"]/g,ch=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[ch])); }
+function shuffle(a){ for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];} return a; }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
+function pad(n){ return String(n).padStart(2,"0"); }
+let CARD_ID=0;
+function buildDeck(){
+  const d=[];
+  for(const c of SEASON_COLORS) for(const t of TIMES) d.push({id:++CARD_ID, cat:"time", color:c, value:t.label, ap:t.ap, hr:t.hr});
+  return shuffle(d);
+}
+function polar(h, r){ const a=h*30*Math.PI/180; return [CX+r*Math.sin(a), CY-r*Math.cos(a)]; }
+/* the time a card + spin make, written Anne's way */
+function timeFor(h, m){
+  if(h>=9 && h<=11){
+    const mm=60-m;
+    return {h, m:mm, digital:`${h}:${pad(mm)}`, to:{min:m, hour:h===11?12:h+1}, past:{min:mm, hour:h}, am:true};
+  }
+  return {h, m, digital:`${h}:${pad(m)}`, to:null, past:{min:m, hour:h}, am:false};
+}
+
+/* ============================ BOARD (SVG) ============================ */
+const BOX_Y={11:null,10:null,9:null,1:null,2:null,3:null};
+function buildBoard(){
+  let s=`<defs>
+    <filter id="pshadow" x="-50%" y="-50%" width="200%" height="200%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="#000" flood-opacity=".45"/></filter>
+  </defs>
+  <rect x="3" y="3" width="814" height="594" rx="26" fill="#f7f2e6" stroke="#b98a3c" stroke-width="5"/>
+  <rect x="14" y="14" width="792" height="572" rx="18" fill="none" stroke="#b98a3c" stroke-opacity=".45" stroke-width="1.5"/>
+  <text x="34" y="52" font-family="Fraunces,Georgia,serif" font-weight="700" font-size="22" fill="${NAVY}">It's Time to Travel</text>
+  <text x="34" y="72" font-family="Archivo,Arial,sans-serif" font-weight="700" font-size="11" letter-spacing="2" fill="#8a6526">ETA · WHERE ARE YOU GOING?</text>
+  <text x="786" y="52" text-anchor="end" font-family="Archivo,Arial,sans-serif" font-weight="800" font-size="12" letter-spacing="1.5" fill="${NAVY}">1 = 5 · 2 = 10</text>
+  <text x="786" y="70" text-anchor="end" font-family="Archivo,Arial,sans-serif" font-weight="800" font-size="12" letter-spacing="1.5" fill="${NAVY}">3 = 15 · 0 = 30 MIN</text>`;
+  // dial
+  s+=`<circle cx="${CX}" cy="${CY}" r="258" fill="#fff" stroke="${NAVY}" stroke-width="9"/>
+      <circle cx="${CX}" cy="${CY}" r="249" fill="none" stroke="#b98a3c" stroke-width="2"/>`;
+  for(let i=0;i<60;i++){
+    const a=i*6*Math.PI/180, big=i%5===0, r1=big?232:239, r2=246;
+    s+=`<line x1="${(CX+r1*Math.sin(a)).toFixed(1)}" y1="${(CY-r1*Math.cos(a)).toFixed(1)}" x2="${(CX+r2*Math.sin(a)).toFixed(1)}" y2="${(CY-r2*Math.cos(a)).toFixed(1)}" stroke="${NAVY}" stroke-width="${big?3:1.2}" stroke-opacity="${big?.8:.45}"/>`;
+  }
+  // quiet hours 4–8
+  for(const h of [4,5,6,7,8]){ const [x,y]=polar(h,210); s+=`<text x="${x.toFixed(1)}" y="${(y+8).toFixed(1)}" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-weight="600" font-size="24" fill="${NAVY}" fill-opacity=".35">${h}</text>`; }
+  // To / Past columns
+  s+=`<text x="44" y="118" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="800" font-size="13" letter-spacing="1.5" fill="${NAVY}">TO</text>
+      <text x="112" y="118" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="800" font-size="13" letter-spacing="1.5" fill="${NAVY}">PAST</text>
+      <text x="740" y="118" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="800" font-size="13" letter-spacing="1.5" fill="${NAVY}">PAST</text>`;
+  for(const h of [11,10,9,1,2,3]){
+    const [sx,sy]=polar(h,196);
+    const left=h>=9;
+    const bx= left ? [14,82] : [710];
+    const lineFrom = left ? 142 : 710, lineTo = left ? sx-38 : sx+38;
+    s+=`<line x1="${lineFrom}" y1="${sy.toFixed(1)}" x2="${lineTo.toFixed(1)}" y2="${sy.toFixed(1)}" stroke="${NAVY}" stroke-opacity=".25" stroke-width="1.5" stroke-dasharray="3 5"/>`;
+    bx.forEach((x,k)=>{
+      const kind = left ? (k===0?"to":"past") : "past";
+      s+=`<g id="box-${h}-${kind}"><rect class="boxr" x="${x}" y="${(sy-23).toFixed(1)}" width="60" height="46" rx="8" fill="#fff" stroke="${NAVY}" stroke-width="2"/>
+        <text class="boxv" x="${x+30}" y="${(sy+7).toFixed(1)}" text-anchor="middle" font-size="22" fill="${NAVY}"></text>
+        <text x="${x+30}" y="${(sy+19).toFixed(1)}" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-size="8" font-weight="700" fill="#8a6526" letter-spacing=".5">MIN</text></g>`;
+    });
+  }
+  // rest area
+  s+=`<rect x="262" y="372" width="296" height="124" rx="16" fill="#fbf7ec" stroke="${NAVY}" stroke-width="2.5"/>
+      <text x="${CX}" y="398" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="800" font-size="15" letter-spacing="1.5" fill="${NAVY}">START / REST AREA</text>
+      <text x="${CX}" y="414" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="500" font-size="10.5" fill="#5b6472">Spin for minutes while in the Rest Area</text>`;
+  PAWNS.forEach((p,i)=>{
+    const x=restX(i);
+    s+=`<circle cx="${x}" cy="448" r="21" fill="none" stroke="${p.ink}" stroke-width="2.5" stroke-dasharray="4 3"/>
+        <text x="${x}" y="484" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="800" font-size="9.5" letter-spacing=".5" fill="${p.ink}">${p.word}</text>`;
+  });
+  // travel spaces
+  for(const h of HOURS){
+    const [x,y]=polar(h,196), noon=h===12, col=noon?NOON:NAVY;
+    s+=`<g class="space" id="sp-${h}"><circle class="sp" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="37" fill="#fff" stroke="${col}" stroke-width="3.5"/>
+      <text x="${x.toFixed(1)}" y="${(y+9).toFixed(1)}" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-weight="700" font-size="32" fill="${col}">${h}</text>
+      <text x="${x.toFixed(1)}" y="${(y+25).toFixed(1)}" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="800" font-size="8.5" letter-spacing="1" fill="${col}">${noon?"NOON":h>=9?"AM":"PM"}</text></g>`;
+  }
+  // hands
+  s+=`<g class="hands" id="handHour" style="transform-origin:${CX}px ${CY}px"><line x1="${CX}" y1="${CY+14}" x2="${CX}" y2="${CY-92}" stroke="${NAVY}" stroke-width="9" stroke-linecap="round"/><path d="M${CX-12} ${CY-86} L${CX} ${CY-112} L${CX+12} ${CY-86} Z" fill="${NAVY}"/></g>
+      <g class="hands" id="handMin" style="transform-origin:${CX}px ${CY}px"><line x1="${CX}" y1="${CY+18}" x2="${CX}" y2="${CY-128}" stroke="${NOON}" stroke-width="5.5" stroke-linecap="round"/><path d="M${CX-10} ${CY-122} L${CX} ${CY-146} L${CX+10} ${CY-122} Z" fill="${NOON}"/></g>
+      <circle cx="${CX}" cy="${CY}" r="10" fill="${NAVY}"/><circle cx="${CX}" cy="${CY}" r="4" fill="#e4c883"/>
+      <text id="digital" x="${CX}" y="${CY+42}" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="800" font-size="16" letter-spacing="1" fill="${NAVY}" fill-opacity=".75"></text>`;
+  // pawns
+  PAWNS.forEach((p,i)=>{
+    s+=`<g class="pawn" id="pawn-${i}" style="display:none" filter="url(#pshadow)">
+      <circle class="halo" r="26" fill="none" stroke="#b98a3c" stroke-width="4" opacity="0"/>
+      <circle r="20" fill="${p.fill}" stroke="#fff" stroke-width="3.5"/>
+      <circle r="21.8" fill="none" stroke="${NAVY}" stroke-width="1"/>
+      <text y="6.5" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="800" font-size="18" fill="${p.text}">${p.letter}</text></g>`;
+  });
+  $("board").innerHTML=s;
+}
+function restX(i){ return 317+62*i; }
+function pawnXY(pl){
+  if(pl.pos==="rest") return [restX(pl.idx),448];
+  const [x,y]=polar(pl.pos,134);
+  return [x,y];
+}
+let handRot={h:0,m:0};
+function setClock(h,m,instant){
+  const hourDeg=((h%12)+m/60)*30, minDeg=m*6;
+  const next=(cur,target)=>{ const base=cur-((cur%360)+360)%360; let t=base+target; if(t<cur-0.01) t+=360; return t; };
+  handRot.h=next(handRot.h,hourDeg); handRot.m=next(handRot.m,minDeg);
+  const hh=$("handHour"), mm=$("handMin");
+  if(instant){ hh.style.transition="none"; mm.style.transition="none"; }
+  hh.style.transform=`rotate(${handRot.h}deg)`; mm.style.transform=`rotate(${handRot.m}deg)`;
+  if(instant){ hh.getBoundingClientRect(); hh.style.transition=""; mm.style.transition=""; }
+  $("digital").textContent=`${h}:${pad(m)}`;
+}
+function updateBoard(){
+  if(!G) return;
+  G.players.forEach((pl,i)=>{
+    const g=$("pawn-"+pl.idx); g.style.display="";
+    const [x,y]=pawnXY(pl);
+    g.style.transform=`translate(${x.toFixed(1)}px,${y.toFixed(1)}px)`;
+    g.classList.toggle("active", i===G.current && !G.winner);
+    if(i===G.current && g.nextElementSibling && g.nextElementSibling.classList.contains("pawn")) g.parentNode.appendChild(g); // current pawn on top
+  });
+  for(let i=G.players.length;i<4;i++) $("pawn-"+i).style.display="none";
+  document.querySelectorAll("#board .space").forEach(e=>e.classList.remove("hot"));
+  if(G.hot!=null){ const e=$("sp-"+G.hot); if(e) e.classList.add("hot"); }
+  for(const h of [9,10,11,1,2,3]){
+    const b=G.boxes[h]||{};
+    const kinds=h>=9?["to","past"]:["past"];
+    kinds.forEach(k=>{ const g=$(`box-${h}-${k}`); if(g) g.querySelector(".boxv").textContent = b[k]!=null?b[k]:""; });
+  }
+}
+function flashBox(h){
+  (h>=9?["to","past"]:["past"]).forEach(k=>{ const r=document.querySelector(`#box-${h}-${k} .boxr`); if(r){ r.classList.remove("fresh"); r.getBoundingClientRect(); r.classList.add("fresh"); } });
+}
+
+/* ============================ SPINNER ============================ */
+const WHEEL=[1,2,3,0,1,2,3,0];
+const WSTYLE={1:{fill:"#fdfbf5",ink:NAVY},2:{fill:"#e4c883",ink:"#3d2c05"},3:{fill:"#3a4d63",ink:"#fff"},0:{fill:NOON,ink:"#fff"}};
+let wheelRot=0;
+function wheelSVG(){
+  const n=WHEEL.length, cx=120, cy=120, R=104;
+  const pt=(a,r)=>[cx+r*Math.sin(a), cy-r*Math.cos(a)];
+  let s=`<svg viewBox="0 0 240 240" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="rimT" cx="50%" cy="40%" r="60%"><stop offset="0" stop-color="#f1dca0"/><stop offset=".7" stop-color="#b98a3c"/><stop offset="1" stop-color="#7a5a22"/></radialGradient></defs>
+    <circle cx="${cx}" cy="${cy}" r="118" fill="url(#rimT)"/><circle cx="${cx}" cy="${cy}" r="109" fill="#0f1822"/>`;
+  WHEEL.forEach((v,i)=>{
+    const a0=i/n*2*Math.PI, a1=(i+1)/n*2*Math.PI, [x0,y0]=pt(a0,R), [x1,y1]=pt(a1,R), st=WSTYLE[v];
+    s+=`<path d="M${cx} ${cy} L${x0.toFixed(2)} ${y0.toFixed(2)} A${R} ${R} 0 0 1 ${x1.toFixed(2)} ${y1.toFixed(2)} Z" fill="${st.fill}" stroke="#0f1822" stroke-width="1.6"/>`;
+    const deg=(i+.5)*360/n;
+    s+=`<g transform="rotate(${deg} ${cx} ${cy})"><text x="${cx}" y="${cy-58}" text-anchor="middle" font-family="Fraunces,Georgia,serif" font-weight="700" font-size="34" fill="${st.ink}">${v}</text>
+      <text x="${cx}" y="${cy-42}" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="800" font-size="10" letter-spacing=".5" fill="${st.ink}">${SPIN_MIN[v]} MIN</text></g>`;
+  });
+  for(let i=0;i<n;i++){ const [x,y]=pt(i/n*2*Math.PI,112); s+=`<circle cx="${x.toFixed(2)}" cy="${y.toFixed(2)}" r="3.4" fill="#f4e2a8" stroke="#6b4c1a" stroke-width="1"/>`; }
+  s+=`<circle cx="${cx}" cy="${cy}" r="24" fill="url(#rimT)"/><circle cx="${cx}" cy="${cy}" r="19" fill="#101a24"/><text x="${cx}" y="${cy+4}" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="800" font-size="10" fill="#e4c883">ETA</text></svg>`;
+  return s;
+}
+function spinWheel(dur){
+  const rotor=$("wRotor"), ptr=$("wPointer");
+  const idx=Math.floor(Math.random()*WHEEL.length), seg=360/WHEEL.length;
+  const center=(idx+.5)*seg+(Math.random()-.5)*seg*.62;
+  const delta=(((-center-wheelRot)%360)+720)%360;
+  wheelRot+=360*(3+Math.floor(Math.random()*2))+delta;
+  rotor.style.transitionDuration=dur+"ms"; rotor.style.transform=`rotate(${wheelRot}deg)`;
+  ptr.classList.add("tick"); setTimeout(()=>ptr.classList.remove("tick"), dur*.78);
+  $("spinRes").innerHTML="spinning…";
+  return new Promise(r=>setTimeout(()=>{ const v=WHEEL[idx]; $("spinRes").innerHTML=`Spun <b>${v}</b> = <b>${SPIN_MIN[v]} min</b>`; r(v); }, dur+60));
+}
+
+/* ============================ STATE ============================ */
+let G=null;
+function cur(){ return G.players[G.current]; }
+function newGame(seats, startEta, quiz){
+  G={tok:Math.random(), startEta, quiz, current:0, deck:buildDeck(), discard:[], drawn:null, hot:null, boxes:{}, winner:null, gate:null, msg:"",
+     players:seats.map((s,i)=>({idx:i, pawn:PAWNS[i], name:s.name, human:s.human, dest:s.dest, eta:startEta, log:[], marked:0, restCount:0,
+       lastCard:null, lastTravelZero:false, sentToRest:false, hadLunch:false, pos:"rest"}))};
+  handRot={h:0,m:0}; setClock(12,0,true);
+  $("drawnSlot").innerHTML=`<div class="emptyslot"></div>`;
+  $("spinRes").innerHTML="1=5 · 2=10 · 3=15 · 0=30";
+  render();
+  runLoop(G.tok);
+}
+function logRow(p, code, time, delta){
+  p.log.push({code, time, delta, eta:p.eta});
+  if(code==="C"||code==="T") p.marked++;
+}
+function setMsg(html){ G.msg=html; renderPanel(); }
+function gate(label, who, autoMs, opts){
+  if(!who.human) return sleep(autoMs||800);
+  return new Promise(res=>{ G.gate={label, res, deck:!!(opts&&opts.deck)}; renderPanel(); });
+}
+function openGate(){ if(!G||!G.gate) return; const g=G.gate; G.gate=null; renderPanel(); g.res(); }
+function drawCard(){
+  if(!G.deck.length){ G.deck=shuffle(G.discard); G.discard=[]; }
+  return G.deck.pop();
+}
+async function runLoop(tok){
+  await sleep(350);
+  while(G && tok===G.tok && !G.winner){
+    await playTurn(tok);
+    if(!G || tok!==G.tok) return;
+    renderAll();
+    const p=cur();
+    if(p.marked>=4 && p.eta===0){ G.winner=p; renderAll(); await sleep(900); showWin(p); return; }
+    await sleep(p.human?500:900);
+    if(tok!==G.tok) return;
+    G.current=(G.current+1)%G.players.length;
+    G.hot=null; renderAll();
+  }
+}
+const nm=p=>p.name==="You"?"You":p.name;
+const poss=p=>p.name==="You"?"your":p.name+"'s";
+async function restSpin(x, tok, why){
+  setMsg(`${why} <b>${esc(x.name)}</b> ${x.name==="You"?"go":"goes"} to the <b>Rest Area</b>. Spin for Rest Area minutes.`);
+  await gate(x.human?`Spin for ${x.name==="You"?"your":esc(x.name)+"'s"} rest time`:"", x, 800);
+  if(tok!==G.tok) return;
+  const v=await spinWheel(x.human?2300:1700); const m=SPIN_MIN[v];
+  x.eta+=m; logRow(x,"R","–",m);
+  setMsg(`<span class="code">R</span><b>${esc(x.name)}</b> rested ${m} minutes: ETA is now <b>${x.eta}</b>.`);
+  renderAll(); await sleep(1000);
+}
+/* move p onto hour h; returns false when p is sent to the Rest Area instead */
+async function moveTo(p, h, tok){
+  const other=G.players.find(o=>o!==p && o.pos===h);
+  G.hot=h;
+  if(!other){ p.pos=h; renderAll(); await sleep(800); return true; }
+  if(other.restCount>=3){
+    p.pos=h; renderAll(); await sleep(700);
+    p.pos="rest"; p.restCount++; p.sentToRest=true; renderAll(); await sleep(600);
+    await restSpin(p, tok, `${esc(other.name)} has already been sent to the Rest Area 3 times, so the lander goes instead:`);
+    return false;
+  }
+  p.pos=h; renderAll(); await sleep(650);
+  other.pos="rest"; other.restCount++; other.sentToRest=true; renderAll(); await sleep(700);
+  await restSpin(other, tok, `${esc(p.name)} landed on ${esc(other.name)}'s space.`);
+  return true;
+}
+async function playTurn(tok){
+  const p=cur();
+  const skipTraffic=p.sentToRest; p.sentToRest=false;
+  const zeroStreak=p.lastTravelZero; p.lastTravelZero=false;
+  setMsg(p.human?`<b>${poss(p)[0].toUpperCase()+poss(p).slice(1)} turn.</b> Draw a time card.`:`<b>${esc(p.name)}</b> draws a time card…`);
+  await gate("Draw a time card", p, 900, {deck:true});
+  if(tok!==G.tok) return;
+  const card=drawCard(); G.drawn=card;
+  renderPanel(true);
+  await sleep(650);
+  const h=card.hr;
+  const same = p.lastCard===h;
+  p.lastCard=h;
+
+  if(h===12){
+    if(p.hadLunch){
+      setMsg(`Another <b>12 NOON</b> card, but ${nm(p)} already had lunch. <b>Lose a turn</b>, with no mark.`);
+      await gate("Discard & pass", p, 1400);
+      G.discard.push(card); return;
+    }
+    setMsg(`<b>12 NOON</b>: time to stop for lunch! ${esc(p.name)} ${p.name==="You"?"head":"heads"} to 12.`);
+    const stays=await moveTo(p,12,tok); if(tok!==G.tok) return;
+    if(stays){
+      setMsg(`<span class="code">L</span>Lunch stop. Spin to see how long lunch takes (minutes are <b>added</b>).`);
+      await gate("Spin for lunch time", p, 800); if(tok!==G.tok) return;
+      const v=await spinWheel(p.human?2400:1700), m=SPIN_MIN[v];
+      p.hadLunch=true; p.eta+=m; logRow(p,"L","12",m); setClock(12,0);
+      setMsg(`<span class="code">L</span>${m}-minute lunch. ${poss(p)[0].toUpperCase()+poss(p).slice(1)} ETA is now <b>${p.eta}</b>.`);
+      renderAll(); await sleep(p.human?900:1100);
+    }
+    G.discard.push(card); return;
+  }
+
+  if(same && !skipTraffic){
+    G.hot=h; renderAll();
+    setMsg(`<span class="code">T</span>The same <b>${h} ${card.ap}</b> card as last turn: stuck in <b>traffic</b>! Spin to add minutes. The card still counts.`);
+    await gate("Spin for traffic time", p, 900); if(tok!==G.tok) return;
+    const v=await spinWheel(p.human?2400:1700), m=SPIN_MIN[v];
+    p.eta+=m; logRow(p,"T",`${h}:00`,m);
+    setMsg(`<span class="code">T</span>${m} minutes in traffic. ETA <b>${p.eta}</b> · ${p.marked}/4 cards.`);
+    renderAll(); await sleep(p.human?900:1100);
+    G.discard.push(card); return;
+  }
+
+  setMsg(`${esc(p.name)} ${p.name==="You"?"move":"moves"} to <b>${h}</b> on the clock.`);
+  const stays=await moveTo(p,h,tok); if(tok!==G.tok) return;
+  if(!stays){ G.discard.push(card); return; }
+
+  setMsg(`On <b>${h} ${card.ap}</b>. Spin for travel minutes to take off ${poss(p)} ETA.`);
+  await gate("Spin for travel minutes", p, 800); if(tok!==G.tok) return;
+  const v=await spinWheel(p.human?2600:1800), m=SPIN_MIN[v];
+  if(v===0 && zeroStreak){
+    p.eta+=30; logRow(p,"S","–",30);
+    setMsg(`<span class="code">S</span>Two zeros in a row: <b>caught speeding!</b> Add 30 minutes. ETA <b>${p.eta}</b>.`);
+    renderAll(); await sleep(p.human?1200:1300);
+    G.discard.push(card); return;
+  }
+  p.lastTravelZero = v===0;
+  const t=timeFor(h,m);
+  setClock(t.h,t.m);
+  let ok=true;
+  if(p.human && G.quiz){ ok=await quiz(card,v,t,tok); if(tok!==G.tok) return; }
+  else if(!p.human){
+    setMsg(`<b>${esc(p.name)}</b> writes <b>${t.digital}</b>: ${t.to?`${t.to.min} min to ${t.to.hour} · `:""}${t.past.min} min past ${t.past.hour}.`);
+    await sleep(1300);
+  }
+  if(ok){
+    p.eta=Math.max(0,p.eta-m); logRow(p,"C",t.digital,-m);
+    G.boxes[h]={to:t.to?t.to.min:null, past:t.past.min}; renderAll(); flashBox(h);
+    setMsg(`<span class="code">C</span><b>${t.digital}</b> marked: −${m} min. ETA <b>${p.eta}</b> · ${p.marked}/4 cards.`);
+  } else {
+    setMsg(`The card goes back: no mark and no minutes this turn. (It was <b>${t.digital}</b>.)`);
+  }
+  renderAll();
+  await sleep(p.human?700:1100);
+  G.discard.push(card);
+}
+
+/* ============================ QUIZ ============================ */
+function quizClockSVG(t){
+  let s=`<circle cx="60" cy="60" r="55" fill="#fff" stroke="#b98a3c" stroke-width="5"/>`;
+  for(let i=1;i<=12;i++){ const a=i*30*Math.PI/180; s+=`<text x="${(60+41*Math.sin(a)).toFixed(1)}" y="${(60-41*Math.cos(a)+5).toFixed(1)}" text-anchor="middle" font-family="Archivo,Arial,sans-serif" font-weight="700" font-size="13" fill="${NAVY}">${i}</text>`; }
+  for(let i=0;i<60;i++){ const a=i*6*Math.PI/180, r1=i%5?50:47; s+=`<line x1="${(60+r1*Math.sin(a)).toFixed(1)}" y1="${(60-r1*Math.cos(a)).toFixed(1)}" x2="${(60+52*Math.sin(a)).toFixed(1)}" y2="${(60-52*Math.cos(a)).toFixed(1)}" stroke="${NAVY}" stroke-width="${i%5?.7:1.6}" stroke-opacity=".6"/>`; }
+  const hd=((t.h%12)+t.m/60)*30, md=t.m*6;
+  s+=`<g transform="rotate(${hd} 60 60)"><line x1="60" y1="64" x2="60" y2="32" stroke="${NAVY}" stroke-width="5" stroke-linecap="round"/></g>
+      <g transform="rotate(${md} 60 60)"><line x1="60" y1="66" x2="60" y2="17" stroke="${NOON}" stroke-width="3" stroke-linecap="round"/></g>
+      <circle cx="60" cy="60" r="4.5" fill="${NAVY}"/>`;
+  return s;
+}
+function quiz(card, v, t, tok){
+  return new Promise(res=>{
+    $("qCard").innerHTML=cardFaceHTML(card);
+    $("qSpin").innerHTML=`<b>${v}</b><small>= ${SPIN_MIN[v]} MIN</small>`;
+    $("qClock").innerHTML=quizClockSVG(t);
+    $("qTitle").textContent="Write the time";
+    $("qExplain").innerHTML = t.am
+      ? `A <b>${card.hr} AM</b> card: the <b>${SPIN_MIN[v]} minutes</b> count <b>TO</b> the next hour.`
+      : `A <b>${card.hr} PM</b> card: the <b>${SPIN_MIN[v]} minutes</b> count <b>PAST</b> the hour.`;
+    const inp=(id,ph)=>`<input id="${id}" inputmode="numeric" maxlength="2" autocomplete="off" placeholder="${ph||""}">`;
+    let f=`<div class="qline"><span class="lab">Digital time</span>${inp("qDH")}<span class="word">:</span>${inp("qDM")}</div>`;
+    if(t.to) f+=`<div class="qline"><span class="lab">Analog · TO</span>${inp("qTM")}<span class="word">MIN TO</span>${inp("qTH")}</div>`;
+    f+=`<div class="qline"><span class="lab">Analog · PAST</span>${inp("qPM")}<span class="word">MIN PAST</span>${inp("qPH")}</div>`;
+    $("qForm").innerHTML=f;
+    $("qFeedback").className="qfeedback"; $("qFeedback").textContent="";
+    const answers={qDH:t.h, qDM:t.m, qPM:t.past.min, qPH:t.past.hour};
+    if(t.to){ answers.qTM=t.to.min; answers.qTH=t.to.hour; }
+    let tries=0;
+    if(/^#demo/.test(location.hash)) window.__quizAnswers=answers; // test bot only
+    const inputs=Object.keys(answers).map(id=>$(id));
+    inputs.forEach((el,i)=>{ el.addEventListener("input",()=>{ el.classList.remove("bad","good"); if(el.value.length>=2 && inputs[i+1]) inputs[i+1].focus(); }); el.addEventListener("keydown",e=>{ if(e.key==="Enter") check(); }); });
+    const done=(ok)=>{ $("quizOverlay").hidden=true; res(ok); };
+    function check(){
+      if(tok!==G.tok) return;
+      let allOk=true;
+      for(const [id,ans] of Object.entries(answers)){
+        const el=$(id), val=parseInt(el.value,10);
+        const good= val===ans;
+        el.classList.toggle("good",good); el.classList.toggle("bad",!good);
+        if(!good) allOk=false;
+      }
+      tries++;
+      if(allOk){
+        $("qFeedback").className="qfeedback ok"; $("qFeedback").textContent=`Correct! ${t.digital}. You keep the card.`;
+        $("qBtns").innerHTML=`<button class="btn big" id="qGo">Keep the card ▶</button>`; $("qGo").onclick=()=>done(true); $("qGo").focus();
+      } else if(tries<2){
+        $("qFeedback").className="qfeedback no";
+        $("qFeedback").textContent = t.am ? "Not quite. Try once more. Hint: count back from the next hour for the digital minutes." : "Not quite. Try once more. Hint: the spin minutes go right after the hour.";
+      } else {
+        for(const [id,ans] of Object.entries(answers)){ const el=$(id); if(el.classList.contains("bad")){ el.value=ans; el.classList.remove("bad"); el.classList.add("reveal"); } }
+        $("qFeedback").className="qfeedback no";
+        $("qFeedback").textContent=`The time was ${t.digital}${t.to?` (${t.to.min} min to ${t.to.hour})`:""}, ${t.past.min} min past ${t.past.hour}. The card goes back this turn.`;
+        $("qBtns").innerHTML=`<button class="btn big" id="qGo">Continue ▶</button>`; $("qGo").onclick=()=>done(false); $("qGo").focus();
+      }
+    }
+    $("qBtns").innerHTML=`<button class="btn big" id="qCheck">Check my answer</button>`;
+    $("qCheck").onclick=check;
+    $("quizOverlay").hidden=false;
+    setTimeout(()=>{ const e=$("qDH"); if(e) e.focus({preventScroll:true}); }, 60);
+  });
+}
+
+/* ============================ RENDER ============================ */
+function renderAll(){ render(); }
+function render(){
+  if(!G) return;
+  renderScorebar(); updateBoard(); renderPanel(); renderEtas();
+  (window.__igaaFit || fitBoard)();
+}
+function dotHTML(p){ return `<span class="pdot" style="background:${p.pawn.fill};color:${p.pawn.text}" title="${p.pawn.word}">${p.pawn.letter}</span>`; }
+function marksHTML(p){ return `<span class="marks">${[0,1,2,3].map(i=>`<i class="${i<Math.min(4,p.marked)?"on":""}"></i>`).join("")}</span>`; }
+function renderScorebar(){
+  $("scorebar").innerHTML=G.players.map((p,i)=>`
+    <div class="pchip ${i===G.current&&!G.winner?"active":""}">${dotHTML(p)}
+      <div class="who"><div class="nm">${esc(p.name)}</div><div class="meta">${p.pawn.word} · ${esc(p.dest)}</div>${marksHTML(p)}</div>
+      <div class="eta"><b>${p.eta}</b><small>ETA MIN</small></div></div>`).join("");
+}
+function renderPanel(flip){
+  if(!G) return;
+  const p=cur();
+  $("turnDot").outerHTML=`<span class="pdot" id="turnDot" style="background:${p.pawn.fill};color:${p.pawn.text}">${p.pawn.letter}</span>`;
+  $("turnName").textContent = p.name==="You" ? "Your turn" : `${p.name}'s turn`;
+  $("turnDest").textContent = `${p.pawn.word} pawn · to ${p.dest} · ETA ${p.eta} min`;
+  $("deckCount").textContent=`${G.deck.length} cards left`;
+  const deckReady=!!(G.gate&&G.gate.deck);
+  $("deckSlot").innerHTML = G.deck.length||G.discard.length ? cardBackHTML() : `<div class="emptyslot"></div>`;
+  $("deckSlot").classList.toggle("ready", deckReady);
+  $("deckSlot").onclick = deckReady ? openGate : null;
+  if(flip && G.drawn){ $("drawnSlot").innerHTML=cardFaceHTML(G.drawn,"flipin"); }
+  $("msg").innerHTML=G.msg;
+  const a=$("actions");
+  if(G.winner){ a.innerHTML=`<button class="btn big" id="actAgain">Play again</button>`; $("actAgain").onclick=()=>{ buildSetup(); $("setupOverlay").hidden=false; }; }
+  else if(G.gate){ a.innerHTML=`<button class="btn big pulse" id="actGo">${G.gate.label}</button>`; $("actGo").onclick=openGate; }
+  else a.innerHTML = p.human ? `<span class="wait">…</span>` : `<span class="wait">${esc(p.name)} is playing…</span>`;
+}
+function deltaTxt(d){ return d==null?"":(d>0?`+${d}`:`${d}`); }
+function renderEtas(){
+  $("etas").innerHTML=`<div class="ptitle">Player's ETA cards <button class="btn ghost" style="padding:.25em .6em;font-size:.7rem" onclick="openEta()">Open</button></div>`+
+    G.players.map((p,i)=>{
+      const rows=p.log.slice(-3);
+      return `<div class="etacard ${i===G.current?"active":""}"><div class="eh">${dotHTML(p)}<span>${esc(p.name)}</span>${marksHTML(p)}<b>${p.eta}</b></div>
+        <div class="etarows">${rows.length?rows.map(r=>`<span class="c">${r.code}</span><span>${r.time}</span><span class="d ${r.delta>0?"plus":"minus"}">${deltaTxt(r.delta)}</span><span>${r.eta}</span>`).join(""):`<span class="c">·</span><span>Start</span><span></span><span>${G.startEta}</span>`}</div></div>`;
+    }).join("");
+}
+function openEta(){
+  if(!G){ return; }
+  $("etaGrid").innerHTML=G.players.map(p=>`
+    <div class="paper" style="--pc:${p.pawn.fill}">
+      <h4>${esc(p.name)} <span style="font-size:.72rem;font-family:Archivo,sans-serif;font-weight:800;color:${p.pawn.ink}">· ${p.pawn.word} PAWN</span></h4>
+      <div class="pd">Where are you going? <b>${esc(p.dest)}</b></div>
+      <table><thead><tr><th>Code</th><th>Time HR:MIN</th><th>Min</th><th>ETA</th></tr></thead><tbody>
+        <tr><td colspan="3" style="text-align:left">Starting time in minutes</td><td><b>${G.startEta}</b></td></tr>
+        ${p.log.map(r=>`<tr><td class="cd">${r.code}</td><td>${r.time}</td><td>${deltaTxt(r.delta)}</td><td>${r.eta}</td></tr>`).join("")}
+      </tbody></table>
+      <div class="sum"><span>Cards marked: ${p.marked}/4</span><span>ETA ${p.eta}</span></div>
+    </div>`).join("");
+  $("etaOverlay").hidden=false;
+}
+window.openEta=openEta;
+function showWin(p){
+  $("winTitle").textContent = p.name==="You" ? `You made it to ${p.dest}!` : `${p.name} made it to ${p.dest}!`;
+  const ranked=G.players.slice().sort((a,b)=> (b.marked>=4)-(a.marked>=4) || a.eta-b.eta || b.marked-a.marked);
+  $("winStandings").innerHTML=ranked.map(x=>`<li class="${x===p?"win":""}"><span>${dotHTML(x)} ${esc(x.name)}</span><span>${Math.min(4,x.marked)}/4 cards · ETA ${x.eta}</span></li>`).join("");
+  $("winOverlay").hidden=false;
+  renderPanel();
+}
+
+/* size the board + panel to the screen — no scrolling */
+function fitBoard(){
+  const de=document.documentElement, zone=$("tablezone"), panel=$("panel");
+  if(!zone||!panel) return;
+  const narrow=getComputedStyle(zone).flexDirection==="column";
+  const zw=zone.clientWidth, zh=zone.clientHeight;
+  if(zw<=0||zh<=0) return;
+  let cardW, wheel;
+  if(narrow){ cardW=Math.max(44,Math.min(62,zw*0.14)); wheel=Math.round(cardW*1.42+14); }
+  else { const pw=panel.clientWidth; cardW=Math.max(40,Math.min(92,pw*0.24, zh*0.2)); wheel=Math.max(72,Math.min(150,pw*0.38, zh*0.3)); }
+  de.style.setProperty("--card-w",cardW+"px");
+  de.style.setProperty("--card-h",(cardW*1.42)+"px");
+  de.style.setProperty("--wheel",wheel+"px");
+  const tb=panel.querySelector(".turnbox");
+  let bw = narrow ? Math.min(zw, (zh-tb.offsetHeight-8-8-78)/0.7317) : Math.min(zw-panel.offsetWidth-12, zh/0.7317);
+  de.style.setProperty("--board-w",Math.max(180,Math.floor(bw))+"px");
+}
+
+/* ============================ SETUP ============================ */
+const DESTS=["the Beach","Grandma's House","the Zoo","the Museum"];
+const cfg={count:2, eta:60, seats:[
+  {name:"You",human:true,dest:DESTS[0]},{name:"Robin",human:false,dest:DESTS[1]},{name:"Sam",human:false,dest:DESTS[2]},{name:"Alex",human:false,dest:DESTS[3]},
+]};
+function readSeats(){
+  $("seats").querySelectorAll(".seat").forEach(row=>{
+    const s=cfg.seats[+row.dataset.i];
+    s.name=row.querySelector("input.nmIn").value.trim()||("Player "+(+row.dataset.i+1));
+    s.dest=row.querySelector("input.destIn").value.trim()||DESTS[+row.dataset.i];
+  });
+}
+function buildSetup(){
+  $("countChips").innerHTML=[2,3,4].map(n=>`<button class="chip ${cfg.count===n?"sel":""}" data-n="${n}">${n}</button>`).join("");
+  $("countChips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ readSeats(); cfg.count=+b.dataset.n; buildSetup(); });
+  $("etaChips").innerHTML=[45,60,90,120].map(n=>`<button class="chip ${cfg.eta===n?"sel":""}" data-n="${n}">${n} min</button>`).join("");
+  $("etaChips").querySelectorAll(".chip").forEach(b=>b.onclick=()=>{ readSeats(); cfg.eta=+b.dataset.n; buildSetup(); });
+  $("seats").innerHTML=cfg.seats.slice(0,cfg.count).map((s,i)=>{
+    const pw=PAWNS[i];
+    return `<div class="seat" data-i="${i}">
+      <span class="pdot" style="background:${pw.fill};color:${pw.text}" title="${pw.word}">${pw.letter}</span>
+      <input class="nmIn" type="text" maxlength="14" value="${esc(s.name)}" aria-label="${pw.word} pawn name">
+      <span class="seg"><button class="${s.human?"on":""}" data-h="1">Human</button><button class="${s.human?"":"on"}" data-h="0">Computer</button></span>
+      <input class="destIn destin" type="text" maxlength="22" value="${esc(s.dest)}" aria-label="Destination">
+    </div>`;
+  }).join("");
+  $("seats").querySelectorAll(".seat").forEach(row=>row.querySelectorAll(".seg button").forEach(b=>b.onclick=()=>{ readSeats(); cfg.seats[+row.dataset.i].human=b.dataset.h==="1"; buildSetup(); }));
+}
+$("btnStart").onclick=()=>{
+  readSeats();
+  $("setupOverlay").hidden=true; $("winOverlay").hidden=true; $("quizOverlay").hidden=true;
+  newGame(cfg.seats.slice(0,cfg.count).map(s=>Object.assign({},s)), cfg.eta, $("quizToggle").checked);
+};
+function openHelp(){ $("helpOverlay").hidden=false; }
+$("btnHelp").onclick=openHelp; $("btnHelp2").onclick=openHelp;
+$("btnCloseHelp").onclick=()=>$("helpOverlay").hidden=true;
+$("btnEta").onclick=()=>{ if(G) openEta(); };
+$("btnCloseEta").onclick=()=>$("etaOverlay").hidden=true;
+$("btnWinEta").onclick=openEta;
+$("btnNew").onclick=()=>{ buildSetup(); $("setupOverlay").hidden=false; };
+$("btnAgain").onclick=()=>{ $("winOverlay").hidden=true; buildSetup(); $("setupOverlay").hidden=false; };
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"){ $("helpOverlay").hidden=true; $("etaOverlay").hidden=true; } });
+buildBoard();
+$("wRotor").innerHTML=wheelSVG();
+buildSetup();
+
+/* ============================ DEMO (#demo) ============================ */
+function demo(kind){
+  $("setupOverlay").hidden=true;
+  if(kind==="auto"){ // all-computer game, used for headless soak testing
+    newGame(["Robin","Sam","Alex","Jordan"].map((n,i)=>({name:n,human:false,dest:DESTS[i]})), 60, false);
+    return;
+  }
+  if(kind==="bot"){ // a robot clicks through the HUMAN path (gates, quiz right and wrong)
+    newGame([{name:"You",human:true,dest:"the Beach"},{name:"Robin",human:false,dest:"Grandma's House"},{name:"Pat",human:true,dest:"the Zoo"},{name:"Sam",human:false,dest:"the Museum"}],45,true);
+    let n=0;
+    setInterval(()=>{
+      n++;
+      if(!$("winOverlay").hidden) return;
+      if(!$("quizOverlay").hidden){
+        const go=$("qGo"); if(go){ go.click(); return; }
+        const A=window.__quizAnswers; if(!A||!$("qCheck")) return;
+        const wrong=n%4===0;
+        for(const [id,v] of Object.entries(A)){ const el=$(id); if(el) el.value = (wrong&&id==="qDM") ? v+1 : v; }
+        $("qCheck").click(); return;
+      }
+      const a=$("actGo"); if(a) a.click();
+    }, 350);
+    return;
+  }
+  G={tok:Math.random(), startEta:60, quiz:true, current:0, deck:buildDeck(), discard:[], drawn:null, hot:1, boxes:{}, winner:null, gate:null, msg:"",
+     players:[{name:"You",human:true,dest:"the Beach"},{name:"Robin",human:false,dest:"Grandma's House"},{name:"Sam",human:false,dest:"the Zoo"}]
+       .map((s,i)=>({idx:i,pawn:PAWNS[i],name:s.name,human:s.human,dest:s.dest,eta:60,log:[],marked:0,restCount:0,lastCard:null,lastTravelZero:false,sentToRest:false,hadLunch:false,pos:"rest"}))};
+  const [you,robin,sam]=G.players;
+  const put=(p,code,time,d)=>{ p.eta=Math.max(0,p.eta+d); logRow(p,code,time,d); };
+  put(you,"C","9:55",-5); put(you,"R","–",10); put(you,"C","1:10",-10);
+  put(robin,"C","2:15",-15); put(robin,"C","10:30",-30);
+  put(sam,"L","12",15); put(sam,"C","3:05",-5); put(sam,"C","11:45",-15);
+  you.pos=1; you.lastCard=1; robin.pos=10; robin.lastCard=10; sam.pos=11; sam.lastCard=11; you.restCount=1;
+  G.boxes={9:{to:5,past:55},1:{past:10},2:{past:15},10:{to:30,past:30},3:{past:5},11:{to:15,past:45}};
+  G.drawn=G.deck.find(c=>c.hr===1&&c.color==="green");
+  handRot={h:0,m:0}; setClock(1,10,true);
+  G.msg=`<span class="code">C</span><b>1:10</b> marked: −10 min. ETA <b>${you.eta}</b> · 2/4 cards.`;
+  render(); renderPanel(true);
+  $("spinRes").innerHTML=`Spun <b>2</b> = <b>10 min</b>`;
+  if(kind==="quiz"){ const c=G.deck.find(x=>x.hr===10&&x.color==="blue"); quiz(c,2,timeFor(10,10),G.tok); }
+  else if(kind==="quizcheck"){ // answer 9 AM + spin 1 correctly: 9:55, 5 min to 10, 55 min past 9
+    const c=G.deck.find(x=>x.hr===9&&x.color==="orange"); quiz(c,1,timeFor(9,5),G.tok).then(ok=>{ G.msg="QUIZ RESULT: "+ok; renderPanel(); });
+    [["qDH",9],["qDM",55],["qTM",5],["qTH",10],["qPM",55],["qPH",9]].forEach(([id,v])=>$(id).value=v);
+    $("qCheck").click();
+  }
+  else if(kind==="quizwrong"){ const c=G.deck.find(x=>x.hr===2&&x.color==="yellow"); quiz(c,3,timeFor(2,15),G.tok);
+    [["qDH",2],["qDM",45],["qPM",15],["qPH",2]].forEach(([id,v])=>$(id).value=v); $("qCheck").click(); $("qCheck").click(); }
+  else if(kind==="eta"){ openEta(); }
+  else if(kind==="win"){ you.marked=4; you.eta=0; G.winner=you; render(); showWin(you); }
+  else if(kind==="play"){ G.current=1; runLoop(G.tok); }
+  else { G.current=0; G.gate={label:"Draw a time card", res:()=>{}, deck:true}; G.msg="<b>Your turn.</b> Draw a time card."; render(); }
+  if(kind==="help") $("helpOverlay").hidden=false;
+}
+if(/^#demo/.test(location.hash)){
+  window.addEventListener("error",e=>{ const b=document.getElementById("errbox")||document.body.appendChild(Object.assign(document.createElement("div"),{id:"errbox"})); b.textContent+=" "+e.message; });
+}
+</script>
+<script src="cards.js?v=9"></script>
+<script>
+window.__igaaFit = fitBind(fitBoard);
+if(/^#demo/.test(location.hash)){ try{ demo(location.hash.replace("#demo","").replace("-","")); }catch(err){ document.body.insertAdjacentHTML("beforeend",`<div id="errbox">${err.message}</div>`); } }
+</script>
+</body>
+</html>
