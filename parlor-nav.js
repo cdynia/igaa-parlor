@@ -34,7 +34,7 @@
     '.pq-card h2{font-family:"Fraunces",Georgia,serif;font-weight:700;font-size:1.65rem;line-height:1.1;margin:0 0 8px;color:#fff}' +
     '.pq-card p{margin:0 0 20px;color:#b9c6d4;font-size:1rem;line-height:1.45}' +
     '.pq-row{display:flex;gap:10px;flex-wrap:wrap}' +
-    '.pq-btn{flex:1 1 140px;min-height:46px;font:inherit;font-weight:800;font-size:1.02rem;letter-spacing:.02em;' +
+    '.pq-btn{flex:1 1 140px;white-space:nowrap;min-height:46px;font:inherit;font-weight:800;font-size:1.02rem;letter-spacing:.02em;' +
       'padding:.65em 1em;border-radius:999px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:.45em}' +
     '.pq-stay{background:linear-gradient(#f0d488,#c99a3e);color:#211a0c;border:1px solid #8a6a26;box-shadow:0 3px 0 #8a6a26}' +
     '.pq-stay:hover{filter:brightness(1.06)}' +
