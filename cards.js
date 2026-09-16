@@ -11,35 +11,96 @@
 (function () {
   "use strict";
 
-  // clean vector seasonal icons (inherit the card's --cc via currentColor)
+  /* =============================================================
+     SEASONAL MOTIFS — traced from the printed IGAA deck art
+     ("Anne The Game Lady Project 1" originals) so the digital cards
+     carry the same four symbols as the physical ones:
+       Winter  blue six-point snowflake
+       Spring  clump of yellow daffodils standing in sage grass
+       Summer  full green tree, brown trunk + branches, ground shadow
+       Fall    a pair of orange maple leaves, black outline
+     Redrawn as VECTOR art (not upscaled clip-art bitmaps), so they
+     stay razor sharp at every card size on any display.
+     Palette sampled straight from the original scans.
+     ============================================================= */
+  var INK = {
+    flake: "#0b6fc2", flakeHi: "#bfe6ff", flakeCore: "#1a86d8",
+    petal: "#f2e00a", petalEdge: "#d9c400", trumpet: "#e9b100", trumpetHi: "#fff3a8",
+    grass: "#9dd4ad", grassEdge: "#74b489", grassDeep: "#8cc79d", stem: "#eef6ec",
+    canopy: "#31b44e", canopyEdge: "#177a2e", bark: "#8a6a3a", branch: "#6b4f28", turf: "#12a255",
+    leaf: "#e8912b", leafEdge: "#1c1c1c", leafVein: "#9a5411"
+  };
+
+  // repeat `inner` n times, rotated `step` degrees about (cx,cy)
+  function ring(n, step, inner, cx, cy) {
+    var out = "";
+    for (var i = 0; i < n; i++) out += '<g transform="rotate(' + (i * step) + ' ' + cx + ' ' + cy + ')">' + inner + "</g>";
+    return out;
+  }
+  function svgIcon(inner) {
+    return '<svg viewBox="0 0 100 100" class="sic" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">' + inner + "</svg>";
+  }
+
+  // --- Winter: six-point snowflake (spike + two barb pairs per arm) ---
+  var FLAKE_ARM =
+    '<path d="M50 3 L53.8 18 L52.6 47 L47.4 47 L46.2 18 Z"/>' +
+    '<path d="M49.2 17 L58.5 9.5 L55.2 21.5 Z"/><path d="M50.8 17 L41.5 9.5 L44.8 21.5 Z"/>' +
+    '<path d="M49.4 30 L57.5 25 L54.6 34 Z"/><path d="M50.6 30 L42.5 25 L45.4 34 Z"/>';
+
+  // --- Spring: one daffodil bloom (6 pointed petals + trumpet) ---
+  function bloom(cx, cy, r) {
+    var petal = '<path d="M' + cx + ' ' + cy + ' L' + (cx - r * 0.3) + ' ' + (cy - r * 0.55) +
+      ' L' + cx + ' ' + (cy - r) + ' L' + (cx + r * 0.3) + ' ' + (cy - r * 0.55) + ' Z"/>';
+    return '<g fill="' + INK.petal + '" stroke="' + INK.petalEdge + '" stroke-width="' + (r * 0.07).toFixed(2) + '" stroke-linejoin="round">' +
+      ring(6, 60, petal, cx, cy) + "</g>" +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="' + (r * 0.34).toFixed(2) + '" fill="' + INK.trumpet + '"/>' +
+      '<circle cx="' + cx + '" cy="' + cy + '" r="' + (r * 0.17).toFixed(2) + '" fill="' + INK.trumpetHi + '"/>';
+  }
+
+  // --- Fall: one maple leaf, drawn tip-up in the full 100x100 box ---
+  var MAPLE =
+    '<path d="M50 4 L55.5 21 L65 14 L62.5 29 L77 24 L70.5 37 L89 35 L75.5 47 L92 57 L72 59 ' +
+    'L76.5 75 L57.5 67.5 L55.5 84 L52.5 86 L52.5 99 L47.5 99 L47.5 86 L44.5 84 L42.5 67.5 ' +
+    'L23.5 75 L28 59 L8 57 L24.5 47 L11 35 L29.5 37 L23 24 L37.5 29 L35 14 L44.5 21 Z" ' +
+    'fill="' + INK.leaf + '" stroke="' + INK.leafEdge + '" stroke-width="3.2" stroke-linejoin="round"/>' +
+    '<g stroke="' + INK.leafVein + '" stroke-width="1.8" fill="none" stroke-linecap="round">' +
+    '<path d="M50 80 L50 22"/><path d="M50 64 L72 42"/><path d="M50 64 L28 42"/>' +
+    '<path d="M50 72 L79 56"/><path d="M50 72 L21 56"/></g>';
+  function maple(tx, ty, s, rot) {
+    return '<g transform="translate(' + tx + ' ' + ty + ') scale(' + s + ') rotate(' + rot + ' 50 50)">' + MAPLE + "</g>";
+  }
+
   var ICON = {
-    Winter:
-      '<svg viewBox="0 0 24 24" class="sic" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">' +
-      '<path d="M12 2v20M3.3 7l17.4 10M20.7 7L3.3 17"/>' +
-      '<path d="M12 5.4l-2.1-1.2M12 5.4l2.1-1.2M12 18.6l-2.1 1.2M12 18.6l2.1 1.2M4.9 8.7l.1 2.4M4.9 8.7l-2.1.4M19.1 15.3l-.1-2.4M19.1 15.3l2.1-.4M4.9 15.3l-2.1-.4M4.9 15.3l.1-2.4M19.1 8.7l2.1.4M19.1 8.7l-.1 2.4"/></svg>',
-    // Spring = potted daffodil: gold bloom (currentColor) over green leaves
-    Spring:
-      '<svg viewBox="0 0 24 24" class="sic">' +
-      '<g fill="none" stroke="#4a9d4a" stroke-width="1.6" stroke-linecap="round">' +
-      '<path d="M12 22C9 18.5 8 14 11 10"/><path d="M12 22C15 18.5 16 14 13 10"/></g>' +
-      '<g fill="currentColor">' +
-      '<ellipse cx="12" cy="4" rx="1.7" ry="2.9"/>' +
-      '<ellipse cx="12" cy="4" rx="1.7" ry="2.9" transform="rotate(72 12 8)"/>' +
-      '<ellipse cx="12" cy="4" rx="1.7" ry="2.9" transform="rotate(144 12 8)"/>' +
-      '<ellipse cx="12" cy="4" rx="1.7" ry="2.9" transform="rotate(216 12 8)"/>' +
-      '<ellipse cx="12" cy="4" rx="1.7" ry="2.9" transform="rotate(288 12 8)"/></g>' +
-      '<circle cx="12" cy="8" r="2.1" fill="#e0a400"/><circle cx="12" cy="8" r="1" fill="#fff"/></svg>',
-    // Summer = full bushy green tree (currentColor canopy) on a short brown trunk
-    Summer:
-      '<svg viewBox="0 0 24 24" class="sic">' +
-      '<rect x="11" y="15" width="2" height="6.5" rx="0.9" fill="#8a5a2b"/>' +
-      '<g fill="currentColor">' +
-      '<circle cx="8" cy="10.5" r="3.7"/><circle cx="16" cy="10.5" r="3.7"/>' +
-      '<circle cx="12" cy="7.5" r="4.6"/><circle cx="12" cy="12" r="4.3"/></g></svg>',
-    // Fall = orange maple leaf (currentColor)
-    Fall:
-      '<svg viewBox="0 0 24 24" class="sic">' +
-      '<path d="M12 21.5v-3.1l3 .7-1-2.5 3.3.4-1.9-2.2 3.1-.9-2.6-1.6 2.3-1.9-3 .2 1-3-2.5 1.8L12 2.6l-1.5 3.5-2.5-1.8 1 3-3-.2 2.3 1.9-2.6 1.6 3.1.9-1.9 2.2 3.3-.4-1 2.5 3-.7v3.1z" fill="currentColor"/></svg>'
+    Winter: svgIcon(
+      '<g fill="' + INK.flake + '">' + ring(6, 60, FLAKE_ARM, 50, 50) + "</g>" +
+      '<circle cx="50" cy="50" r="6.6" fill="' + INK.flakeCore + '"/>' +
+      ring(6, 60, '<circle cx="50" cy="41.5" r="2.1" fill="' + INK.flakeHi + '"/>', 50, 50) +
+      '<circle cx="50" cy="50" r="2.7" fill="#dff0ff"/>'),
+
+    Spring: svgIcon(
+      // stems first, then the grass clump hides their feet, blooms on top
+      '<g stroke="' + INK.stem + '" stroke-width="2.6" stroke-linecap="round" fill="none">' +
+      '<path d="M30 34 L35 70"/><path d="M67 30 L60 68"/><path d="M48 54 L48 76"/></g>' +
+      '<path d="M24 97 C14 81 12 63 17 49 C22 63 23 81 28 97 Z" fill="' + INK.grassDeep + '"/>' +
+      '<path d="M76 97 C86 81 88 63 83 49 C78 63 77 81 72 97 Z" fill="' + INK.grassDeep + '"/>' +
+      '<path d="M22 98 C20 84 21 70 25 58 L29 74 L33 50 L38 72 L43 54 L48 74 L53 52 ' +
+      'L58 72 L63 50 L68 74 L73 58 C77 70 78 84 76 98 Z" fill="' + INK.grass +
+      '" stroke="' + INK.grassEdge + '" stroke-width="1.5" stroke-linejoin="round"/>' +
+      bloom(30, 27, 17) + bloom(67, 22, 19) + bloom(48, 46, 18)),
+
+    Summer: svgIcon(
+      '<ellipse cx="50" cy="93" rx="33" ry="6" fill="' + INK.turf + '" opacity=".5"/>' +
+      '<path d="M50 5 C59 3 67 6 71 12 C80 11 88 18 87 27 C93 33 92 44 85 49 C82 57 73 61 65 59 ' +
+      'C59 64 49 64 44 59 C35 62 25 57 22 49 C13 46 10 34 16 27 C13 18 20 10 29 11 C34 4 43 3 50 5 Z" ' +
+      'fill="' + INK.canopy + '" stroke="' + INK.canopyEdge + '" stroke-width="2.2" stroke-linejoin="round"/>' +
+      '<path d="M45 94 L46 66 L43 52 L45.5 50.5 L48 62 L48.5 40 L51.5 40 L52 60 L57 48 L59.5 49.5 ' +
+      'L54 64 L55 94 Z" fill="' + INK.bark + '"/>' +
+      '<g stroke="' + INK.branch + '" stroke-width="1.7" stroke-linecap="round" fill="none">' +
+      '<path d="M48 48 L42 36 M42 36 L35 30 M42 36 L44 26"/>' +
+      '<path d="M52 46 L59 33 M59 33 L67 28 M59 33 L58 23"/>' +
+      '<path d="M50 40 L50 21 M50 27 L43 19 M50 25 L58 17"/></g>'),
+
+    Fall: svgIcon(maple(1, 0, 0.56, -20) + maple(43, 40, 0.56, 14))
   };
 
   var CLOCK_NUMS = [[50,9,12],[71,14,1],[86,29,2],[91,50,3],[86,71,4],[71,86,5],[50,91,6],[29,86,7],[14,71,8],[9,50,9],[14,29,10],[29,14,11]];
@@ -51,6 +112,9 @@
     return '<div class="clock" style="--hrot:' + ((hr % 12) * 30) + 'deg">' + clockNumbers() +
       '<div class="hand mn"></div><div class="hand hr"></div><div class="pin"></div></div>';
   }
+
+  // NOON reads in all four season colors on the printed card
+  var NOON_LETTERS = '<i class="nl y">N</i><i class="nl g">O</i><i class="nl o">O</i><i class="nl b">N</i>';
 
   var WEEKEND = { Saturday: 1, Sunday: 1 };
   // spell out the card's color on the bottom label — colorblind-friendly
@@ -65,9 +129,15 @@
         '<div class="idx">MAIL</div><div class="mid"><div class="mailglyph">✉</div></div><div class="idx bottom">PURPLE</div></div>';
     }
     if (c && (c.cat === "noon" || c.noon)) {
+      // matches the printed NOON card: sky-blue dial, hands straight up at 12,
+      // and the word NOON lettered in the four season colors
       var nl = esc(c.value || "12:00 NOON").toUpperCase();
+      var head = nl.indexOf("NOON") >= 0
+        ? nl.replace("NOON", '<span class="noonword">' + NOON_LETTERS + "</span>")
+        : nl;
       return '<div class="card ' + extra + '" data-color="noon" data-cat="noon" data-id="' + id + '">' +
-        '<div class="idx">' + nl + '</div><div class="mid">' + clockHTML(12) + '</div><div class="idx bottom">RED</div></div>';
+        '<div class="idx">' + head + '</div><div class="mid">' + clockHTML(12) + '</div>' +
+        '<div class="idx bottom">ALL COLORS</div></div>';
     }
     var cat = (c && c.cat) || "season";
     var label, mid;
@@ -84,7 +154,10 @@
       label = esc(c.value || c.name).toUpperCase();
       var season = c.season || "Winter";
       var icon = ICON[season] || "";
-      var art = new Array(7).join(",").split(",").map(function () { return icon; }).join("");
+      // 3 rows x 2 columns of motifs flanking the season word — the
+      // exact arrangement printed on the original month cards
+      var art = "", n;
+      for (n = 0; n < 6; n++) art += icon;
       mid = '<div class="art">' + art + '</div><div class="vword">' + season.toUpperCase() + '</div>';
     }
     var colorLabel = COLORNAME[c.color] || label; // bottom = the color name (accessibility, upright)

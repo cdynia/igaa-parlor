@@ -24,7 +24,17 @@
 .card[data-color=yellow]{--cc:#c99105}
 .card[data-color=green]{--cc:#2f9e4f}
 .card[data-color=orange]{--cc:#e2701c}
-.card[data-color=noon]{--cc:#c9432b; background:#fff8f4; border-color:#eccdbf}
+/* NOON card = the printed original: pale sky stock, light-blue dial */
+.card[data-color=noon]{--cc:#57bfe8; background:#f6fcff; border-color:#cbe7f4; color:#3d4650}
+.card[data-color=noon] .clock .num{color:#8a9099}
+/* NOON lettered in the four season colors */
+.card .noonword .nl{font-style:normal}
+.card .noonword .nl.y{color:#e0b200}
+.card .noonword .nl.g{color:#70ad47}
+.card .noonword .nl.o{color:#ed7d31}
+.card .noonword .nl.b{color:#4472c4}
+.card[data-color=noon] .idx{color:#5a6570}
+.card[data-color=noon] .idx.bottom{color:#7b8792}
 .card[data-color=mail]{--cc:#7a5cc0; background:#f8f5fd; border-color:#ddd3ef}
 
 /* mirrored value labels (top upright, bottom rotated — like a real card) */
@@ -51,15 +61,17 @@
    sit centered inside the mid area and never clip the top/bottom label rows */
 .card .vword.day{font-size:calc(var(--card-h,144px)*0.066); letter-spacing:.01em; font-weight:700}
 
-/* seasonal motif: a tidy, uniform grid of vector icons behind the word */
-/* two columns of motifs flanking the centered season word (printed-card look) */
+/* seasonal motif: 3 rows x 2 columns of full-colour season art flanking the
+   centered season word — the arrangement printed on the original cards */
 .card .art{
-  position:absolute; inset:6% 8%; display:grid; grid-template-columns:1fr 1fr;
-  align-content:space-between; justify-items:center; column-gap:38%;
-  row-gap:calc(var(--card-h,144px)*0.02);
+  position:absolute; inset:5% 7%; display:grid; grid-template-columns:1fr 1fr;
+  grid-template-rows:repeat(3,1fr); align-content:stretch; align-items:center;
+  justify-items:center; column-gap:34%;
+  row-gap:calc(var(--card-h,144px)*0.012);
   z-index:1; pointer-events:none;
 }
-.card .art .sic{width:calc(var(--card-w,100px)*0.24); height:auto; color:var(--cc); opacity:.92}
+/* vector art: no bitmap upscaling, so the motifs stay crisp at any size */
+.card .art .sic{width:calc(var(--card-w,100px)*0.27); height:auto; display:block; overflow:visible}
 
 /* clock (numbered dial + arrow hands) — radius scales from card width */
 .card .clock{
@@ -146,7 +158,7 @@
   font-family:"Fraunces","Georgia",serif; font-weight:700; font-size:calc(var(--card-h,144px)*0.105); text-align:center}
 .card.gnbn .gwords .gw.sm{font-family:"Archivo",sans-serif; font-weight:600; font-style:italic; font-size:.62em; color:#6e7480; margin:.08em 0}
 .card.gnbn .gwords.season{font-size:calc(var(--card-h,144px)*0.1); letter-spacing:.03em}
-.card.gnbn .g-sic .sic{width:calc(var(--card-w,100px)*0.42); height:auto; color:var(--cc); display:block}
+.card.gnbn .g-sic .sic{width:calc(var(--card-w,100px)*0.44); height:auto; display:block; overflow:visible}
 .card.gnbn .g-strip{display:grid; grid-template-columns:repeat(7,1fr); gap:1px; width:96%}
 .card.gnbn .g-strip i{font-style:normal; font-family:"Archivo",sans-serif; font-weight:700; text-align:center; line-height:1;
   font-size:calc(var(--card-h,144px)*0.05); padding:calc(var(--card-h,144px)*0.014) 0; border-radius:3px; color:#9aa0a8; background:#efeadd}

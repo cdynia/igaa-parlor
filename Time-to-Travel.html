@@ -257,7 +257,7 @@ button,input,select{font-family:inherit}
 }
 @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} }
 </style>
-<link rel="stylesheet" href="cards.css?v=9">
+<link rel="stylesheet" href="cards.css?v=10">
 </head>
 <body>
 <div id="app">
@@ -989,7 +989,7 @@ if(/^#demo/.test(location.hash)){
   window.addEventListener("error",e=>{ const b=document.getElementById("errbox")||document.body.appendChild(Object.assign(document.createElement("div"),{id:"errbox"})); b.textContent+=" "+e.message; });
 }
 </script>
-<script src="cards.js?v=9"></script>
+<script src="cards.js?v=10"></script>
 <script>
 window.__igaaFit = fitBind(fitBoard);
 if(/^#demo/.test(location.hash)){ try{ demo(location.hash.replace("#demo","").replace("-","")); }catch(err){ document.body.insertAdjacentHTML("beforeend",`<div id="errbox">${err.message}</div>`); } }
