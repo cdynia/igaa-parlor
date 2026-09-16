@@ -1,8 +1,13 @@
 /* IGAA Parlor service worker — offline app shell, but fresh-first for pages */
-const CACHE = "igaa-parlor-v12";
+const CACHE = "igaa-parlor-v13";
 const ASSETS = [
   "./",
   "index.html",
+  "404.html",
+  "offline.html",
+  "cards.css",
+  "cards.js",
+  "parlor-nav.js",
   "IGAA-Beginner.html",
   "IGAA-Advanced.html",
   "Times-Up-Jr.html",
@@ -38,6 +43,8 @@ self.addEventListener("activate", (e) => {
 });
 
 function putCache(req, res) {
+  // never store an error/404 body — that would serve the miss forever after
+  if (!res || !res.ok || res.type === "opaque") return res;
   const copy = res.clone();
   caches.open(CACHE).then((c) => c.put(req, copy)).catch(() => {});
   return res;
@@ -56,7 +63,17 @@ self.addEventListener("fetch", (e) => {
       fetch(req)
         .then((res) => putCache(req, res))
         .catch(() =>
-          caches.match(req).then((hit) => hit || (req.mode === "navigate" ? caches.match("index.html") : undefined))
+          caches.match(req).then((hit) => {
+            if (hit) return hit;
+            // ignore the ?v= cache-buster when looking for a cached page
+            if (url.search) {
+              return caches.match(url.origin + url.pathname).then((bare) =>
+                bare || (req.mode === "navigate" ? caches.match("offline.html") : undefined)
+              );
+            }
+            // a page we've never cached, with no network: show the offline page
+            return req.mode === "navigate" ? caches.match("offline.html") : undefined;
+          })
         )
     );
     return;

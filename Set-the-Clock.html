@@ -91,33 +91,47 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 
 /* ---------- the big clock ---------- */
 .clockwrap{position:relative; width:var(--clk); height:var(--clk); flex:0 0 auto; touch-action:none}
-.clockwrap svg{display:block; width:100%; height:100%; overflow:visible}
-.dial{fill:#fdfdfb; stroke:var(--cc); stroke-width:3.2}
-.tick{stroke:#b9c0c8; stroke-width:1.2; stroke-linecap:round}
-.tick.big{stroke:#8d959e; stroke-width:2.4}
-.hnum{fill:#2b3038; font-family:"Archivo",sans-serif; font-weight:700; font-size:9.4px; text-anchor:middle; dominant-baseline:central}
-.mnum{fill:#9aa3ac; font-family:"Archivo",sans-serif; font-weight:600; font-size:4.4px; text-anchor:middle; dominant-baseline:central}
+.clockwrap svg{display:block; width:100%; height:100%; overflow:visible;
+  filter:drop-shadow(0 12px 20px rgba(0,0,0,.5))}
+/* moulded case in this appointment's season colour, brass rim, paper dial */
+.case{fill:var(--cc); transition:fill .3s}
+.case-sheen,.glass{pointer-events:none}
+.rim{fill:none; stroke:rgba(0,0,0,.28); stroke-width:1.5}
+.face{stroke:rgba(0,0,0,.14); stroke-width:.5}
+.tick{stroke:#9aa3ac; stroke-width:1; stroke-linecap:round}
+.tick.big{stroke:#3d444c; stroke-width:2.2}
+.maker{fill:#b3bac2; font-family:"Fraunces",serif; font-weight:600; font-size:3.4px;
+  letter-spacing:.5px; text-anchor:middle; pointer-events:none}
+/* hour numerals ride above the hands, haloed in the dial colour */
+#hnums{pointer-events:none}
+.hnum{fill:#232930; font-family:"Archivo",sans-serif; font-weight:700; font-size:9.6px;
+  text-anchor:middle; dominant-baseline:central;
+  paint-order:stroke; stroke:#fbfaf5; stroke-width:2.8; stroke-linejoin:round}
+/* minute numerals are printed on the coloured case, like a real teaching clock */
+#mnums{pointer-events:none}
+.mnum{fill:#fff; font-family:"Archivo",sans-serif; font-weight:700; font-size:4.1px;
+  text-anchor:middle; dominant-baseline:central; opacity:.95}
 .mnum.hide{display:none}
 /* NOTE: SVG needs transform-box:view-box so "50% 50%" resolves against the
    viewBox (the clock centre) and not each hand's own bounding box. */
 .hand,.ghost{transform-box:view-box; transform-origin:50% 50%}
 .hand{cursor:grab; transition:transform .18s cubic-bezier(.3,1.4,.5,1)}
 .hand.drag{cursor:grabbing; transition:none}
-.hand .halo{pointer-events:all}
+.hand .halo{pointer-events:all; stroke:transparent; stroke-width:15; fill:none}
 .hand .stick{stroke-linecap:round}
-.hand.hr .stick{stroke:var(--cc); stroke-width:5.4}
-.hand.mn .stick{stroke:#57606b; stroke-width:3.4}
-.hand .grip{fill:var(--cc); stroke:#fff; stroke-width:1.6}
-.hand.mn .grip{fill:#57606b}
-.hand .halo{fill:transparent}
+.hand .tip{stroke:rgba(255,255,255,.9); stroke-width:.8; stroke-linejoin:round}
+.hand.hr .stick{stroke:var(--cc); stroke-width:5}
+.hand.hr .tip{fill:var(--cc)}
+.hand.mn .stick{stroke:#4a525b; stroke-width:3.1}
+.hand.mn .tip{fill:#4a525b}
 .hand:focus-visible{outline:none}
-.hand:focus-visible .grip{stroke:var(--brass-hi); stroke-width:3}
-.hand.drag .grip, .hand:hover .grip{filter:drop-shadow(0 0 4px rgba(0,0,0,.35))}
-.pin{fill:var(--cc); stroke:#fff; stroke-width:1.4}
-.ghost{opacity:0; transition:opacity .3s}
-.ghost.show{opacity:.42}
-.ghost .stick{stroke:#2f9e4f; stroke-width:3.4; stroke-linecap:round; stroke-dasharray:3 3}
-.clockwrap.right .dial{stroke:var(--good); animation:pop .45s ease}
+.hand:focus-visible .tip{stroke:var(--brass-hi); stroke-width:2.4}
+.hand:hover .tip,.hand.drag .tip{stroke:var(--brass-hi); stroke-width:1.6}
+.pin-c{fill:#3d444c}
+.ghost{opacity:0; transition:opacity .3s; pointer-events:none}
+.ghost.show{opacity:.5}
+.ghost .stick{stroke:#2f9e4f; stroke-width:3.2; stroke-linecap:round; stroke-dasharray:3 3}
+.clockwrap.right .case{fill:var(--good); animation:pop .45s ease}
 .clockwrap.wrong{animation:shake .4s}
 @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.035)}100%{transform:scale(1)}}
 @keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}45%{transform:translateX(6px)}70%{transform:translateX(-4px)}}
@@ -125,8 +139,10 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 /* labels around the knobs so kids know which hand is which */
 .handkey{display:flex; gap:14px; font-size:.78rem; color:#a7c6b7; align-items:center; flex-wrap:wrap; justify-content:center}
 .handkey span{display:flex; align-items:center; gap:6px}
-.handkey i{width:22px; height:5px; border-radius:3px; display:block}
-.handkey i.h{background:var(--cc)} .handkey i.m{background:#8e99a4; width:30px; height:3.5px}
+.handkey i{height:11px; display:block;
+  clip-path:polygon(0 38%,62% 38%,62% 8%,100% 50%,62% 92%,62% 62%,0 62%)}
+.handkey i.h{background:var(--cc); width:21px}
+.handkey i.m{background:#8e99a4; width:32px}
 
 /* steppers (tap-friendly alternative to dragging) */
 .steppers{display:flex; gap:clamp(8px,2vw,18px); flex-wrap:wrap; justify-content:center}
@@ -202,7 +218,7 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 
     <div class="prompt">
       <div class="phase" id="phase">Your first appointment…</div>
-      <div class="hint" id="hint">Drag the hands to show this time.</div>
+      <div class="hint" id="hint">Drag the arrows to show this time.</div>
     </div>
 
     <div class="pips" id="pips" aria-hidden="true"></div>
@@ -217,34 +233,76 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
       <div class="clockpane">
         <div class="clockwrap" id="clockwrap">
           <svg viewBox="0 0 100 100" id="clock" role="application"
-               aria-label="Clock. Drag the hour and minute hands, or use the Hour and Minutes buttons below.">
-            <circle class="dial" cx="50" cy="50" r="45.5"></circle>
-            <g id="ticks"></g>
-            <g id="hnums"></g>
+               aria-label="Clock. Drag the hour and minute arrows, or use the Hour and Minutes buttons below.">
+            <defs>
+              <!-- moulded case: light along the top edge, shadowed along the bottom -->
+              <linearGradient id="gBezel" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#fff" stop-opacity=".5"/>
+                <stop offset=".45" stop-color="#fff" stop-opacity=".06"/>
+                <stop offset="1" stop-color="#000" stop-opacity=".34"/>
+              </linearGradient>
+              <!-- printed dial paper, very slightly domed -->
+              <radialGradient id="gFace" cx="50%" cy="36%" r="72%">
+                <stop offset="0" stop-color="#ffffff"/>
+                <stop offset=".7" stop-color="#fbfaf5"/>
+                <stop offset="1" stop-color="#e9e7de"/>
+              </radialGradient>
+              <!-- glass reflection across the upper left -->
+              <linearGradient id="gGlass" x1=".1" y1="0" x2=".7" y2="1">
+                <stop offset="0" stop-color="#fff" stop-opacity=".5"/>
+                <stop offset="1" stop-color="#fff" stop-opacity="0"/>
+              </linearGradient>
+              <radialGradient id="gPin" cx="35%" cy="30%" r="80%">
+                <stop offset="0" stop-color="#fdfdfd"/><stop offset="1" stop-color="#9aa3ac"/>
+              </radialGradient>
+              <filter id="fHand" x="-40%" y="-40%" width="180%" height="180%">
+                <feDropShadow dx=".5" dy="1" stdDeviation=".7" flood-color="#0d1a20" flood-opacity=".35"/>
+              </filter>
+            </defs>
+
+            <!-- case + bezel -->
+            <circle class="case" cx="50" cy="50" r="48"></circle>
             <g id="mnums"></g>
+            <circle class="case-sheen" cx="50" cy="50" r="48" fill="url(#gBezel)"></circle>
+            <circle class="rim" cx="50" cy="50" r="42.7"></circle>
+            <circle class="face" cx="50" cy="50" r="42" fill="url(#gFace)"></circle>
+
+            <g id="ticks"></g>
+            <text class="maker" x="50" y="64">IGAA PARLOR</text>
+
             <g class="ghost" id="ghost">
               <line class="stick" id="ghr" x1="50" y1="50" x2="50" y2="27"></line>
-              <line class="stick" id="gmn" x1="50" y1="50" x2="50" y2="14"></line>
+              <line class="stick" id="gmn" x1="50" y1="50" x2="50" y2="15"></line>
             </g>
-            <g class="hand mn" id="handMn" tabindex="0" role="slider" aria-label="Minute hand"
-               aria-valuemin="0" aria-valuemax="55" aria-valuenow="0">
-              <line class="halo" x1="50" y1="50" x2="50" y2="13" stroke="transparent" stroke-width="16"></line>
-              <line class="stick" x1="50" y1="50" x2="50" y2="15"></line>
-              <circle class="grip" cx="50" cy="14" r="6.2"></circle>
+
+            <!-- both hands are ARROWS: grab an arrowhead and swing it round -->
+            <g class="hand mn" id="handMn" tabindex="0" role="slider" aria-label="Minute arrow"
+               aria-valuemin="0" aria-valuemax="55" aria-valuenow="0" filter="url(#fHand)">
+              <line class="halo" x1="50" y1="50" x2="50" y2="14"></line>
+              <line class="stick" x1="50" y1="50" x2="50" y2="24"></line>
+              <path class="tip" d="M50 13 L54.8 26 L50 23.2 L45.2 26 Z"></path>
             </g>
-            <g class="hand hr" id="handHr" tabindex="0" role="slider" aria-label="Hour hand"
-               aria-valuemin="1" aria-valuemax="12" aria-valuenow="12">
-              <line class="halo" x1="50" y1="50" x2="50" y2="26" stroke="transparent" stroke-width="14"></line>
-              <line class="stick" x1="50" y1="50" x2="50" y2="29"></line>
-              <circle class="grip" cx="50" cy="27" r="7"></circle>
+            <g class="hand hr" id="handHr" tabindex="0" role="slider" aria-label="Hour arrow"
+               aria-valuemin="1" aria-valuemax="12" aria-valuenow="12" filter="url(#fHand)">
+              <line class="halo" x1="50" y1="50" x2="50" y2="25"></line>
+              <line class="stick" x1="50" y1="50" x2="50" y2="34"></line>
+              <path class="tip" d="M50 24 L56.4 37.2 L50 33.6 L43.6 37.2 Z"></path>
             </g>
-            <circle class="pin" cx="50" cy="50" r="3.4"></circle>
+
+            <circle class="pin" cx="50" cy="50" r="3.6" fill="url(#gPin)"></circle>
+            <circle class="pin-c" cx="50" cy="50" r="1.5"></circle>
+
+            <!-- numerals sit ON TOP of the hands (with a dial-coloured halo) so a
+                 sweeping arrow never hides the very number it is pointing at -->
+            <g id="hnums"></g>
+            <!-- glass last, and never in the way of a pointer -->
+            <path class="glass" d="M50 8 A42 42 0 0 0 12.5 66 A50 50 0 0 1 50 8 Z" fill="url(#gGlass)"></path>
           </svg>
         </div>
 
         <div class="handkey">
-          <span><i class="h"></i> short&nbsp;=&nbsp;<b>hour</b></span>
-          <span><i class="m"></i> long&nbsp;=&nbsp;<b>minutes</b></span>
+          <span><i class="h"></i> short arrow = <b>hour</b></span>
+          <span><i class="m"></i> long arrow = <b>minutes</b></span>
         </div>
 
         <div class="steppers">
@@ -369,17 +427,19 @@ function resetHands() {
 /* ---- the clock face ----------------------------------------------- */
 (function buildFace() {
   let t = "", hn = "", mn = "";
+  // dial geometry: case 0–48, minute numerals printed on the case at 45,
+  // paper face to 42, tick track 36.5–40.5, hour numerals at 30.5
   for (let i = 0; i < 60; i++) {
     const big = i % 5 === 0, a = (i * 6 - 90) * Math.PI / 180;
-    const r1 = big ? 38.5 : 40.5, r2 = 43.5;
+    const r1 = big ? 36.5 : 38.6, r2 = 40.6;
     t += `<line class="tick${big ? " big" : ""}" x1="${(50 + r1 * Math.cos(a)).toFixed(2)}" y1="${(50 + r1 * Math.sin(a)).toFixed(2)}"
            x2="${(50 + r2 * Math.cos(a)).toFixed(2)}" y2="${(50 + r2 * Math.sin(a)).toFixed(2)}"></line>`;
   }
   for (let h = 1; h <= 12; h++) {
     const a = (h * 30 - 90) * Math.PI / 180;
-    hn += `<text class="hnum" x="${(50 + 32.5 * Math.cos(a)).toFixed(2)}" y="${(50 + 32.5 * Math.sin(a)).toFixed(2)}">${h}</text>`;
+    hn += `<text class="hnum" x="${(50 + 30.5 * Math.cos(a)).toFixed(2)}" y="${(50 + 30.5 * Math.sin(a)).toFixed(2)}">${h}</text>`;
     const m = h * 5, am = (m * 6 - 90) * Math.PI / 180;
-    mn += `<text class="mnum" x="${(50 + 47.5 * Math.cos(am)).toFixed(2)}" y="${(50 + 47.5 * Math.sin(am)).toFixed(2)}">${two(m % 60)}</text>`;
+    mn += `<text class="mnum" x="${(50 + 45.1 * Math.cos(am)).toFixed(2)}" y="${(50 + 45.1 * Math.sin(am)).toFixed(2)}">${two(m % 60)}</text>`;
   }
   $("ticks").innerHTML = t; $("hnums").innerHTML = hn; $("mnums").innerHTML = mn;
 })();
@@ -473,7 +533,7 @@ $("btnHint").onclick = () => {
   $("ghost").classList.add("show");
   if (stars > 1) stars--;                 // a peek costs a star
   paintStars();
-  say("That's where the hands go — now move them there yourself.");
+  say("That's where the arrows go — now move them there yourself.");
   clearTimeout(ghostTimer);
   ghostTimer = setTimeout(hideGhost, 2200);
 };
@@ -489,9 +549,9 @@ $("btnCheck").onclick = () => {
   setTimeout(() => $("clockwrap").classList.remove("wrong"), 420);
   if (stars > 1) stars--;
   paintStars();
-  if (!okH && !okM) say("Not yet — check both hands. The short one picks the hour.", "no");
-  else if (!okH) say(hour + " o'clock isn't it — move the SHORT hand.", "no");
-  else say("Minutes aren't right yet — move the LONG hand.", "no");
+  if (!okH && !okM) say("Not yet — check both arrows. The short one picks the hour.", "no");
+  else if (!okH) say(hour + " o'clock isn't it — move the SHORT arrow.", "no");
+  else say("Minutes aren't right yet — move the LONG arrow.", "no");
 };
 
 function win() {
@@ -539,8 +599,8 @@ function finish() {
 function say(msg, kind) {
   const h = $("hint");
   h.textContent = msg || (level.step === 60
-    ? "Drag the SHORT hand to the hour."
-    : "Drag the SHORT hand to the hour, the LONG hand to the minutes.");
+    ? "Drag the SHORT arrow to the hour."
+    : "Drag the SHORT arrow to the hour, the LONG arrow to the minutes.");
   h.className = "hint" + (kind ? " " + kind : "");
 }
 function paintStars() {
@@ -585,12 +645,12 @@ $("levels").addEventListener("click", e => {
 $("btnHelp").onclick = () => {
   $("sheet").innerHTML = `
     <h2>How to play</h2>
-    <p>An appointment card shows a time. Move the clock hands to show that time,
+    <p>An appointment card shows a time. Move the clock arrows to show that time,
        then press <b>Check the time</b>.</p>
     <ul>
       <li>The <b>short</b> hand points at the <b>hour</b>.</li>
       <li>The <b>long</b> hand points at the <b>minutes</b>.</li>
-      <li>Drag a hand by its round grip, or tap the <b>−</b> and <b>+</b> buttons.</li>
+      <li>Drag an arrow by its head, or tap the <b>−</b> and <b>+</b> buttons.</li>
       <li>Every appointment starts with ★★★. A wrong guess or a peek costs one star
           (you always keep at least one).</li>
       <li>Six appointments make a day. Keep them all for a perfect day.</li>

@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a24">
+<title>The Parlor is offline</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101a24'/%3E%3Ccircle cx='32' cy='32' r='17' fill='none' stroke='%23e4c883' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brass:#b98a3c; --brass-hi:#e4c883; --brass-deep:#8a6526;
+  --line-2:rgba(240,235,220,.16); --muted:#9aa6b2; --muted-2:#c7d0d9; --paper:#f4efe3;
+}
+*{box-sizing:border-box}
+html,body{height:100%; margin:0}
+body{color:var(--muted-2); font-family:"Archivo",system-ui,"Segoe UI",sans-serif;
+  background:radial-gradient(120% 90% at 50% 6%, #223141 0%, #16222e 42%, #0c141c 100%);
+  display:flex; align-items:center; justify-content:center; padding:24px 18px;
+  -webkit-font-smoothing:antialiased}
+.wrap{width:100%; max-width:560px; text-align:center}
+h1{font-family:"Fraunces","Georgia",serif; color:var(--paper); font-weight:600;
+  font-size:clamp(1.5rem,5.2vw,2.1rem); margin:22px 0 0; line-height:1.15}
+p{font-size:clamp(.95rem,2.6vw,1.05rem); line-height:1.55; color:var(--muted); margin:12px auto 0; max-width:44ch}
+
+/* the card back, exactly as it looks in the games */
+.back{width:clamp(116px,31vw,148px); height:clamp(165px,44vw,210px); margin:0 auto; border-radius:14px;
+  background:linear-gradient(150deg,#22303f,#0f1822); border:1px solid #0b131c; position:relative;
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 16px 30px -14px rgba(0,0,0,.7); transform:rotate(-4deg)}
+.back::before{content:""; position:absolute; inset:8px; border:1px solid rgba(200,163,98,.6); border-radius:9px;
+  box-shadow:inset 0 0 0 2.5px rgba(200,163,98,.14)}
+.medallion{width:52%; aspect-ratio:1; border-radius:50%;
+  background:conic-gradient(#3d78bf 0 25%, #e6b23a 0 50%, #45a06a 0 75%, #cf7620 0 100%);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 3px 10px rgba(0,0,0,.45), 0 0 0 1px rgba(0,0,0,.25)}
+.core{width:64%; height:64%; border-radius:50%; background:linear-gradient(150deg,#22303f,#0f1822);
+  display:flex; align-items:center; justify-content:center; font-family:"Fraunces",serif; font-weight:700;
+  color:#e4c883; font-size:.78rem; border:1px solid rgba(200,163,98,.45)}
+
+.dot{display:inline-flex; align-items:center; gap:8px; margin-top:18px; font-size:.8rem;
+  letter-spacing:.14em; text-transform:uppercase; color:#e0a48a}
+.dot i{width:9px; height:9px; border-radius:50%; background:#e0794f; display:block;
+  box-shadow:0 0 0 0 rgba(224,121,79,.6); animation:pulse 2s infinite}
+.dot.on{color:#9ff0bd} .dot.on i{background:#3fbf72; animation:none}
+@keyframes pulse{70%{box-shadow:0 0 0 9px rgba(224,121,79,0)}100%{box-shadow:0 0 0 0 rgba(224,121,79,0)}}
+
+.acts{display:flex; gap:10px; justify-content:center; flex-wrap:wrap; margin-top:22px}
+.btn{border:1px solid var(--brass-deep); cursor:pointer; color:#211a0c; text-decoration:none; display:inline-block;
+  background:linear-gradient(180deg,var(--brass-hi),var(--brass));
+  padding:.72em 1.4em; border-radius:9px; font-weight:600; font-size:.98rem; font-family:inherit;
+  box-shadow:0 2px 0 var(--brass-deep),0 8px 18px -8px rgba(0,0,0,.7)}
+.btn:hover{filter:brightness(1.06)}
+.btn.ghost{background:transparent; color:var(--muted-2); border-color:var(--line-2); box-shadow:none; font-weight:500}
+.btn.ghost:hover{border-color:var(--brass); color:var(--brass-hi)}
+.note{margin-top:22px; border-top:1px solid rgba(240,235,220,.10); padding-top:16px; font-size:.86rem; color:#7f8b97}
+.note b{color:var(--muted-2)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back" aria-hidden="true"><div class="medallion"><div class="core">IGAA</div></div></div>
+
+  <div class="dot" id="dot"><i></i><span id="dotText">No connection</span></div>
+
+  <h1>The Parlor is offline.</h1>
+  <p>This page hasn’t been saved to your device yet, so it needs the internet.
+     Any game you’ve already opened still works offline — the Parlor keeps them on hand.</p>
+
+  <div class="acts">
+    <button class="btn" id="retry">Try again</button>
+    <a class="btn ghost" id="home" href="index.html">← Back to the Parlor</a>
+  </div>
+
+  <div class="note">
+    <b>Tip for grown-ups:</b> open the Parlor once while you’re online and add it to the home screen —
+    after that every game you’ve played is available on a plane, in a car, anywhere.
+  </div>
+</div>
+
+<script>
+var dot = document.getElementById("dot"), dotText = document.getElementById("dotText");
+function paint() {
+  var on = navigator.onLine;
+  dot.classList.toggle("on", on);
+  dotText.textContent = on ? "Back online" : "No connection";
+}
+addEventListener("online", function () { paint(); setTimeout(function () { location.reload(); }, 600); });
+addEventListener("offline", paint);
+document.getElementById("retry").onclick = function () { location.reload(); };
+paint();
+</script>
+</body>
+</html>
