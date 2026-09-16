@@ -1,5 +1,5 @@
 /* IGAA Parlor service worker — offline app shell, but fresh-first for pages */
-const CACHE = "igaa-parlor-v15";
+const CACHE = "igaa-parlor-v16";
 const ASSETS = [
   "./",
   "index.html",
@@ -13,6 +13,7 @@ const ASSETS = [
   "IGAA-Advanced.html",
   "Times-Up-Jr.html",
   "Set-the-Clock.html",
+  "Season-Sweep.html",
   "Appointment-Taker.html",
   "12-Appointments.html",
   "Finish-the-Appointment.html",
