@@ -273,15 +273,15 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 
             <g class="ghost" id="ghost">
               <line class="stick" id="ghr" x1="50" y1="50" x2="50" y2="27"></line>
-              <line class="stick" id="gmn" x1="50" y1="50" x2="50" y2="15"></line>
+              <line class="stick" id="gmn" x1="50" y1="50" x2="50" y2="10"></line>
             </g>
 
             <!-- both hands are ARROWS: grab an arrowhead and swing it round -->
             <g class="hand mn" id="handMn" tabindex="0" role="slider" aria-label="Minute arrow"
                aria-valuemin="0" aria-valuemax="55" aria-valuenow="0" filter="url(#fHand)">
-              <line class="halo" x1="50" y1="50" x2="50" y2="14"></line>
-              <line class="stick" x1="50" y1="50" x2="50" y2="24"></line>
-              <path class="tip" d="M50 13 L54.8 26 L50 23.2 L45.2 26 Z"></path>
+              <line class="halo" x1="50" y1="50" x2="50" y2="8"></line>
+              <line class="stick" x1="50" y1="50" x2="50" y2="19"></line>
+              <path class="tip" d="M50 7.5 L54.6 20.5 L50 17.8 L45.4 20.5 Z"></path>
             </g>
             <g class="hand hr" id="handHr" tabindex="0" role="slider" aria-label="Hour arrow"
                aria-valuemin="1" aria-valuemax="12" aria-valuenow="12" filter="url(#fHand)">
@@ -438,7 +438,7 @@ function resetHands() {
   }
   for (let h = 1; h <= 12; h++) {
     const a = (h * 30 - 90) * Math.PI / 180;
-    hn += `<text class="hnum" x="${(50 + 30.5 * Math.cos(a)).toFixed(2)}" y="${(50 + 30.5 * Math.sin(a)).toFixed(2)}">${h}</text>`;
+    hn += `<text class="hnum" x="${(50 + 28.5 * Math.cos(a)).toFixed(2)}" y="${(50 + 28.5 * Math.sin(a)).toFixed(2)}">${h}</text>`;
     const m = h * 5, am = (m * 6 - 90) * Math.PI / 180;
     mn += `<text class="mnum" x="${(50 + 45.1 * Math.cos(am)).toFixed(2)}" y="${(50 + 45.1 * Math.sin(am)).toFixed(2)}">${two(m % 60)}</text>`;
   }
@@ -697,7 +697,7 @@ function fitBoard() {
                + (wide ? 0 : H(".cardpane")) + 64;
   const byH = box.height - chrome;
   const byW = wide ? box.width - cw * 1.6 - 90 : box.width - 24;
-  const d = Math.max(170, Math.min(430, byH, byW));
+  const d = Math.max(170, Math.min(520, byH, byW));
   document.documentElement.style.setProperty("--clk", d + "px");
 }
 

@@ -91,6 +91,13 @@ h1,h2,h3{font-family:"Fraunces",Georgia,serif; font-weight:700; line-height:1.1;
 .game .star{position:absolute; top:-11px; right:10px; font-size:.72rem; font-weight:800; letter-spacing:.03em; padding:.2em .6em;
   border-radius:999px; background:var(--brass-hi); color:#3a2a06; box-shadow:0 3px 8px -3px rgba(0,0,0,.5)}
 
+/* mini-game row under the main grid */
+.minis{margin-top:26px; padding-top:18px; border-top:1px solid var(--line)}
+.minis h2{font-size:1.25rem; display:flex; align-items:center; gap:.5em}
+.minis h2::before{content:""; width:10px; height:22px; border-radius:3px; background:#2f6fc0; display:block}
+.minis .note{margin:4px 0 12px}
+.minis .games{grid-template-columns:repeat(auto-fill,minmax(210px,1fr))}
+
 /* ================= HOW IT WORKS VIEW ================= */
 .about-hero{text-align:center}
 .about-hero h1{font-size:clamp(1.8rem,5vw,2.5rem)}
@@ -190,6 +197,12 @@ h1,h2,h3{font-family:"Fraunces",Georgia,serif; font-weight:700; line-height:1.1;
     <div class="filter" id="filter" role="group" aria-label="Show games for age"></div>
     <p class="note" id="note" aria-live="polite"></p>
     <div class="games" id="grid"></div>
+
+    <section class="minis" id="minis" hidden>
+      <h2>Mini games</h2>
+      <p class="note">One player, a few minutes, no setup — practice on their own.</p>
+      <div class="games" id="miniGrid"></div>
+    </section>
   </main>
 
   <!-- ===================== HOW IT WORKS ===================== -->
@@ -332,16 +345,39 @@ const tile = g => `
 
 /* ---- age filter (remembered on this device) ---- */
 let age = "all";
-try { const saved = localStorage.getItem("igaa-age"); if (saved && (saved === "all" || AGE_GROUPS.some(a => a.id === saved))) age = saved; } catch (e) {}
+try { const saved = localStorage.getItem("igaa-age"); if (saved && (saved === "all" || saved === "mini" || AGE_GROUPS.some(a => a.id === saved))) age = saved; } catch (e) {}
+
+/* Mini games are solo practice rather than a game round the table, so they
+   get their own filter chip AND their own row under the main grid. */
+const MINIS = GAMES.filter(g => g.mini);
+const MINI_BAND = "#2f6fc0";
 
 function renderGames() {
-  const opts = [{ id:"all", label:"All ages", band:"#c9a24a", n:GAMES.length }, ...AGE_GROUPS.map(a => ({ ...a, n:inGroup(a).length }))];
+  const opts = [
+    { id:"all", label:"All ages", band:"#c9a24a", n:GAMES.length },
+    ...AGE_GROUPS.map(a => ({ ...a, n:inGroup(a).length })),
+    { id:"mini", label:"Mini games", band:MINI_BAND, n:MINIS.length },
+  ];
   $("filter").innerHTML = `<span class="lbl">Show games for:</span>` + opts.map(o =>
     `<button type="button" data-age="${o.id}" style="--band:${o.band}" aria-pressed="${o.id === age}">${o.label}<small>${o.n}</small></button>`).join("");
+
   const grp = AGE_GROUPS.find(a => a.id === age);
-  const list = grp ? inGroup(grp) : GAMES;
-  $("note").innerHTML = grp ? `<b>${grp.title}:</b> ${grp.blurb}` : `All ${GAMES.length} games, youngest first. Look for <b>★ Start here</b> if you're new.`;
-  $("grid").innerHTML = list.map(tile).join("");
+  const onlyMini = age === "mini";
+  const scope = onlyMini ? MINIS : grp ? inGroup(grp) : GAMES;
+
+  // table games in the main grid; minis get their own row underneath, so a
+  // game is never listed twice
+  const main = onlyMini ? scope : scope.filter(g => !g.mini);
+  const minis = onlyMini ? [] : scope.filter(g => g.mini);
+
+  $("note").innerHTML =
+    onlyMini ? `<b>Mini games:</b> one player, a few minutes, no setup — good for practising alone.`
+    : grp ? `<b>${grp.title}:</b> ${grp.blurb}`
+    : `All ${GAMES.length} games, youngest first. Look for <b>★ Start here</b> if you're new.`;
+  $("grid").innerHTML = main.map(tile).join("");
+
+  $("minis").hidden = !minis.length;
+  if (minis.length) $("miniGrid").innerHTML = minis.map(tile).join("");
 }
 $("filter").addEventListener("click", e => {
   const b = e.target.closest("button[data-age]"); if (!b) return;
