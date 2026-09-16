@@ -29,9 +29,6 @@
       '<div class="hand mn"></div><div class="hand hr"></div><div class="pin"></div></div>';
   }
 
-  // NOON reads in all four season colors on the printed card
-  var NOON_LETTERS = '<i class="nl y">N</i><i class="nl g">O</i><i class="nl o">O</i><i class="nl b">N</i>';
-
   var WEEKEND = { Saturday: 1, Sunday: 1 };
   // spell out the card's color on the bottom label — colorblind-friendly
   var COLORNAME = { blue: "BLUE", yellow: "YELLOW", green: "GREEN", orange: "ORANGE" };
@@ -45,15 +42,10 @@
         '<div class="idx">MAIL</div><div class="mid"><div class="mailglyph">✉</div></div><div class="idx bottom">PURPLE</div></div>';
     }
     if (c && (c.cat === "noon" || c.noon)) {
-      // matches the printed NOON card: sky-blue dial, hands straight up at 12,
-      // and the word NOON lettered in the four season colors
       var nl = esc(c.value || "12:00 NOON").toUpperCase();
-      var head = nl.indexOf("NOON") >= 0
-        ? nl.replace("NOON", '<span class="noonword">' + NOON_LETTERS + "</span>")
-        : nl;
       return '<div class="card ' + extra + '" data-color="noon" data-cat="noon" data-id="' + id + '">' +
-        '<div class="idx">' + head + '</div><div class="mid">' + clockHTML(12) + '</div>' +
-        '<div class="idx bottom">ALL COLORS</div></div>';
+        '<div class="idx">' + nl + '</div><div class="mid">' + clockHTML(12) + '</div>' +
+        '<div class="idx bottom">RED</div></div>';
     }
     var cat = (c && c.cat) || "season";
     var label, mid;

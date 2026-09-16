@@ -24,17 +24,7 @@
 .card[data-color=yellow]{--cc:#c99105}
 .card[data-color=green]{--cc:#2f9e4f}
 .card[data-color=orange]{--cc:#e2701c}
-/* NOON card = the printed original: pale sky stock, light-blue dial */
-.card[data-color=noon]{--cc:#57bfe8; background:#f6fcff; border-color:#cbe7f4; color:#3d4650}
-.card[data-color=noon] .clock .num{color:#8a9099}
-/* NOON lettered in the four season colors */
-.card .noonword .nl{font-style:normal}
-.card .noonword .nl.y{color:#e0b200}
-.card .noonword .nl.g{color:#70ad47}
-.card .noonword .nl.o{color:#ed7d31}
-.card .noonword .nl.b{color:#4472c4}
-.card[data-color=noon] .idx{color:#5a6570}
-.card[data-color=noon] .idx.bottom{color:#7b8792}
+.card[data-color=noon]{--cc:#c9432b; background:#fff8f4; border-color:#eccdbf}
 .card[data-color=mail]{--cc:#7a5cc0; background:#f8f5fd; border-color:#ddd3ef}
 
 /* mirrored value labels (top upright, bottom rotated — like a real card) */
