@@ -80,6 +80,10 @@ h1,h2,h3{font-family:"Fraunces",Georgia,serif; font-weight:700; line-height:1.1;
 .game .tag.lvl-Easy{background:#dcf0e2; color:#1f6b38}
 .game .tag.lvl-Playful{background:#fbeccd; color:#7a5410}
 .game .tag.lvl-Advanced{background:#f6dcd6; color:#8f2f1c}
+/* mini games: quick solo practice rather than a table game */
+.game .tag.mini{background:#e2ecfb; color:#1f4d8f}
+.game .mini-ribbon{position:absolute; top:-11px; left:10px; font-size:.72rem; font-weight:800; letter-spacing:.03em; padding:.2em .6em;
+  border-radius:999px; background:#2f6fc0; color:#fff; box-shadow:0 3px 8px -3px rgba(0,0,0,.5)}
 .game .meta{margin-top:auto; padding-top:6px; display:flex; justify-content:space-between; align-items:center; gap:8px; font-size:.84rem; font-weight:700; color:#6b7684}
 .game .age{color:#fff; background:var(--band); padding:.12em .55em; border-radius:999px; font-size:.78rem}
 .game .go{color:var(--accent); font-weight:800; white-space:nowrap}
@@ -290,6 +294,7 @@ const AGE_GROUPS = [
    ========================================================================= */
 const GAMES = [
   { file:"Level-1-Seasons.html",        age:3, level:"",         type:"IGAA",  name:"Level 1 Seasons",        emoji:"🚂", players:"2–4 players",    accent:"#e2701c", start:true, learns:["Seasons","Colors"],      desc:"Ride the season train and trade cards to make an appointment." },
+  { file:"Set-the-Clock.html",          age:5, level:"Easy",     type:"Time",  name:"Set the Clock",          emoji:"🕐", players:"1 player",       accent:"#2f6fc0", mini:true, learns:["Telling time","Clocks"], desc:"Move the clock hands to show the time on your appointment card." },
   { file:"Times-Up-Jr.html",            age:6, level:"Easy",     type:"Other", name:"Times Up",               emoji:"⏰", players:"2–8 players",    accent:"#d1492f", start:true, learns:["Months","Seasons"],      desc:"Flip cards to find the months of each season before Noon shows up." },
   { file:"IGAA-Beginner.html",          age:6, level:"",         type:"IGAA",  name:"Appointment",            emoji:"📅", players:"2–8 players",    accent:"#c78a2e", learns:["Days","Time","Matching"], desc:"Collect a season, a day, and a time in the same color." },
   { file:"Double-Appointment.html",     age:6, level:"Playful",  type:"IGAA",  name:"Double Appointment",     emoji:"🔒", players:"2 or 4 players", accent:"#2f9e4f", learns:["Days","Time"],           desc:"Pass cards back and forth to finish your birthday-month appointment." },
@@ -313,9 +318,10 @@ const inGroup = a => GAMES.filter(g => groupOf(g) === a);
 const tile = g => `
   <a class="game" href="${g.file}" style="--accent:${g.accent}; --band:${groupOf(g).band}" aria-label="Play ${esc(g.name)}, ages ${g.age} and up, ${esc(g.players)}">
     ${g.start ? `<span class="star">★ Start here</span>` : ""}
+    ${g.mini ? `<span class="mini-ribbon">Mini game</span>` : ""}
     <span class="top"><span class="emoji" aria-hidden="true">${g.emoji}</span><span class="name">${esc(g.name)}</span></span>
     <span class="desc">${esc(g.desc)}</span>
-    <span class="tags">${g.level ? `<span class="tag lvl-${g.level}">${g.level}</span>` : ""}${(g.learns || []).map(l => `<span class="tag">${esc(l)}</span>`).join("")}</span>
+    <span class="tags">${g.mini ? `<span class="tag mini">Mini game</span>` : ""}${g.level ? `<span class="tag lvl-${g.level}">${g.level}</span>` : ""}${(g.learns || []).map(l => `<span class="tag">${esc(l)}</span>`).join("")}</span>
     <span class="meta"><span><span class="age">Ages ${g.age}+</span> · ${esc(g.players)}</span><span class="go" aria-hidden="true">Play ▶</span></span>
   </a>`;
 

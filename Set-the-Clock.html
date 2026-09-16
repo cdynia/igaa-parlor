@@ -1,0 +1,651 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101a24">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="IGAA Parlor">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<script>if('serviceWorker' in navigator){addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(){});});}</script>
+<title>Set the Clock</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101a24'/%3E%3Ccircle cx='32' cy='32' r='17' fill='none' stroke='%23e4c883' stroke-width='3'/%3E%3Cline x1='32' y1='32' x2='32' y2='20' stroke='%23e4c883' stroke-width='3'/%3E%3Cline x1='32' y1='32' x2='43' y2='36' stroke='%23e2701c' stroke-width='3'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --table-1:#16222e; --table-2:#0c141c;
+  --brass:#b98a3c; --brass-hi:#e4c883; --brass-deep:#8a6526;
+  --line:rgba(240,235,220,.10); --line-2:rgba(240,235,220,.16);
+  --muted:#9aa6b2; --muted-2:#c7d0d9; --paper:#f4efe3;
+  --ink-blue:#2f6fc0; --ink-gold:#c99105; --ink-green:#2f9e4f; --ink-orange:#e2701c;
+  --good:#3fbf72; --bad:#e0794f;
+  --shadow:0 14px 30px -12px rgba(0,0,0,.6);
+  --card-w:112px; --card-h:159px;
+  --clk:320px;          /* big clock diameter — owned by fitBoard() */
+  --cc:var(--ink-blue); /* this appointment's season colour */
+}
+*{box-sizing:border-box}
+html,body{height:100%; margin:0}
+html{-webkit-text-size-adjust:100%}
+body{overflow:hidden; overscroll-behavior:none; touch-action:manipulation;
+  color:var(--muted-2); font-family:"Archivo",system-ui,"Segoe UI",sans-serif;
+  background:radial-gradient(120% 90% at 50% 6%, #223141 0%, var(--table-1) 42%, var(--table-2) 100%);
+  -webkit-font-smoothing:antialiased}
+h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); font-weight:600}
+
+.btn{border:1px solid var(--brass-deep); cursor:pointer; color:#211a0c; text-decoration:none; display:inline-block;
+  background:linear-gradient(180deg,var(--brass-hi),var(--brass));
+  padding:.7em 1.3em; border-radius:9px; font-weight:600; font-size:.95rem; letter-spacing:.2px;
+  box-shadow:0 2px 0 var(--brass-deep),0 8px 18px -8px rgba(0,0,0,.7); transition:transform .08s, filter .15s}
+.btn:hover{filter:brightness(1.06)} .btn:active{transform:translateY(2px); box-shadow:0 0 0 var(--brass-deep)}
+.btn.ghost{background:transparent; color:var(--muted-2); border-color:var(--line-2); box-shadow:none; font-weight:500}
+.btn.ghost:hover{border-color:var(--brass); color:var(--brass-hi)}
+.btn:focus-visible{outline:3px solid var(--brass-hi); outline-offset:2px}
+.btn:disabled{opacity:.4; cursor:not-allowed; filter:none; transform:none}
+.btn.big{font-size:1.05rem; padding:.72em 1.6em}
+
+#app{width:100%; padding:8px clamp(8px,2vw,18px) 10px; height:100dvh; overflow:hidden; display:flex; flex-direction:column; gap:8px}
+.topbar{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
+.brand{display:flex; align-items:center; gap:12px}
+.brand .glyph{width:40px; height:40px; border-radius:9px; background:linear-gradient(155deg,#1d2c3c,#101a24); border:1px solid var(--line-2); position:relative; flex:0 0 auto}
+.brand .glyph::before{content:""; position:absolute; inset:9px; border-radius:50%; border:2px solid var(--brass-hi)}
+.brand .glyph::after{content:""; position:absolute; left:50%; top:50%; width:2px; height:8px; background:var(--brass-hi); transform:translate(-50%,-100%)}
+.brand h1{font-size:1.15rem; line-height:1}
+.brand .sub{font-size:.72rem; color:var(--muted); letter-spacing:.14em; margin-top:3px}
+.tools{display:flex; gap:8px; flex-wrap:wrap}
+
+/* level segmented control */
+.levels{display:flex; gap:4px; padding:4px; border:1px solid var(--line-2); border-radius:11px; background:rgba(0,0,0,.2)}
+.levels button{border:0; background:transparent; color:var(--muted); font:inherit; font-size:.82rem; font-weight:600;
+  padding:.42em .8em; border-radius:8px; cursor:pointer}
+.levels button[aria-pressed=true]{background:linear-gradient(180deg,var(--brass-hi),var(--brass)); color:#211a0c}
+.levels button:focus-visible{outline:2px solid var(--brass-hi); outline-offset:1px}
+
+.felt{position:relative; flex:1 1 auto; min-height:0; display:flex; flex-direction:column; align-items:center;
+  justify-content:center; gap:clamp(6px,1.4vh,14px); padding:clamp(8px,1.6vh,16px); border-radius:20px; overflow:hidden;
+  background:radial-gradient(140% 120% at 50% 0%, rgba(255,255,255,.05), rgba(0,0,0,0) 55%), linear-gradient(180deg,#1c3b34,#122a26);
+  border:1px solid rgba(255,255,255,.06); box-shadow:inset 0 2px 30px rgba(0,0,0,.45), var(--shadow)}
+
+.prompt{text-align:center; z-index:2}
+.prompt .phase{font-family:"Fraunces",serif; font-size:clamp(1rem,2.5vw,1.35rem); color:var(--paper)}
+.prompt .hint{font-size:.86rem; color:#bfe0cf; margin-top:3px; min-height:1.15em}
+.prompt .hint.ok{color:#9ff0bd} .prompt .hint.no{color:#ffc9ac}
+
+/* progress pips */
+.pips{display:flex; gap:7px; z-index:2}
+.pips i{width:13px; height:13px; border-radius:50%; background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.18); display:block; transition:.25s}
+.pips i.now{background:var(--brass-hi); border-color:var(--brass-hi); transform:scale(1.22)}
+.pips i.won{background:var(--good); border-color:var(--good)}
+.pips i.miss{background:var(--bad); border-color:var(--bad)}
+
+.stage{display:flex; align-items:center; justify-content:center; gap:clamp(12px,3vw,38px); z-index:2; min-height:0}
+.cardpane{display:flex; flex-direction:column; align-items:center; gap:10px}
+.stars{display:flex; gap:4px; font-size:1.1rem; line-height:1}
+.stars i{font-style:normal; filter:grayscale(1) brightness(1.7); opacity:.35; transition:.2s}
+.stars i.on{filter:none; opacity:1}
+.clockpane{display:flex; flex-direction:column; align-items:center; gap:clamp(6px,1.4vh,12px)}
+
+/* ---------- the big clock ---------- */
+.clockwrap{position:relative; width:var(--clk); height:var(--clk); flex:0 0 auto; touch-action:none}
+.clockwrap svg{display:block; width:100%; height:100%; overflow:visible}
+.dial{fill:#fdfdfb; stroke:var(--cc); stroke-width:3.2}
+.tick{stroke:#b9c0c8; stroke-width:1.2; stroke-linecap:round}
+.tick.big{stroke:#8d959e; stroke-width:2.4}
+.hnum{fill:#2b3038; font-family:"Archivo",sans-serif; font-weight:700; font-size:9.4px; text-anchor:middle; dominant-baseline:central}
+.mnum{fill:#9aa3ac; font-family:"Archivo",sans-serif; font-weight:600; font-size:4.4px; text-anchor:middle; dominant-baseline:central}
+.mnum.hide{display:none}
+/* NOTE: SVG needs transform-box:view-box so "50% 50%" resolves against the
+   viewBox (the clock centre) and not each hand's own bounding box. */
+.hand,.ghost{transform-box:view-box; transform-origin:50% 50%}
+.hand{cursor:grab; transition:transform .18s cubic-bezier(.3,1.4,.5,1)}
+.hand.drag{cursor:grabbing; transition:none}
+.hand .halo{pointer-events:all}
+.hand .stick{stroke-linecap:round}
+.hand.hr .stick{stroke:var(--cc); stroke-width:5.4}
+.hand.mn .stick{stroke:#57606b; stroke-width:3.4}
+.hand .grip{fill:var(--cc); stroke:#fff; stroke-width:1.6}
+.hand.mn .grip{fill:#57606b}
+.hand .halo{fill:transparent}
+.hand:focus-visible{outline:none}
+.hand:focus-visible .grip{stroke:var(--brass-hi); stroke-width:3}
+.hand.drag .grip, .hand:hover .grip{filter:drop-shadow(0 0 4px rgba(0,0,0,.35))}
+.pin{fill:var(--cc); stroke:#fff; stroke-width:1.4}
+.ghost{opacity:0; transition:opacity .3s}
+.ghost.show{opacity:.42}
+.ghost .stick{stroke:#2f9e4f; stroke-width:3.4; stroke-linecap:round; stroke-dasharray:3 3}
+.clockwrap.right .dial{stroke:var(--good); animation:pop .45s ease}
+.clockwrap.wrong{animation:shake .4s}
+@keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.035)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}45%{transform:translateX(6px)}70%{transform:translateX(-4px)}}
+
+/* labels around the knobs so kids know which hand is which */
+.handkey{display:flex; gap:14px; font-size:.78rem; color:#a7c6b7; align-items:center; flex-wrap:wrap; justify-content:center}
+.handkey span{display:flex; align-items:center; gap:6px}
+.handkey i{width:22px; height:5px; border-radius:3px; display:block}
+.handkey i.h{background:var(--cc)} .handkey i.m{background:#8e99a4; width:30px; height:3.5px}
+
+/* steppers (tap-friendly alternative to dragging) */
+.steppers{display:flex; gap:clamp(8px,2vw,18px); flex-wrap:wrap; justify-content:center}
+.step{display:flex; align-items:center; gap:6px; background:rgba(0,0,0,.22); border:1px solid var(--line); border-radius:11px; padding:5px 8px}
+.step label{font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:#a7c6b7; min-width:52px; text-align:center}
+.step button{width:32px; height:32px; border-radius:8px; border:1px solid var(--line-2); background:rgba(255,255,255,.06);
+  color:var(--paper); font-size:1.05rem; font-weight:700; cursor:pointer; line-height:1}
+.step button:hover{border-color:var(--brass); color:var(--brass-hi)}
+.step button:focus-visible{outline:2px solid var(--brass-hi); outline-offset:1px}
+.actions{display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:center}
+
+/* ---------- appointment card (uses the shared .card component) ---------- */
+.appt .mid{flex-direction:column; gap:.25em}
+.appt .big{font-family:"Fraunces",serif; font-weight:700; color:var(--cc);
+  font-size:calc(var(--card-h) * 0.17); line-height:1}
+.appt .words{font-family:"Archivo",sans-serif; font-weight:600; color:#5d646d; text-align:center;
+  font-size:calc(var(--card-h) * 0.072); line-height:1.15; padding:0 .3em}
+.cardslot{position:relative}
+.cardslot .stamp{position:absolute; inset:0; display:flex; align-items:center; justify-content:center; border-radius:12px;
+  background:rgba(20,50,34,.82); color:#c9ffdd; font-family:"Fraunces",serif; font-weight:700;
+  font-size:calc(var(--card-h)*0.13); opacity:0; pointer-events:none; transition:opacity .2s; text-align:center; padding:.4em}
+.cardslot.kept .stamp{opacity:1}
+.cardlabel{font-size:.72rem; letter-spacing:.16em; text-transform:uppercase; color:#a7c6b7}
+
+/* ---------- overlays ---------- */
+.veil{position:absolute; inset:0; background:rgba(8,16,12,.78); backdrop-filter:blur(3px); display:none;
+  align-items:center; justify-content:center; padding:16px; z-index:20; overflow:auto}
+.veil.on{display:flex}
+.sheet{background:linear-gradient(170deg,#1f2d3c,#131d28); border:1px solid var(--line-2); border-radius:18px;
+  padding:clamp(16px,3vw,26px); max-width:560px; width:100%; box-shadow:var(--shadow); color:var(--muted-2)}
+.sheet h2{font-size:1.4rem; margin-bottom:8px}
+.sheet p, .sheet li{font-size:.92rem; line-height:1.5}
+.sheet ul{padding-left:18px; margin:8px 0}
+.sheet .row{display:flex; gap:10px; justify-content:flex-end; margin-top:16px; flex-wrap:wrap}
+.tally{display:flex; gap:18px; justify-content:center; margin:14px 0; flex-wrap:wrap}
+.tally div{text-align:center}
+.tally b{display:block; font-family:"Fraunces",serif; font-size:1.9rem; color:var(--brass-hi); line-height:1.1}
+.tally span{font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted)}
+
+/* confetti */
+.confetti{position:absolute; inset:0; pointer-events:none; overflow:hidden; z-index:9}
+.confetti i{position:absolute; width:8px; height:13px; border-radius:2px; animation:fall 1.25s ease-in forwards}
+@keyframes fall{0%{transform:translate(0,0) rotate(0); opacity:1}100%{transform:translate(var(--dx),78vh) rotate(var(--rot)); opacity:0}}
+
+@media (max-width:760px){
+  .stage{flex-direction:column; gap:10px}
+  .brand .sub{display:none}
+}
+@media (prefers-reduced-motion:reduce){
+  .hand{transition:none} .confetti i{animation-duration:.01s}
+  .clockwrap.wrong{animation:none}
+}
+</style>
+<link rel="stylesheet" href="cards.css?v=10">
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="brand">
+      <div class="glyph"></div>
+      <div><h1>Set the Clock</h1><div class="sub">Mini game · telling time</div></div>
+    </div>
+    <div class="levels" id="levels" role="group" aria-label="Difficulty"></div>
+    <div class="tools">
+      <a class="btn ghost" href="index.html">← Parlor</a>
+      <button class="btn ghost" id="btnHelp">How to play</button>
+      <button class="btn ghost" id="btnNew">New day</button>
+    </div>
+  </div>
+
+  <div class="felt">
+    <div class="confetti" id="confetti" aria-hidden="true"></div>
+
+    <div class="prompt">
+      <div class="phase" id="phase">Your first appointment…</div>
+      <div class="hint" id="hint">Drag the hands to show this time.</div>
+    </div>
+
+    <div class="pips" id="pips" aria-hidden="true"></div>
+
+    <div class="stage">
+      <div class="cardpane">
+        <div class="cardlabel">Appointment</div>
+        <div class="cardslot" id="cardslot"></div>
+        <div class="stars" id="stars" aria-label="Stars left for this appointment"></div>
+      </div>
+
+      <div class="clockpane">
+        <div class="clockwrap" id="clockwrap">
+          <svg viewBox="0 0 100 100" id="clock" role="application"
+               aria-label="Clock. Drag the hour and minute hands, or use the Hour and Minutes buttons below.">
+            <circle class="dial" cx="50" cy="50" r="45.5"></circle>
+            <g id="ticks"></g>
+            <g id="hnums"></g>
+            <g id="mnums"></g>
+            <g class="ghost" id="ghost">
+              <line class="stick" id="ghr" x1="50" y1="50" x2="50" y2="27"></line>
+              <line class="stick" id="gmn" x1="50" y1="50" x2="50" y2="14"></line>
+            </g>
+            <g class="hand mn" id="handMn" tabindex="0" role="slider" aria-label="Minute hand"
+               aria-valuemin="0" aria-valuemax="55" aria-valuenow="0">
+              <line class="halo" x1="50" y1="50" x2="50" y2="13" stroke="transparent" stroke-width="16"></line>
+              <line class="stick" x1="50" y1="50" x2="50" y2="15"></line>
+              <circle class="grip" cx="50" cy="14" r="6.2"></circle>
+            </g>
+            <g class="hand hr" id="handHr" tabindex="0" role="slider" aria-label="Hour hand"
+               aria-valuemin="1" aria-valuemax="12" aria-valuenow="12">
+              <line class="halo" x1="50" y1="50" x2="50" y2="26" stroke="transparent" stroke-width="14"></line>
+              <line class="stick" x1="50" y1="50" x2="50" y2="29"></line>
+              <circle class="grip" cx="50" cy="27" r="7"></circle>
+            </g>
+            <circle class="pin" cx="50" cy="50" r="3.4"></circle>
+          </svg>
+        </div>
+
+        <div class="handkey">
+          <span><i class="h"></i> short&nbsp;=&nbsp;<b>hour</b></span>
+          <span><i class="m"></i> long&nbsp;=&nbsp;<b>minutes</b></span>
+        </div>
+
+        <div class="steppers">
+          <div class="step">
+            <button type="button" id="hDown" aria-label="Hour back">−</button>
+            <label>Hour</label>
+            <button type="button" id="hUp" aria-label="Hour forward">+</button>
+          </div>
+          <div class="step" id="mStep">
+            <button type="button" id="mDown" aria-label="Minutes back">−</button>
+            <label>Minutes</label>
+            <button type="button" id="mUp" aria-label="Minutes forward">+</button>
+          </div>
+        </div>
+
+        <div class="actions">
+          <button class="btn big" id="btnCheck">Check the time</button>
+          <button class="btn ghost" id="btnHint">Show me</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="veil" id="veil"><div class="sheet" id="sheet"></div></div>
+</div>
+
+<script>
+/* =====================================================================
+   SET THE CLOCK — an IGAA Parlor mini game.
+   The Parlor deck runs 9AM–3PM (including NOON); this game uses those
+   same appointment times at Easy, then opens up to the whole clock as
+   the levels go on. Kids drag the hour and minute hands (or tap the
+   +/- steppers) to show the time written on the appointment card.
+   ===================================================================== */
+"use strict";
+
+const $ = id => document.getElementById(id);
+
+/* ---- levels ------------------------------------------------------- */
+const LEVELS = [
+  { id:"easy", name:"Easy",  step:60, hours:[9,10,11,12,1,2,3], minuteHelp:false,
+    blurb:"O'clock times from the Parlor deck — 9AM to 3PM." },
+  { id:"med",  name:"Medium", step:30, hours:null, minuteHelp:true,
+    blurb:"O'clock and half past, anywhere on the clock." },
+  { id:"hard", name:"Hard",  step:5,  hours:null, minuteHelp:true,
+    blurb:"Every five minutes — past and to the hour." },
+];
+const ROUND = 6;            // appointments in a day
+const START_STARS = 3;
+
+const COLORS = ["blue","yellow","green","orange"];
+const INK = { blue:"#2f6fc0", yellow:"#c99105", green:"#2f9e4f", orange:"#e2701c" };
+
+/* ---- state -------------------------------------------------------- */
+let level = LEVELS[0];
+let day = [];        // the 6 appointments
+let idx = 0;         // which appointment we're on
+let stars = START_STARS;
+let score = 0, kept = 0, results = [];
+let hour = 12, minute = 0;   // what the player has set (hour 1..12)
+let locked = false;
+
+try { const s = localStorage.getItem("igaa-clock-level");
+      if (s) level = LEVELS.find(l => l.id === s) || LEVELS[0]; } catch (e) {}
+
+/* ---- time helpers ------------------------------------------------- */
+const ONES = ["twelve","one","two","three","four","five","six","seven","eight","nine","ten","eleven"];
+const hourWord = h => ONES[h % 12];
+const MINWORD = { 5:"five", 10:"ten", 15:"quarter", 20:"twenty", 25:"twenty-five", 30:"half" };
+
+function inWords(h, m, pm) {
+  if (m === 0) return (h === 12 && pm) ? "noon" : hourWord(h) + " o'clock";
+  const next = h === 12 ? 1 : h + 1;
+  if (m <= 30) return MINWORD[m] + " past " + hourWord(h);
+  return MINWORD[60 - m] + " to " + hourWord(next);
+}
+const two = n => (n < 10 ? "0" : "") + n;
+const digits = (h, m) => h + ":" + two(m);
+function partOfDay(h, m, pm) {
+  if (h === 12 && m === 0 && pm) return "NOON";
+  const h24 = pm ? (h === 12 ? 12 : h + 12) : (h === 12 ? 0 : h);
+  return h24 < 12 ? "MORNING" : h24 < 17 ? "AFTERNOON" : "EVENING";
+}
+
+/* ---- build a day of appointments ---------------------------------- */
+const pick = a => a[Math.floor(Math.random() * a.length)];
+
+function makeAppt(prev) {
+  for (let guard = 0; guard < 40; guard++) {
+    let h, pm, m;
+    if (level.hours) {                       // Easy: straight from the deck
+      h = pick(level.hours); m = 0;
+      pm = (h === 12) ? true : (h >= 9 && h <= 11 ? false : true);
+    } else {
+      h = 1 + Math.floor(Math.random() * 12);
+      pm = Math.random() < 0.5;
+      const steps = 60 / level.step;
+      m = Math.floor(Math.random() * steps) * level.step;
+    }
+    if (!prev || prev.h !== h || prev.m !== m) {
+      return { h, m, pm, color: pick(COLORS) };
+    }
+  }
+  return { h: 3, m: 0, pm: true, color: "blue" };
+}
+function newDay() {
+  day = []; let prev = null;
+  for (let i = 0; i < ROUND; i++) { const a = makeAppt(prev); day.push(a); prev = a; }
+  idx = 0; score = 0; kept = 0; results = []; locked = false;
+  resetHands();
+  render();
+}
+function resetHands() {
+  // always start somewhere that isn't the answer, so there's something to do
+  const a = day[idx];
+  hour = a ? (a.h % 12) + 1 : 12;
+  minute = 0;
+  if (a && hour === a.h && minute === a.m) hour = (hour % 12) + 1;
+  stars = START_STARS;
+}
+
+/* ---- the clock face ----------------------------------------------- */
+(function buildFace() {
+  let t = "", hn = "", mn = "";
+  for (let i = 0; i < 60; i++) {
+    const big = i % 5 === 0, a = (i * 6 - 90) * Math.PI / 180;
+    const r1 = big ? 38.5 : 40.5, r2 = 43.5;
+    t += `<line class="tick${big ? " big" : ""}" x1="${(50 + r1 * Math.cos(a)).toFixed(2)}" y1="${(50 + r1 * Math.sin(a)).toFixed(2)}"
+           x2="${(50 + r2 * Math.cos(a)).toFixed(2)}" y2="${(50 + r2 * Math.sin(a)).toFixed(2)}"></line>`;
+  }
+  for (let h = 1; h <= 12; h++) {
+    const a = (h * 30 - 90) * Math.PI / 180;
+    hn += `<text class="hnum" x="${(50 + 32.5 * Math.cos(a)).toFixed(2)}" y="${(50 + 32.5 * Math.sin(a)).toFixed(2)}">${h}</text>`;
+    const m = h * 5, am = (m * 6 - 90) * Math.PI / 180;
+    mn += `<text class="mnum" x="${(50 + 47.5 * Math.cos(am)).toFixed(2)}" y="${(50 + 47.5 * Math.sin(am)).toFixed(2)}">${two(m % 60)}</text>`;
+  }
+  $("ticks").innerHTML = t; $("hnums").innerHTML = hn; $("mnums").innerHTML = mn;
+})();
+
+const hourAngle   = (h, m) => (h % 12) * 30 + m * 0.5;
+const minuteAngle = m => m * 6;
+
+function drawHands() {
+  $("handHr").style.transform = `rotate(${hourAngle(hour, minute)}deg)`;
+  $("handMn").style.transform = `rotate(${minuteAngle(minute)}deg)`;
+  $("handHr").setAttribute("aria-valuenow", hour);
+  $("handHr").setAttribute("aria-valuetext", hour + " o'clock");
+  $("handMn").setAttribute("aria-valuenow", minute);
+  $("handMn").setAttribute("aria-valuetext", minute + " minutes");
+}
+
+
+/* ---- dragging ------------------------------------------------------ */
+function angleAt(ev) {
+  const r = $("clockwrap").getBoundingClientRect();
+  const dx = ev.clientX - (r.left + r.width / 2);
+  const dy = ev.clientY - (r.top + r.height / 2);
+  let deg = Math.atan2(dx, -dy) * 180 / Math.PI;   // 0 = 12 o'clock, clockwise
+  return (deg + 360) % 360;
+}
+function grab(el, onMove) {
+  el.addEventListener("pointerdown", e => {
+    if (locked) return;
+    e.preventDefault();
+    el.setPointerCapture(e.pointerId);
+    el.classList.add("drag");
+    onMove(angleAt(e));
+    const move = ev => onMove(angleAt(ev));
+    const up = ev => {
+      el.classList.remove("drag");
+      el.removeEventListener("pointermove", move);
+      el.removeEventListener("pointerup", up);
+      el.removeEventListener("pointercancel", up);
+      say("");
+    };
+    el.addEventListener("pointermove", move);
+    el.addEventListener("pointerup", up);
+    el.addEventListener("pointercancel", up);
+  });
+}
+grab($("handHr"), deg => {
+  // the hour hand sits a little past the number as the minutes tick on —
+  // take that offset off before snapping, so the grab feels honest
+  const raw = (deg - minute * 0.5 + 360) % 360;
+  let h = Math.round(raw / 30) % 12;
+  setTime(h === 0 ? 12 : h, minute);
+});
+grab($("handMn"), deg => {
+  const m = (Math.round(deg / 6 / level.step) * level.step) % 60;
+  setTime(hour, m);
+});
+
+function setTime(h, m) {
+  hour = h; minute = m;
+  hideGhost();
+  drawHands();
+}
+
+/* ---- steppers ------------------------------------------------------ */
+$("hUp").onclick   = () => { if (!locked) setTime(hour === 12 ? 1 : hour + 1, minute); };
+$("hDown").onclick = () => { if (!locked) setTime(hour === 1 ? 12 : hour - 1, minute); };
+$("mUp").onclick   = () => { if (!locked) setTime(hour, (minute + level.step) % 60); };
+$("mDown").onclick = () => { if (!locked) setTime(hour, (minute - level.step + 60) % 60); };
+
+// arrow keys on a focused hand
+$("handHr").addEventListener("keydown", e => keyHand(e, true));
+$("handMn").addEventListener("keydown", e => keyHand(e, false));
+function keyHand(e, isHour) {
+  if (locked) return;
+  const up = e.key === "ArrowUp" || e.key === "ArrowRight";
+  const dn = e.key === "ArrowDown" || e.key === "ArrowLeft";
+  if (!up && !dn) return;
+  e.preventDefault();
+  if (isHour) setTime(up ? (hour === 12 ? 1 : hour + 1) : (hour === 1 ? 12 : hour - 1), minute);
+  else setTime(hour, (minute + (up ? level.step : 60 - level.step)) % 60);
+}
+
+/* ---- hint ---------------------------------------------------------- */
+let ghostTimer = 0;
+function hideGhost() { $("ghost").classList.remove("show"); clearTimeout(ghostTimer); }
+$("btnHint").onclick = () => {
+  if (locked) return;
+  const a = day[idx]; if (!a) return;
+  $("ghr").setAttribute("transform", `rotate(${hourAngle(a.h, a.m)} 50 50)`);
+  $("gmn").setAttribute("transform", `rotate(${minuteAngle(a.m)} 50 50)`);
+  $("ghost").classList.add("show");
+  if (stars > 1) stars--;                 // a peek costs a star
+  paintStars();
+  say("That's where the hands go — now move them there yourself.");
+  clearTimeout(ghostTimer);
+  ghostTimer = setTimeout(hideGhost, 2200);
+};
+
+/* ---- check --------------------------------------------------------- */
+$("btnCheck").onclick = () => {
+  if (locked) return;
+  const a = day[idx];
+  const okH = hour === a.h, okM = minute === a.m;
+  if (okH && okM) return win();
+
+  $("clockwrap").classList.add("wrong");
+  setTimeout(() => $("clockwrap").classList.remove("wrong"), 420);
+  if (stars > 1) stars--;
+  paintStars();
+  if (!okH && !okM) say("Not yet — check both hands. The short one picks the hour.", "no");
+  else if (!okH) say(hour + " o'clock isn't it — move the SHORT hand.", "no");
+  else say("Minutes aren't right yet — move the LONG hand.", "no");
+};
+
+function win() {
+  locked = true;
+  kept++; score += stars;
+  results[idx] = stars;
+  $("clockwrap").classList.add("right");
+  $("cardslot").classList.add("kept");
+  confetti();
+  say(["Spot on!", "Nice reading!", "You kept it!", "Right on time!"][Math.floor(Math.random() * 4)], "ok");
+  renderPips();
+  setTimeout(() => {
+    $("clockwrap").classList.remove("right");
+    $("cardslot").classList.remove("kept");
+    idx++;
+    locked = false;
+    if (idx >= ROUND) return finish();
+    resetHands();
+    render();
+  }, 1250);
+}
+
+function finish() {
+  const max = ROUND * START_STARS;
+  const grade = score === max ? "Perfect day!" : score >= max * 0.75 ? "Great day!"
+              : score >= max * 0.5 ? "Good job!" : "Keep practising!";
+  $("sheet").innerHTML = `
+    <h2>${grade}</h2>
+    <p>You kept <b>${kept}</b> of ${ROUND} appointments on the <b>${level.name}</b> clock.</p>
+    <div class="tally">
+      <div><b>${kept}/${ROUND}</b><span>Kept</span></div>
+      <div><b>${score}</b><span>Stars</span></div>
+      <div><b>${max}</b><span>Possible</span></div>
+    </div>
+    <p style="text-align:center">${"★".repeat(Math.min(score, 30))}</p>
+    <div class="row">
+      <a class="btn ghost" href="index.html" data-no-confirm>← Parlor</a>
+      <button class="btn" id="again">Another day</button>
+    </div>`;
+  $("veil").classList.add("on");
+  $("again").onclick = () => { $("veil").classList.remove("on"); newDay(); };
+}
+
+/* ---- render -------------------------------------------------------- */
+function say(msg, kind) {
+  const h = $("hint");
+  h.textContent = msg || (level.step === 60
+    ? "Drag the SHORT hand to the hour."
+    : "Drag the SHORT hand to the hour, the LONG hand to the minutes.");
+  h.className = "hint" + (kind ? " " + kind : "");
+}
+function paintStars() {
+  $("stars").innerHTML = [0, 1, 2].map(i => `<i class="${i < stars ? "on" : ""}">★</i>`).join("");
+}
+function renderPips() {
+  $("pips").innerHTML = day.map((_, i) => {
+    const cls = i < idx ? (results[i] ? "won" : "miss") : i === idx ? "now" : "";
+    return `<i class="${cls}"></i>`;
+  }).join("");
+}
+function render() {
+  const a = day[idx]; if (!a) return;
+  document.documentElement.style.setProperty("--cc", INK[a.color]);
+  $("phase").textContent = `Appointment ${idx + 1} of ${ROUND}`;
+  $("cardslot").innerHTML =
+    `<div class="card appt" data-color="${a.color}">
+       <div class="idx">${digits(a.h, a.m)} ${a.pm ? "PM" : "AM"}</div>
+       <div class="mid"><div class="big">${digits(a.h, a.m)}</div>
+         <div class="words">${inWords(a.h, a.m, a.pm)}</div></div>
+       <div class="idx bottom">${partOfDay(a.h, a.m, a.pm)}</div>
+     </div><div class="stamp">Kept!</div>`;
+  $("mStep").style.display = level.step === 60 ? "none" : "";
+  document.querySelectorAll(".mnum").forEach(n => n.classList.toggle("hide", !level.minuteHelp));
+  paintStars(); renderPips(); drawHands(); say("");
+  requestAnimationFrame(window.__igaaFit || fitBoard);
+}
+
+/* ---- levels UI ------------------------------------------------------ */
+function renderLevels() {
+  $("levels").innerHTML = LEVELS.map(l =>
+    `<button type="button" data-lv="${l.id}" aria-pressed="${l.id === level.id}">${l.name}</button>`).join("");
+}
+$("levels").addEventListener("click", e => {
+  const b = e.target.closest("button[data-lv]"); if (!b) return;
+  level = LEVELS.find(l => l.id === b.dataset.lv);
+  try { localStorage.setItem("igaa-clock-level", level.id); } catch (err) {}
+  renderLevels(); newDay();
+});
+
+/* ---- help ----------------------------------------------------------- */
+$("btnHelp").onclick = () => {
+  $("sheet").innerHTML = `
+    <h2>How to play</h2>
+    <p>An appointment card shows a time. Move the clock hands to show that time,
+       then press <b>Check the time</b>.</p>
+    <ul>
+      <li>The <b>short</b> hand points at the <b>hour</b>.</li>
+      <li>The <b>long</b> hand points at the <b>minutes</b>.</li>
+      <li>Drag a hand by its round grip, or tap the <b>−</b> and <b>+</b> buttons.</li>
+      <li>Every appointment starts with ★★★. A wrong guess or a peek costs one star
+          (you always keep at least one).</li>
+      <li>Six appointments make a day. Keep them all for a perfect day.</li>
+    </ul>
+    <p><b>Levels.</b> ${LEVELS.map(l => `<b>${l.name}</b> — ${l.blurb}`).join("<br>")}</p>
+    <div class="row"><button class="btn" id="closeHelp">Got it</button></div>`;
+  $("veil").classList.add("on");
+  $("closeHelp").onclick = () => $("veil").classList.remove("on");
+};
+$("veil").addEventListener("click", e => { if (e.target === $("veil")) $("veil").classList.remove("on"); });
+$("btnNew").onclick = () => { $("veil").classList.remove("on"); newDay(); };
+
+/* ---- confetti -------------------------------------------------------- */
+function confetti() {
+  if (matchMedia("(prefers-reduced-motion:reduce)").matches) return;
+  const box = $("confetti"), r = $("clockwrap").getBoundingClientRect(), f = box.getBoundingClientRect();
+  const cx = r.left - f.left + r.width / 2, cy = r.top - f.top + r.height / 2;
+  let html = "";
+  for (let i = 0; i < 26; i++) {
+    const c = [INK.blue, INK.yellow, INK.green, INK.orange, "#e4c883"][i % 5];
+    html += `<i style="left:${cx}px; top:${cy}px; background:${c};
+      --dx:${(Math.random() * 300 - 150).toFixed(0)}px; --rot:${(Math.random() * 720 - 360).toFixed(0)}deg;
+      animation-delay:${(Math.random() * .18).toFixed(2)}s"></i>`;
+  }
+  box.innerHTML = html;
+  setTimeout(() => { box.innerHTML = ""; }, 1600);
+}
+
+/* ---- fit the board to the viewport (no scrolling, ever) -------------- */
+function fitBoard() {
+  const H = sel => { const e = document.querySelector(sel); return e ? e.getBoundingClientRect().height : 0; };
+  const felt = document.querySelector(".felt");
+  if (!felt) return;
+  const box = felt.getBoundingClientRect();
+  const wide = window.innerWidth > 760;
+
+  // card first — it shares the row on wide screens, stacks above on narrow
+  const cw = Math.max(76, Math.min(128, box.width * (wide ? 0.17 : 0.22), box.height * 0.3));
+  document.documentElement.style.setProperty("--card-w", cw + "px");
+  document.documentElement.style.setProperty("--card-h", (cw * 1.42) + "px");
+
+  const chrome = H(".prompt") + H(".pips") + H(".handkey") + H(".steppers") + H(".actions")
+               + (wide ? 0 : H(".cardpane")) + 64;
+  const byH = box.height - chrome;
+  const byW = wide ? box.width - cw * 1.6 - 90 : box.width - 24;
+  const d = Math.max(170, Math.min(430, byH, byW));
+  document.documentElement.style.setProperty("--clk", d + "px");
+}
+
+/* ---- go -------------------------------------------------------------- */
+renderLevels();
+newDay();
+</script>
+<script src="cards.js?v=10"></script>
+<script>window.__igaaFit = fitBind(fitBoard);</script>
+<script src="parlor-nav.js?v=2"></script>
+</body>
+</html>

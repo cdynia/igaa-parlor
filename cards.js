@@ -57,15 +57,20 @@
       '<circle cx="' + cx + '" cy="' + cy + '" r="' + (r * 0.17).toFixed(2) + '" fill="' + INK.trumpetHi + '"/>';
   }
 
-  // --- Fall: one maple leaf, drawn tip-up in the full 100x100 box ---
+  /* --- Fall: one maple leaf, tip-up in the 100x100 box.
+     Five lobes with a tooth on each edge, a deep V between them and a
+     stem — the silhouette of the printed leaf. Kept deliberately bold
+     (few, large teeth) so it still reads as a maple leaf when it is
+     only ~25px across on a phone. --- */
   var MAPLE =
-    '<path d="M50 4 L55.5 21 L65 14 L62.5 29 L77 24 L70.5 37 L89 35 L75.5 47 L92 57 L72 59 ' +
-    'L76.5 75 L57.5 67.5 L55.5 84 L52.5 86 L52.5 99 L47.5 99 L47.5 86 L44.5 84 L42.5 67.5 ' +
-    'L23.5 75 L28 59 L8 57 L24.5 47 L11 35 L29.5 37 L23 24 L37.5 29 L35 14 L44.5 21 Z" ' +
-    'fill="' + INK.leaf + '" stroke="' + INK.leafEdge + '" stroke-width="3.2" stroke-linejoin="round"/>' +
-    '<g stroke="' + INK.leafVein + '" stroke-width="1.8" fill="none" stroke-linecap="round">' +
-    '<path d="M50 80 L50 22"/><path d="M50 64 L72 42"/><path d="M50 64 L28 42"/>' +
-    '<path d="M50 72 L79 56"/><path d="M50 72 L21 56"/></g>';
+    '<path d="M50 5 L57 24 L54 30 L64 40 L72 29 L71 34 L82 20 L75 42 L78 46 L73 53 ' +
+    'L84 48 L83 53 L93 54 L72 64 L76 70 L60 70 L53 76 L53 97 L47 97 L47 76 L40 70 ' +
+    'L24 70 L28 64 L7 54 L17 53 L16 48 L27 53 L22 46 L25 42 L18 20 L29 34 L28 29 ' +
+    'L36 40 L46 30 L43 24 Z" ' +
+    'fill="' + INK.leaf + '" stroke="' + INK.leafEdge + '" stroke-width="2.6" stroke-linejoin="round"/>' +
+    '<g stroke="' + INK.leafVein + '" stroke-width="2" fill="none" stroke-linecap="round" opacity=".85">' +
+    '<path d="M50 74 L50 14"/><path d="M50 70 L78 27"/><path d="M50 70 L22 27"/>' +
+    '<path d="M50 72 L87 53"/><path d="M50 72 L13 53"/></g>';
   function maple(tx, ty, s, rot) {
     return '<g transform="translate(' + tx + ' ' + ty + ') scale(' + s + ') rotate(' + rot + ' 50 50)">' + MAPLE + "</g>";
   }
@@ -100,7 +105,8 @@
       '<path d="M52 46 L59 33 M59 33 L67 28 M59 33 L58 23"/>' +
       '<path d="M50 40 L50 21 M50 27 L43 19 M50 25 L58 17"/></g>'),
 
-    Fall: svgIcon(maple(1, 0, 0.56, -20) + maple(43, 40, 0.56, 14))
+    // two leaves on a diagonal, as printed: upper-left and lower-right
+    Fall: svgIcon(maple(-4, -3, 0.63, -22) + maple(41, 36, 0.63, 13))
   };
 
   var CLOCK_NUMS = [[50,9,12],[71,14,1],[86,29,2],[91,50,3],[86,71,4],[71,86,5],[50,91,6],[29,86,7],[14,71,8],[9,50,9],[14,29,10],[29,14,11]];
