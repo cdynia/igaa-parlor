@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="season-art.js?v=1"></script>
 <style>
 :root{
   --table-1:#16222e; --table-2:#0c141c;
@@ -195,7 +196,7 @@ select.bm{background:#0f1720; color:var(--muted-2); border:1px solid var(--line-
 @media (max-width:520px){ .brand .sub{display:none} .tools .btn{padding:.5em .7em; font-size:.8rem} .brand h1{font-size:1.02rem} }
 @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} }
 </style>
-<link rel="stylesheet" href="cards.css?v=10">
+<link rel="stylesheet" href="cards.css?v=11">
 </head>
 <body>
 <div id="app">
@@ -336,12 +337,9 @@ const ARMS={
   Winter:{color:"blue",   top:["triangle","moon","moon","oval"],  left:["heart","diamond","cube","circle","star","oval"],       right:["star","circle","cube","diamond","heart","triangle"], enter:6},
 };
 const RING_COLOR=["yellow","green","green","orange","orange","blue","blue","yellow"]; // clockwise from 12 o'clock
-const ICON_INNER={
-  Winter:'<g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"><path d="M12 2v20M3.3 7l17.4 10M20.7 7L3.3 17"/><path d="M12 5.4l-2.1-1.2M12 5.4l2.1-1.2M12 18.6l-2.1 1.2M12 18.6l2.1 1.2M4.9 8.7l.1 2.4M4.9 8.7l-2.1.4M19.1 15.3l-.1-2.4M19.1 15.3l2.1-.4M4.9 15.3l-2.1-.4M4.9 15.3l.1-2.4M19.1 8.7l2.1.4M19.1 8.7l-.1 2.4"/></g>',
-  Spring:'<g fill="none" stroke="#4a9d4a" stroke-width="1.6" stroke-linecap="round"><path d="M12 22C9 18.5 8 14 11 10"/><path d="M12 22C15 18.5 16 14 13 10"/></g><g fill="currentColor"><ellipse cx="12" cy="4" rx="1.7" ry="2.9"/><ellipse cx="12" cy="4" rx="1.7" ry="2.9" transform="rotate(72 12 8)"/><ellipse cx="12" cy="4" rx="1.7" ry="2.9" transform="rotate(144 12 8)"/><ellipse cx="12" cy="4" rx="1.7" ry="2.9" transform="rotate(216 12 8)"/><ellipse cx="12" cy="4" rx="1.7" ry="2.9" transform="rotate(288 12 8)"/></g><circle cx="12" cy="8" r="2.1" fill="#e0a400"/>',
-  Summer:'<rect x="11" y="15" width="2" height="6.5" rx=".9" fill="#8a5a2b"/><g fill="currentColor"><circle cx="8" cy="10.5" r="3.7"/><circle cx="16" cy="10.5" r="3.7"/><circle cx="12" cy="7.5" r="4.6"/><circle cx="12" cy="12" r="4.3"/></g>',
-  Fall:'<path d="M12 21.5v-3.1l3 .7-1-2.5 3.3.4-1.9-2.2 3.1-.9-2.6-1.6 2.3-1.9-3 .2 1-3-2.5 1.8L12 2.6l-1.5 3.5-2.5-1.8 1 3-3-.2 2.3 1.9-2.6 1.6 3.1.9-1.9 2.2 3.3-.4-1 2.5 3-.7v3.1z" fill="currentColor"/>',
-};
+/* Season motifs come from the shared season-art.js (loaded in <head>) —
+   one copy of the printed deck art for every game, board and card. */
+const ICON_INNER={Winter:seasonIconInner("Winter"), Spring:seasonIconInner("Spring"), Summer:seasonIconInner("Summer"), Fall:seasonIconInner("Fall")};
 /* shape glyphs, drawn in a box centered on (0,0), radius ~3.2 */
 function shapeSVG(shape, fill, stroke="#2b2f36", sw=.45){
   const a=`fill="${fill}" stroke="${stroke}" stroke-width="${sw}" stroke-linejoin="round"`;
@@ -403,7 +401,7 @@ function boardSVG(){
     s+=`<rect x="${ax}" y="${ay}" width="${aw}" height="${ah}" fill="${FILL[arm.color]}" fill-opacity=".08" stroke="#b9b2a2" stroke-width=".25"/>`;
     for(let k=0;k<3;k++){
       const t=(k+.5)/3; const isz=Math.min(aw,ah)*.62; const icx= aw>ah ? ax+aw*t : ax+aw/2, icy = aw>ah ? ay+ah/2 : ay+ah*t;
-      s+=`<svg x="${icx-isz/2}" y="${icy-isz/2}" width="${isz}" height="${isz}" viewBox="0 0 24 24" style="color:${INK[arm.color]}">${ICON_INNER[season]}</svg>`;
+      s+=`<svg x="${icx-isz/2}" y="${icy-isz/2}" width="${isz}" height="${isz}" viewBox="0 0 100 100" style="color:${INK[arm.color]}">${ICON_INNER[season]}</svg>`;
     }
   }
   // cells
@@ -895,7 +893,7 @@ function chips(id, items, key, after){ const w=$(id); w.innerHTML=""; for(const 
 function seasonPick(){
   const w=$("#sPick"); w.innerHTML="";
   for(const s of ALL_SEASONS){ const c=SEASON_COLOR[s]; const b=document.createElement("button"); b.className="spick"+(cfg.season===s?" sel":""); b.dataset.c=c;
-    b.innerHTML=`<svg class="sic" viewBox="0 0 24 24">${ICON_INNER[s]}</svg>${s}<small>${WORD[c]}</small>`; b.onclick=()=>{cfg.season=s; seasonPick();}; w.appendChild(b); }
+    b.innerHTML=`<svg class="sic" viewBox="0 0 100 100">${ICON_INNER[s]}</svg>${s}<small>${WORD[c]}</small>`; b.onclick=()=>{cfg.season=s; seasonPick();}; w.appendChild(b); }
 }
 function boot(){
   $("#spinner").innerHTML=spinnerSVG();
@@ -918,7 +916,7 @@ function boot(){
   else { newGame(cfg.players,cfg.season,cfg.mode,cfg.birth,{noLoop:true}); setPrompt("Level 1 Seasons","Pick your season to begin."); }
 }
 </script>
-<script src="cards.js?v=10"></script>
+<script src="cards.js?v=11"></script>
 <script>window.__igaaFit = fitBind(fitBoard); boot();</script>
 <script src="parlor-nav.js?v=2"></script>
 </body>

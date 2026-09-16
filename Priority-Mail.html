@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="season-art.js?v=1"></script>
 <style>
 :root{
   --table-1:#16222e; --table-2:#0c141c; --paper:#f4efe3;
@@ -221,7 +222,7 @@ table.score td.neg{color:var(--coral)}
 
  *{animation-duration:.001ms!important; transition-duration:.001ms!important} }
 </style>
-<link rel="stylesheet" href="cards.css?v=10">
+<link rel="stylesheet" href="cards.css?v=11">
 </head>
 <body>
 <div id="app">
@@ -1183,7 +1184,7 @@ function bootFromHash(){
   m=h.match(/^#uitest-(I|II|III|IV|V)$/); if(m){ uitest(m[1]); return; }
 }
 </script>
-<script src="cards.js?v=10"></script>
+<script src="cards.js?v=11"></script>
 <script>/* fallback GNBN face if a stale cards.js (without gnbnFaceHTML) is served */
 if(!window.gnbnFaceHTML){ var __baseFace=window.cardFaceHTML; window.cardFaceHTML=function(c,x){ if(c&&c.cat==="gnbn"){ var t=c.target||{}; return '<div class="card gnbn '+(x||"")+'" data-color="gnbn" data-cat="gnbn" data-kind="'+c.kind+'"><div class="idx">'+(c.kind==="ask"?"ASK FOR":"LOSE")+'</div><div class="mid"><b style="font-family:Fraunces,Georgia,serif;font-size:calc(var(--card-h)*.1);text-align:center;color:#2f7f7a">'+(t.short||"")+'</b></div><div class="idx bottom">'+(c.pts!=null?c.pts+" PTS":"GN · BN")+'</div></div>'; } return __baseFace(c,x); }; }
 window.__pmFit = fitBind(fitBoard);

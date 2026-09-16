@@ -15,6 +15,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101a24'/%3E%3Crect x='12' y='14' width='9' height='12' rx='2' fill='%233d78bf'/%3E%3Crect x='22' y='14' width='9' height='12' rx='2' fill='%23e6b23a'/%3E%3Crect x='32' y='14' width='9' height='12' rx='2' fill='%2345a06a'/%3E%3Crect x='42' y='14' width='9' height='12' rx='2' fill='%23cf7620'/%3E%3Ctext x='32' y='47' font-family='Georgia' font-size='19' fill='%23e6d2a0' text-anchor='middle' font-weight='700'%3EIGAA%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="season-art.js?v=1"></script>
 <style>
 :root{
   --table-1:#16222e; --table-2:#0c141c; --paper:#f4efe3;
@@ -88,8 +89,7 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 .card .mid{position:relative; display:flex; align-items:center; justify-content:center; min-height:0; overflow:hidden}
 .card .vword{font-family:"Fraunces",serif; font-weight:600; writing-mode:vertical-rl; text-orientation:upright; font-size:.72rem; color:var(--cc); z-index:2; line-height:.86}
 .card .vword.small{font-size:.58rem}
-.card .art{position:absolute; inset:0; display:flex; flex-wrap:wrap; align-content:center; justify-content:center; gap:1px 3px; padding:2px; z-index:1; pointer-events:none}
-.card .art span{font-size:.8rem; line-height:1}
+/* season motif grid lives in the shared cards.css */
 /* clock for time cards — styled by the shared cards.css (single source of truth) */
 .card[data-color=blue]{--cc:var(--ink-blue)} .card[data-color=yellow]{--cc:var(--ink-gold)}
 .card[data-color=green]{--cc:var(--ink-green)} .card[data-color=orange]{--cc:var(--ink-orange)}
@@ -180,7 +180,7 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 @media (max-width:420px){ .piles{gap:14px} .felt{padding:16px 8px} }
 @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} }
 </style>
-<link rel="stylesheet" href="cards.css?v=10">
+<link rel="stylesheet" href="cards.css?v=11">
 </head>
 <body>
 <div id="app">
@@ -274,10 +274,10 @@ h1,h2,h3{font-family:"Fraunces","Georgia",serif; margin:0; color:var(--paper); f
 "use strict";
 /* ===================== DATA ===================== */
 const SEASONS=[
-  {color:"blue",   name:"Winter", art:"❄",  months:["December","January","February"]},
-  {color:"yellow", name:"Spring", art:"🌼", months:["March","April","May"]},
-  {color:"green",  name:"Summer", art:"☀",  months:["June","July","August"]},
-  {color:"orange", name:"Fall",   art:"🍁", months:["September","October","November"]},
+  {color:"blue",   name:"Winter",  months:["December","January","February"]},
+  {color:"yellow", name:"Spring", months:["March","April","May"]},
+  {color:"green",  name:"Summer",  months:["June","July","August"]},
+  {color:"orange", name:"Fall",   months:["September","October","November"]},
 ];
 const COLORS=["blue","yellow","green","orange"];
 const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -297,7 +297,7 @@ function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random
 function buildAppointmentCards(){
   const d=[];
   for(const s of SEASONS){
-    for(const m of s.months) d.push({id:++UID,cat:"season",color:s.color,season:s.name,art:s.art,value:m,valAbbr:m.slice(0,3).toUpperCase()});
+    for(const m of s.months) d.push({id:++UID,cat:"season",color:s.color,season:s.name,value:m,valAbbr:m.slice(0,3).toUpperCase()});
     for(const dy of DAYS) d.push({id:++UID,cat:"day",color:s.color,season:s.name,value:dy,valAbbr:DAY_ABBR[dy],kind:WEEKEND.includes(dy)?"WEEKEND":"WEEKDAY"});
     for(const t of TIMES) d.push({id:++UID,cat:"time",color:s.color,season:s.name,value:t.label,ap:t.ap,hr:t.hr});
   }
@@ -616,7 +616,7 @@ function cardFaceHTML(c,extra=""){
       <div class="mid"><div class="big">✉</div></div><div class="end flip2">MAIL</div></div>`;
   }
   let label, mid;
-  if(c.cat==="season"){ label=c.value.toUpperCase(); const art=Array.from({length:9}).map(()=>`<span>${c.art}</span>`).join("");
+  if(c.cat==="season"){ label=c.value.toUpperCase(); const art=Array.from({length:6}).map(()=>seasonIcon(c.season)).join("");
     mid=`<div class="art">${art}</div><div class="vword">${c.season.toUpperCase()}</div>`; }
   else if(c.cat==="day"){ label=c.value.toUpperCase(); mid=`<div class="vword ${c.kind==='WEEKEND'?'':'small'}">${c.kind}</div>`; }
   else { label=c.value.toUpperCase(); mid=clockHTML(c.hr); }
@@ -792,7 +792,7 @@ document.getElementById("btnStart").onclick=()=>{ document.getElementById("setup
 document.addEventListener("keydown",e=>{ if(e.key==="Escape") document.getElementById("helpOverlay").hidden=true; });
 buildModes(); buildOpps();
 </script>
-<script src="cards.js?v=10"></script>
+<script src="cards.js?v=11"></script>
 <script>window.__igaaFit = fitBind(fitBoard);</script>
 <script src="parlor-nav.js?v=2"></script>
 </body>

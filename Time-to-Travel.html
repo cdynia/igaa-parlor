@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="season-art.js?v=1"></script>
 <style>
 :root{
   --table-1:#16222e; --table-2:#0c141c;
@@ -257,7 +258,7 @@ button,input,select{font-family:inherit}
 }
 @media (prefers-reduced-motion:reduce){ *{animation-duration:.001ms!important; transition-duration:.001ms!important} }
 </style>
-<link rel="stylesheet" href="cards.css?v=10">
+<link rel="stylesheet" href="cards.css?v=11">
 </head>
 <body>
 <div id="app">
@@ -989,7 +990,7 @@ if(/^#demo/.test(location.hash)){
   window.addEventListener("error",e=>{ const b=document.getElementById("errbox")||document.body.appendChild(Object.assign(document.createElement("div"),{id:"errbox"})); b.textContent+=" "+e.message; });
 }
 </script>
-<script src="cards.js?v=10"></script>
+<script src="cards.js?v=11"></script>
 <script>
 window.__igaaFit = fitBind(fitBoard);
 if(/^#demo/.test(location.hash)){ try{ demo(location.hash.replace("#demo","").replace("-","")); }catch(err){ document.body.insertAdjacentHTML("beforeend",`<div id="errbox">${err.message}</div>`); } }

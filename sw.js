@@ -1,10 +1,11 @@
 /* IGAA Parlor service worker — offline app shell, but fresh-first for pages */
-const CACHE = "igaa-parlor-v13";
+const CACHE = "igaa-parlor-v14";
 const ASSETS = [
   "./",
   "index.html",
   "404.html",
   "offline.html",
+  "season-art.js",
   "cards.css",
   "cards.js",
   "parlor-nav.js",

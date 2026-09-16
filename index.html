@@ -16,6 +16,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23101a24'/%3E%3Crect x='12' y='14' width='9' height='12' rx='2' fill='%233d78bf'/%3E%3Crect x='22' y='14' width='9' height='12' rx='2' fill='%23e6b23a'/%3E%3Crect x='32' y='14' width='9' height='12' rx='2' fill='%2345a06a'/%3E%3Crect x='42' y='14' width='9' height='12' rx='2' fill='%23cf7620'/%3E%3Ctext x='32' y='47' font-family='Georgia' font-size='19' fill='%23e6d2a0' text-anchor='middle' font-weight='700'%3EIGAA%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Archivo:wght@500;600;700;800&display=swap" rel="stylesheet">
+<script src="season-art.js?v=1"></script>
 <style>
 :root{ --paper:#fdfbf5; --ink:#20242b; --muted:#5b6573; --text:#e9edf2; --soft:#b9c6d4; --faint:#8ea0b2;
   --brass:#c9a24a; --brass-hi:#f1d58c; --panel:rgba(10,18,28,.42); --line:rgba(201,162,74,.3); --bar:rgba(14,24,38,.92);
@@ -106,6 +107,10 @@ h1,h2,h3{font-family:"Fraunces",Georgia,serif; font-weight:700; line-height:1.1;
 .season b{display:block; font-family:"Fraunces",Georgia,serif; font-size:1.05rem}
 .season span{font-size:.82rem; color:var(--muted); font-weight:600}
 .season .word{margin-left:auto; font-size:.7rem; font-weight:800; letter-spacing:.08em; color:var(--c)}
+/* the real printed season motif, from the shared season-art.js */
+.sart{display:inline-flex; flex:none; width:34px; height:34px}
+.sart.sm{width:20px; height:20px}
+.sart svg{width:100%; height:100%; display:block}
 .eq{display:flex; align-items:center; flex-wrap:wrap; gap:6px 8px; margin-top:12px; font-weight:800; color:#fff}
 .eq .chip{padding:.35em .8em; border-radius:10px; background:#2f9e4f}
 .eq .op{color:var(--brass-hi)}
@@ -197,7 +202,7 @@ h1,h2,h3{font-family:"Fraunces",Georgia,serif; font-weight:700; line-height:1.1;
         Everything is <b>free</b> and runs right in your browser.
       </p>
       <ul class="skills" aria-label="What kids practice">
-        <li><span aria-hidden="true">🍂</span>Seasons</li>
+        <li><span class="sart sm" data-season="Fall"></span>Seasons</li>
         <li><span aria-hidden="true">🗓️</span>Months</li>
         <li><span aria-hidden="true">📆</span>Days of the week</li>
         <li><span aria-hidden="true">🕘</span>Telling time</li>
@@ -210,10 +215,10 @@ h1,h2,h3{font-family:"Fraunces",Georgia,serif; font-weight:700; line-height:1.1;
       <h2>Every season has a color</h2>
       <p class="lead">Each card also prints its color word at the bottom, so color-blind players can play too.</p>
       <div class="seasons">
-        <div class="season" style="--c:#2f6fc0"><div><b>Winter</b><span>Dec · Jan · Feb</span></div><span class="word">BLUE</span></div>
-        <div class="season" style="--c:#c99105"><div><b>Spring</b><span>Mar · Apr · May</span></div><span class="word">YELLOW</span></div>
-        <div class="season" style="--c:#2f9e4f"><div><b>Summer</b><span>Jun · Jul · Aug</span></div><span class="word">GREEN</span></div>
-        <div class="season" style="--c:#e2701c"><div><b>Fall</b><span>Sep · Oct · Nov</span></div><span class="word">ORANGE</span></div>
+        <div class="season" style="--c:#2f6fc0"><span class="sart" data-season="Winter"></span><div><b>Winter</b><span>Dec · Jan · Feb</span></div><span class="word">BLUE</span></div>
+        <div class="season" style="--c:#c99105"><span class="sart" data-season="Spring"></span><div><b>Spring</b><span>Mar · Apr · May</span></div><span class="word">YELLOW</span></div>
+        <div class="season" style="--c:#2f9e4f"><span class="sart" data-season="Summer"></span><div><b>Summer</b><span>Jun · Jul · Aug</span></div><span class="word">GREEN</span></div>
+        <div class="season" style="--c:#e2701c"><span class="sart" data-season="Fall"></span><div><b>Fall</b><span>Sep · Oct · Nov</span></div><span class="word">ORANGE</span></div>
       </div>
     </div>
 
@@ -350,6 +355,11 @@ $("picks").innerHTML = AGE_GROUPS.map(a => {
   const g = GAMES.find(x => x.file === a.first) || inGroup(a)[0];
   return g ? `<div class="pick" style="--band:${a.band}"><b>${a.label}: <a href="${g.file}">${g.emoji} ${esc(g.name)}</a></b><span>${esc(g.desc)}</span></div>` : "";
 }).join("");
+
+/* ---- the printed season motifs, from the shared season-art.js ---- */
+document.querySelectorAll(".sart[data-season]").forEach(el => {
+  el.innerHTML = window.seasonIcon ? window.seasonIcon(el.dataset.season, "") : "";
+});
 
 /* ---- tabs (hash routing so Back works) ---- */
 const VIEWS = ["games", "how", "parents"];

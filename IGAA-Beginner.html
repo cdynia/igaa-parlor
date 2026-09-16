@@ -16,6 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="season-art.js?v=1"></script>
 <style>
 :root{
   --table-1:#16222e; --table-2:#0c141c; --ink:#141922; --ink-soft:#2a323f;
@@ -153,9 +154,7 @@ button{font-family:inherit}
 }
 .card .vword.small{font-size:.6rem; letter-spacing:0}
 /* seasonal art scattered behind */
-.card .art{position:absolute; inset:0; display:flex; flex-wrap:wrap; align-content:center; justify-content:center;
-  gap:1px 3px; padding:2px 3px; z-index:1; pointer-events:none; opacity:.95}
-.card .art span{font-size:.8rem; line-height:1}
+/* season motif grid lives in the shared cards.css */
 /* clock for time cards — styled by the shared cards.css (single source of truth) */
 .card[data-color=blue]   {--cc:var(--ink-blue)}
 .card[data-color=yellow] {--cc:var(--ink-gold)}
@@ -265,7 +264,7 @@ button{font-family:inherit}
   *{animation-duration:.001ms!important; transition-duration:.001ms!important}
 }
 </style>
-<link rel="stylesheet" href="cards.css?v=10">
+<link rel="stylesheet" href="cards.css?v=11">
 </head>
 <body>
 <div id="app">
@@ -374,10 +373,10 @@ button{font-family:inherit}
 "use strict";
 /* ============================ DATA ============================ */
 const SEASONS = [
-  {color:"blue",   name:"Winter", art:"❄", months:["December","January","February"]},
-  {color:"yellow", name:"Spring", art:"🌼", months:["March","April","May"]},
-  {color:"green",  name:"Summer", art:"☀", months:["June","July","August"]},
-  {color:"orange", name:"Fall",   art:"🍁", months:["September","October","November"]},
+  {color:"blue",   name:"Winter", months:["December","January","February"]},
+  {color:"yellow", name:"Spring", months:["March","April","May"]},
+  {color:"green",  name:"Summer", months:["June","July","August"]},
+  {color:"orange", name:"Fall",   months:["September","October","November"]},
 ];
 const DAYS = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
 const WEEKEND = new Set(["Saturday","Sunday"]);
@@ -392,7 +391,7 @@ let CARD_ID = 0;
 function buildDeck(){
   const deck = [];
   for(const s of SEASONS){
-    for(const m of s.months) deck.push({id:++CARD_ID, cat:"season", color:s.color, season:s.name, art:s.art, value:m, valAbbr:m.slice(0,3).toUpperCase()});
+    for(const m of s.months) deck.push({id:++CARD_ID, cat:"season", color:s.color, season:s.name, value:m, valAbbr:m.slice(0,3).toUpperCase()});
     for(const d of DAYS)     deck.push({id:++CARD_ID, cat:"day",    color:s.color, season:s.name, value:d, valAbbr:DAY_ABBR[d], kind:WEEKEND.has(d)?"WEEKEND":"WEEKDAY"});
     for(const t of TIMES)    deck.push({id:++CARD_ID, cat:"time",   color:s.color, season:s.name, value:t.label, ap:t.ap, hr:t.hr});
   }
@@ -586,7 +585,7 @@ function cardFaceHTML(c, extraClass=""){
   let label, mid;
   if(c.cat==="season"){
     label = c.value.toUpperCase();                 // e.g. DECEMBER
-    const art = Array.from({length:9}).map(()=>`<span>${c.art}</span>`).join("");
+    const art = Array.from({length:6}).map(()=>seasonIcon(c.season)).join("");
     mid = `<div class="art">${art}</div><div class="vword">${c.season.toUpperCase()}</div>`;
   } else if(c.cat==="day"){
     label = c.value.toUpperCase();                 // e.g. FRIDAY
@@ -787,7 +786,7 @@ document.addEventListener("keydown",e=>{ if(e.key==="Escape") closeHelp(); });
 
 buildOppChips();
 </script>
-<script src="cards.js?v=10"></script>
+<script src="cards.js?v=11"></script>
 <script>window.__igaaFit = fitBind(fitBoard);</script>
 <script src="parlor-nav.js?v=2"></script>
 </body>
